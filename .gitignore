@@ -21,3 +21,6 @@ reports/*
 .DS_Store
 .idea/
 .vscode/
+
+#개인 문서
+/SH_docs/
