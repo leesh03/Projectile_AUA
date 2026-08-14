@@ -1,0 +1,14 @@
+# 공용 계약 — 저장소 소유자가 초기 리뷰를 담당합니다.
+/core/schemas/                    @leesh03
+/docs/CONTRACT.md                 @leesh03
+
+# Auditor
+/core/                            @leesh03
+/apps/                            @leesh03
+/fixtures/                        @leesh03
+
+# Testbed — 팀원 GitHub 아이디를 받으면 해당 담당자로 교체합니다.
+/agents/policy_agent/nodes/       @leesh03
+/agents/policy_agent/scaffolds/   @leesh03
+/data/                            @leesh03
+/policies/                        @leesh03
