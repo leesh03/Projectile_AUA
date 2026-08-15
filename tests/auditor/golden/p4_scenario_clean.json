@@ -1,0 +1,19 @@
+{
+  "report_id": "rpt_scenario_clean",
+  "bundle_id": "audit_mock_scenario_clean",
+  "verdict": "PASS",
+  "summary": {
+    "testcase_count": 20,
+    "trials_per_case": 2.0,
+    "success_rate_v1": 1.0,
+    "tool_error_rate_v1": 0.0,
+    "avg_retry_v1": 0.25
+  },
+  "finding_ids": [],
+  "finding_rule_ids": [],
+  "unpaired_testcases": [],
+  "limitations": [
+    "TestCase 20개 · 반복 2회 기준이므로 통계적 일반화는 주장하지 않음",
+    "Trace 데이터가 없어 최초 분기 지점(Trace Diff)과 O-01/O-02 규칙을 확인할 수 없음"
+  ]
+}

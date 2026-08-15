@@ -1,0 +1,117 @@
+# Agent Upgrade Risk Report
+
+| 항목 | 내용 |
+|---|---|
+| report_id | {{ report.report_id }} |
+| bundle_id | {{ report.bundle_id }} |
+| 생성 시각 | {{ report.generated_at }} |
+| **판정** | **{{ verdict_label }}** |
+
+---
+
+## 1. Summary
+
+| 지표 | V0 | V1 | 변화 |
+|---|---|---|---|
+{% for row in summary_rows %}
+| {{ row.label }} | {{ row.v0 }} | {{ row.v1 }} | {{ row.delta }} |
+{% endfor %}
+
+testcase {{ report.summary.testcase_count }}개 · trial {{ trials_per_case_label }}회 기준.
+{% if unpaired_testcases %}
+> ⚠ {{ unpaired_testcases | length }}개 testcase가 baseline/candidate 한쪽에만 있어 위 비교에서 제외됨: {{ unpaired_testcases | join(', ') }}
+{% endif %}
+
+---
+
+## 2. Regression
+
+{% if regression_rows %}
+| Finding | 심각도 | rule_id | 유형 | 영향 케이스 | 내용 | 근거 |
+|---|---|---|---|---|---|---|
+{% for r in regression_rows %}
+| {{ r.finding_id }} | {{ r.severity }} | {{ r.rule_id }} | {{ r.type }} | {{ r.affected_count }}건 ({{ r.affected_preview }}) | {{ r.title }} | {{ r.evidence }} |
+{% endfor %}
+{% for r in regression_rows %}
+{% if r.explanation %}
+
+**{{ r.finding_id }}** — {{ r.explanation }}
+{% endif %}
+{% if r.low_confidence %}
+
+> ⚠ {{ r.finding_id }}: 영향 케이스가 적고 반복 횟수도 부족해 INCONCLUSIVE로 분류됨 — 참고용으로만 볼 것.
+{% endif %}
+{% endfor %}
+{% else %}
+해당 없음.
+{% endif %}
+
+---
+
+## 3. Efficiency
+
+{% if efficiency_rows %}
+| Finding | 심각도 | rule_id | 영향 케이스 | 내용 | 근거 (임계값 포함) |
+|---|---|---|---|---|---|
+{% for r in efficiency_rows %}
+| {{ r.finding_id }} | {{ r.severity }} | {{ r.rule_id }} | {{ r.affected_count }}건 | {{ r.title }} | {{ r.evidence }} |
+{% endfor %}
+{% else %}
+해당 없음.
+{% endif %}
+
+---
+
+## 4. Trace Diff
+
+{% if trace_diffs %}
+{% for d in trace_diffs %}
+### {{ d.testcase_id }}
+
+```text
+{{ d.v0_label }}  {{ d.v0_arrow }}
+{{ d.v1_label }}  {{ d.v1_arrow }}
+```
+
+최초 주요 차이: **{{ d.node_role }}** (step {{ d.step_index }}) — {{ d.detail }}
+
+{% endfor %}
+{% elif trace_available %}
+Trace는 있지만 첫 분기 지점을 계산한 Finding이 없음 (regression 없음).
+{% else %}
+NOT_AVAILABLE — 이 번들에는 trace가 포함되지 않았습니다.
+{% endif %}
+
+---
+
+## 5. Recommendation
+
+{% if candidates %}
+| candidate_id | operator | 대상 | 근거 Finding | 위험도 | 상태 |
+|---|---|---|---|---|---|
+{% for c in candidates %}
+| {{ c.candidate_id }} | {{ c.operator }} | {{ c.target }} | {{ c.addresses | join(', ') }} | {{ c.risk.value }} | {{ c.status.value }} |
+{% endfor %}
+{% else %}
+준비 중 (P6 수정 후보 생성 전).
+{% endif %}
+
+---
+
+## 6. Risk & Limits
+
+{% if revalidation %}
+| candidate_id | 재검증 상태 |
+|---|---|
+{% for rv in revalidation %}
+| {{ rv.candidate_id }} | {{ rv.status.value }} |
+{% endfor %}
+{% else %}
+재검증 이력 없음 (P7 이전이거나 아직 후보를 적용하지 않음).
+{% endif %}
+
+**이 보고서가 말하지 못하는 것**
+
+{% for l in limitations %}
+- {{ l }}
+{% endfor %}

@@ -1,0 +1,18 @@
+{
+  "verdict": "PASS",
+  "findings": [],
+  "skipped_rules": [
+    {
+      "rule_id": "E-04",
+      "reason": "traces 없음"
+    },
+    {
+      "rule_id": "O-01",
+      "reason": "traces 없음"
+    },
+    {
+      "rule_id": "O-02",
+      "reason": "traces 없음"
+    }
+  ]
+}

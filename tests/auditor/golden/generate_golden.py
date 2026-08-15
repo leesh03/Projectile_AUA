@@ -9,17 +9,39 @@ from __future__ import annotations
 
 import json
 
-from tests.auditor._golden_utils import GOLDEN_DIR, SCENARIO_NAMES, run_pipeline, summarize
+from tests.auditor._golden_utils import (
+    GOLDEN_DIR,
+    SCENARIO_NAMES,
+    render_markdown_for,
+    run_pipeline,
+    summarize,
+    summarize_detection,
+    summarize_report,
+)
+
+
+def _write_json(name: str, data: dict) -> None:
+    path = GOLDEN_DIR / f"{name}.json"
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"wrote {path}")
+
+
+def _write_text(name: str, text: str) -> None:
+    path = GOLDEN_DIR / f"{name}.md"
+    path.write_text(text, encoding="utf-8")
+    print(f"wrote {path}")
 
 
 def main() -> None:
     GOLDEN_DIR.mkdir(parents=True, exist_ok=True)
     for name in SCENARIO_NAMES:
         load_result, agg, diff = run_pipeline(name)
-        data = summarize(load_result, agg, diff)
-        path = GOLDEN_DIR / f"{name}.json"
-        path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        print(f"wrote {path}")
+        _write_json(name, summarize(load_result, agg, diff))
+        _write_json(f"p3_{name}", summarize_detection(load_result, agg, diff))
+
+        report, markdown = render_markdown_for(name)
+        _write_json(f"p4_{name}", summarize_report(report))
+        _write_text(f"p4_{name}", markdown)
 
 
 if __name__ == "__main__":
