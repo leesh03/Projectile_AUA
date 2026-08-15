@@ -20,18 +20,7 @@ Agent를 수정·업그레이드했을 때 **무엇이 망가졌고 무엇을 �
 | **우혁** | `data/` · `policies/` | `feat/dataset` | shop.db, test_cases.json, policy_oracle.py |
 | **소현** | `core/` `apps/` `fixtures/` `docs/` | `Auditor` | schemas, CONTRACT.md |
 
-### 준원 · 채린 · 우혁
 
-```bash
-git clone <리포주소> && cd agent-migration
-uv sync --extra testbed --extra dev
-
-git checkout tester && git pull
-git checkout -b feat/core-graph        # 자기 브랜치 이름으로
-
-cd agents/policy_agent/nodes           # 자기 폴더로
-cat README.md                          # 여기에 할 일이 적혀 있습니다
-```
 
 ### 소현
 
