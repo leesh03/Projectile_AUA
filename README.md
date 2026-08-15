@@ -22,12 +22,6 @@ Agent를 수정·업그레이드했을 때 **무엇이 망가졌고 무엇을 �
 
 
 
-### 소현
-
-```bash
-git checkout Auditor && uv sync --extra auditor --extra dev
-```
-
 > **폴더마다 README.md가 있습니다.** 자기 폴더에 들어가서 그것부터 읽으세요.
 > 무엇을 만들지, 어떤 형식으로 출력해야 하는지가 거기 적혀 있습니다.
 
