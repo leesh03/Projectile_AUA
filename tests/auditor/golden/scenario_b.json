@@ -1,0 +1,129 @@
+{
+  "bundle_id": "audit_mock_scenario_b",
+  "labels": [
+    "V0",
+    "V1"
+  ],
+  "unpaired_testcases": [],
+  "skipped_trials": 0,
+  "skipped_traces": 0,
+  "low_confidence": false,
+  "testcase_count": 20,
+  "trial_count": 80,
+  "trace_count": 280,
+  "overall": {
+    "V0": {
+      "label": "V0",
+      "trial_count": 40,
+      "success_rate": 1.0,
+      "policy_accuracy": 1.0,
+      "tool_error_rate": 0.0,
+      "avg_retry": 0.0,
+      "avg_tokens": 2401.1,
+      "avg_latency_ms": 3429.375,
+      "safety_violations": 0,
+      "stop_reason_distribution": {
+        "OK": 40
+      },
+      "tool_schema_valid_rate": 1.0,
+      "avg_llm_call_count": 3.0
+    },
+    "V1": {
+      "label": "V1",
+      "trial_count": 40,
+      "success_rate": 1.0,
+      "policy_accuracy": 1.0,
+      "tool_error_rate": 0.0,
+      "avg_retry": 0.0,
+      "avg_tokens": 2567.45,
+      "avg_latency_ms": 3575.05,
+      "safety_violations": 0,
+      "stop_reason_distribution": {
+        "OK": 40
+      },
+      "tool_schema_valid_rate": 1.0,
+      "avg_llm_call_count": 4.0
+    }
+  },
+  "diff_metrics": {
+    "avg_latency_ms": {
+      "metric": "avg_latency_ms",
+      "v0": 3429.375,
+      "v1": 3575.05,
+      "delta": null,
+      "delta_pp": null,
+      "delta_pct": 4.2478585748132
+    },
+    "avg_llm_call_count": {
+      "metric": "avg_llm_call_count",
+      "v0": 3.0,
+      "v1": 4.0,
+      "delta": null,
+      "delta_pp": null,
+      "delta_pct": 33.33333333333333
+    },
+    "avg_retry": {
+      "metric": "avg_retry",
+      "v0": 0.0,
+      "v1": 0.0,
+      "delta": 0.0,
+      "delta_pp": null,
+      "delta_pct": null
+    },
+    "avg_tokens": {
+      "metric": "avg_tokens",
+      "v0": 2401.1,
+      "v1": 2567.45,
+      "delta": null,
+      "delta_pp": null,
+      "delta_pct": 6.928074632460119
+    },
+    "policy_accuracy": {
+      "metric": "policy_accuracy",
+      "v0": 1.0,
+      "v1": 1.0,
+      "delta": null,
+      "delta_pp": 0.0,
+      "delta_pct": null
+    },
+    "success_rate": {
+      "metric": "success_rate",
+      "v0": 1.0,
+      "v1": 1.0,
+      "delta": null,
+      "delta_pp": 0.0,
+      "delta_pct": null
+    },
+    "tool_error_rate": {
+      "metric": "tool_error_rate",
+      "v0": 0.0,
+      "v1": 0.0,
+      "delta": null,
+      "delta_pp": 0.0,
+      "delta_pct": null
+    },
+    "tool_schema_valid_rate": {
+      "metric": "tool_schema_valid_rate",
+      "v0": 1.0,
+      "v1": 1.0,
+      "delta": null,
+      "delta_pp": 0.0,
+      "delta_pct": null
+    }
+  },
+  "safety_violations_delta": {
+    "metric": "safety_violations",
+    "v0": 0,
+    "v1": 0,
+    "delta": 0,
+    "delta_pp": null,
+    "delta_pct": null
+  },
+  "flip_counts": {
+    "improvement": 0,
+    "persistent": 0,
+    "preserved": 20,
+    "regression": 0
+  },
+  "regression_testcases": []
+}

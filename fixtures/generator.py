@@ -61,18 +61,18 @@ def _v0() -> AgentVersion:
 
 
 def _v1(**overrides: Any) -> AgentVersion:
-    base = dict(
-        label="V1",
-        agent_id="policy_agent",
-        version="v1",
-        model_id="MODEL_B",
-        prompt_version="p2",
-        tool_schema_version="t1",
-        workflow_version="w1",
-        retry_policy="max_retry=2",
-        verifier_policy="reflection=0",
-        commit="mock1111",
-    )
+    base = {
+        "label": "V1",
+        "agent_id": "policy_agent",
+        "version": "v1",
+        "model_id": "MODEL_B",
+        "prompt_version": "p2",
+        "tool_schema_version": "t1",
+        "workflow_version": "w1",
+        "retry_policy": "max_retry=2",
+        "verifier_policy": "reflection=0",
+        "commit": "mock1111",
+    }
     base.update(overrides)
     return AgentVersion(**base)
 
@@ -87,20 +87,20 @@ def _jitter(rng: random.Random, base: int, spread: int) -> int:
 
 def _clean_pair(rng: random.Random, testcase_id: str, trial_no: int) -> tuple[TrialResult, TrialResult]:
     """양쪽 버전이 동일하게 동작하는 "문제 없는" trial 쌍. 모든 시나리오의 배경 케이스로 쓴다."""
-    common = dict(
-        testcase_id=testcase_id,
-        trial=trial_no,
-        task_success=True,
-        policy_correct=True,
-        tool_error_count=0,
-        retry_count=rng.choice([0, 0, 1]),
-        safety_violation=False,
-        stop_reason="OK",
-        tool_schema_valid=True,
-        error_type=None,
-        llm_call_count=3,
-        difficulty=DIFFICULTY_BY_CASE[testcase_id],
-    )
+    common = {
+        "testcase_id": testcase_id,
+        "trial": trial_no,
+        "task_success": True,
+        "policy_correct": True,
+        "tool_error_count": 0,
+        "retry_count": rng.choice([0, 0, 1]),
+        "safety_violation": False,
+        "stop_reason": "OK",
+        "tool_schema_valid": True,
+        "error_type": None,
+        "llm_call_count": 3,
+        "difficulty": DIFFICULTY_BY_CASE[testcase_id],
+    }
     v0 = TrialResult(agent_label="V0", total_tokens=_jitter(rng, 2400, 150), latency_ms=_jitter(rng, 3400, 300), **common)
     v1 = TrialResult(agent_label="V1", total_tokens=_jitter(rng, 2450, 150), latency_ms=_jitter(rng, 3450, 300), **common)
     return v0, v1
@@ -311,11 +311,11 @@ def build_scenario_b() -> AuditBundle:
 
     for tc in TESTCASE_IDS:
         for trial_no in range(1, TRIALS_PER_CASE + 1):
-            common = dict(
-                testcase_id=tc, trial=trial_no, task_success=True, policy_correct=True,
-                tool_error_count=0, retry_count=0, safety_violation=False, stop_reason="OK",
-                tool_schema_valid=True, error_type=None, difficulty=DIFFICULTY_BY_CASE[tc],
-            )
+            common = {
+                "testcase_id": tc, "trial": trial_no, "task_success": True, "policy_correct": True,
+                "tool_error_count": 0, "retry_count": 0, "safety_violation": False, "stop_reason": "OK",
+                "tool_schema_valid": True, "error_type": None, "difficulty": DIFFICULTY_BY_CASE[tc],
+            }
             v0 = TrialResult(
                 agent_label="V0", total_tokens=_jitter(rng, 2400, 120), latency_ms=_jitter(rng, 3400, 250),
                 llm_call_count=3, **common,
