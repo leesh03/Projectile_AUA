@@ -1,0 +1,34 @@
+{
+  "artifact_sha256": {
+    "data/shop.db": "a2f44ec02c3eac40dd25cb105521970b9d7649d67c1d3eb2fa93ba99145b39db",
+    "data/test_cases.json": "312610aef58b417b6f95b43516d718c3b305b05163b6d54c72cb21a50741429d"
+  },
+  "baseline_status": "CANDIDATE_PENDING_INDEPENDENT_HUMAN_REVIEW",
+  "core_version_vector": {
+    "adapter_version": "adapter-v0.5",
+    "evaluator_version": "evaluator-v0.5",
+    "evidence_validator_version": "evidence-validator-v2",
+    "gold_version": "gold-v0.5",
+    "input_schema_version": "input-schema-v0.5",
+    "oracle_version": "oracle-v0.5",
+    "output_schema_version": "output-schema-v0.5",
+    "policy_version": "policy-v0.5",
+    "rule_registry_version": "registry-v0.5",
+    "suite_version": "suite-v0.5"
+  },
+  "db_version": "db-v0.5",
+  "difficulty_counts": {
+    "EASY": 6,
+    "HARD": 6,
+    "MEDIUM": 8
+  },
+  "evaluation_date": "2026-08-15",
+  "policy_version": "policy-v0.5",
+  "python_version": "3.12.13",
+  "release_profile": "BASE",
+  "source_policy_spec": "refund_policy_spec_v0.5.md",
+  "sqlite_version": "3.53.1",
+  "testcase_count": 20,
+  "testcase_version": "testcase-v0.5",
+  "timezone": "Asia/Seoul"
+}
