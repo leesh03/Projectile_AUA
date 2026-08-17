@@ -9,6 +9,9 @@ AGENT_CONFIG: dict[str, Any] = {
     "use_planner": True,
     "use_sql_repair": True,
     "max_sql_retries": 2,
+    # 같은 error_type이 연속으로 나오면 남은 retry를 사용하지 않는다.
+    # 통합 기획서 §6.2의 동일 오류 반복 감지 및 unnecessary loop rate 산출 근거.
+    "stop_on_repeated_error": True,
     "use_reasoning_verifier": True,
     "max_reflections": 2,
     # 개별 루프 카운터와 별개로 거는 전역 상한
