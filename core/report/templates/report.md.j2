@@ -26,6 +26,14 @@ testcase {{ report.summary.testcase_count }}개 · trial {{ trials_per_case_labe
 
 ## 2. Regression
 
+{% if cluster_groups %}
+**같은 원인으로 묶인 Finding**
+
+{% for g in cluster_groups %}
+- {{ g.title }} — {{ g.finding_ids | join(', ') }}
+{% endfor %}
+
+{% endif %}
 {% if regression_rows %}
 | Finding | 심각도 | rule_id | 유형 | 영향 케이스 | 내용 | 근거 |
 |---|---|---|---|---|---|---|

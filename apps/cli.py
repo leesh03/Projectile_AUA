@@ -1,18 +1,20 @@
 """로컬 실행 진입점.
 
-    uv run auditor run --bundle fixtures/bundles/scenario_a.json --out reports/rpt_a --no-llm
+    uv run python -m apps.cli run --bundle fixtures/bundles/scenario_a.json --out reports/rpt_a --no-llm
 
-`--no-llm`은 지금 만들어 두지만 아직 효과가 없다 — L5(core/diagnosis/, P5)가 생기기 전까지는
-모든 실행이 사실상 --no-llm이다. P5가 들어오면 여기서 분기한다.
+실행 순서가 곧 숫자 방어 장치다: **보고서를 먼저 완성한 뒤에 LLM을 부른다.**
+summary·evidence가 이미 확정된 다음에 LLM이 들어오므로, LLM은 구조적으로 수치를 만질 수 없다.
 """
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import typer
 
 from core.detector import DetectionContext, run_rules
+from core.diagnosis import LLMClient, diagnose
 from core.diff.aggregate import aggregate
 from core.diff.compare import compare
 from core.report import build_report, render_markdown
@@ -21,18 +23,32 @@ from core.schemas.loader import load_bundle
 app = typer.Typer(help="Agent Upgrade Auditor CLI")
 
 
+def _make_console_utf8_safe() -> None:
+    """Windows 기본 콘솔(cp949)에서 '—' 같은 문자를 찍다가 죽는 걸 막는다.
+
+    보고서 파일은 항상 utf-8로 쓰므로 영향이 없고 콘솔 출력만 문제였다.
+    데모 도중 CLI가 UnicodeEncodeError로 죽는 사고를 막기 위한 방어다.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            try:
+                reconfigure(encoding="utf-8", errors="replace")
+            except (ValueError, OSError):
+                pass
+
+
 @app.callback()
 def _callback() -> None:
     """`run` 서브커맨드를 강제하기 위한 콜백. 커맨드가 하나뿐이면 Typer가 서브커맨드 이름을 생략해버린다."""
+    _make_console_utf8_safe()
 
 
 @app.command()
 def run(
     bundle: Path = typer.Option(..., "--bundle", exists=True, help="AuditBundle JSON 경로"),  # noqa: B008
     out: Path = typer.Option(..., "--out", help="출력 경로 접두사. <out>.json / <out>.md로 저장된다"),  # noqa: B008
-    no_llm: bool = typer.Option(
-        False, "--no-llm", help="LLM 진단을 건너뛴다 (P5 전까지는 이 값과 무관하게 항상 no-llm으로 동작)"
-    ),
+    no_llm: bool = typer.Option(False, "--no-llm", help="LLM 진단을 건너뛰고 규칙 기반 보고서만 만든다"),
 ) -> None:
     load_result = load_bundle(bundle)
     agg = aggregate(load_result)
@@ -48,6 +64,15 @@ def run(
         diff=diff,
         findings=findings,
     )
+
+    # 여기서부터 LLM. 위에서 report가 이미 확정됐으므로 summary/evidence는 못 바뀐다.
+    if not no_llm:
+        result = diagnose(report.findings, LLMClient.from_env())
+        report = report.model_copy(update={"findings": result.findings})
+        for note in result.notes:
+            typer.echo(f"[llm] {note}")
+        if result.scrubbed_count:
+            typer.echo(f"[llm] 설명문 {result.scrubbed_count}건에서 수치를 제거했습니다")
 
     out.parent.mkdir(parents=True, exist_ok=True)
     json_path = out.with_suffix(".json")

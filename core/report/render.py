@@ -87,7 +87,33 @@ def _finding_row(f: Finding) -> dict:
         "evidence": " · ".join(parts),
         "explanation": f.explanation,
         "low_confidence": f.low_confidence,
+        "cluster_id": f.cluster_id,
+        "cluster_title": f.cluster_title,
     }
+
+
+def _cluster_groups(findings: list[Finding]) -> list[dict]:
+    """cluster_id가 붙은 Finding들을 묶음 단위로 정리한다. LLM이 꺼져 있으면 빈 목록.
+
+    묶음 순서는 그 묶음의 첫 Finding 위치를 따른다 (findings는 이미 severity 순으로 정렬돼 있다).
+    LLM이 준 cluster_id 순서를 그대로 쓰면 P0가 뒤로 밀릴 수 있어서다.
+    혼자인 묶음은 "묶었다"고 보여줄 게 없으므로 제외한다.
+    """
+    order: list[str] = []
+    grouped: dict[str, dict] = {}
+    for f in findings:
+        if not f.cluster_id:
+            continue
+        if f.cluster_id not in grouped:
+            order.append(f.cluster_id)
+            grouped[f.cluster_id] = {
+                "cluster_id": f.cluster_id,
+                "title": f.cluster_title or f.cluster_id,
+                "finding_ids": [],
+            }
+        grouped[f.cluster_id]["finding_ids"].append(f.finding_id)
+
+    return [grouped[cid] for cid in order if len(grouped[cid]["finding_ids"]) > 1]
 
 
 def _sequence_for(traces: list[TraceStep], testcase_id: str, label: str) -> list[TraceStep]:
@@ -156,6 +182,7 @@ def render_markdown(report: UpgradeReport, load_result: LoadResult | None = None
         summary_rows=_summary_rows(report),
         regression_rows=[_finding_row(f) for f in regression],
         efficiency_rows=[_finding_row(f) for f in efficiency],
+        cluster_groups=_cluster_groups(report.findings),
         trace_diffs=_build_trace_diffs(report, load_result),
         trace_available=bool(load_result and load_result.traces),
         candidates=report.candidates,

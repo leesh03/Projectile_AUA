@@ -1,0 +1,978 @@
+POL-00 공통 판정 원칙 및 출력 계약 v0.4
+
+<aside>
+🔒
+
+규범 상태: v0.4 최종 규범본의 최상위 계약입니다. 세부 정책은 VAL-10과 REG-20을 포함해 이 문서와 충돌할 수 없습니다.
+
+</aside>
+
+1. 목적과 범위
+
+Order Item의 전액 환불 자격을 읽기 전용으로 판정합니다. 환불 실행, 주문 취소 실행, 부분환불 금액 산정, 원장 변경은 범위 밖입니다.
+
+Policy Agent는 Oracle·Gold·정답 결과를 호출하거나 입력으로 사용할 수 없습니다.
+
+2. 규범 문서
+
+
+
+
+
+VAL-10 검증 소유권·분기 의존성
+
+
+
+SCHEMA-10 PolicyFacts
+
+
+
+SCHEMA-20 DecisionResult
+
+
+
+REG-20 전역 우선순위
+
+3. 결정론
+
+
+
+
+
+동일 canonical PolicyFacts와 version vector에는 동일 byte의 DecisionResult를 반환합니다.
+
+
+
+현재 시각, 사용자 자연어, 현재 회원등급, 모델 추론을 정책 사실로 사용하지 않습니다.
+
+
+
+날짜는 trusted evaluation_date와 Asia/Seoul만 사용합니다.
+
+
+
+Schema type 오류는 POL-00.01, domain 값 오류는 각 POL 소유자로 단일화합니다.
+
+
+
+primary는 REG-20 terminal match 중 최소 priority입니다.
+
+4. 출력 계약
+
+SCHEMA-20의 모든 필드는 필수입니다.
+
+
+
+
+
+eligibility, case_status, next_action
+
+
+
+reason_code, primary_clause
+
+
+
+matched_clauses, overridden_clauses
+
+
+
+required_fields: RFC 6901 JSON Pointer 사전순
+
+
+
+facts: SCHEMA-10의 canonical PolicyFacts 전체
+
+
+
+facts_hash: SHA-256(RFC 8785 JCS facts)
+
+
+
+versions: 고정 version vector
+
+5. Clause 집합
+
+의존 필드가 유효한 predicate는 short-circuit 없이 모두 평가합니다.
+
+
+
+
+
+matched: 참인 모든 clause, 중복 제거·사전순
+
+
+
+primary: matched terminal 중 REG-20 최소 priority
+
+
+
+overridden: primary가 POL-40.01일 때 matched의 POL-30.01, POL-30.02, POL-20.06
+
+primary ∈ matched, overridden ⊆ matched를 강제합니다.
+
+6. 회사 귀책
+
+Schema·조회/참조·주문·환불이력·금액·evidence·tier·상품 데이터 오류는 회사 귀책보다 우선합니다. VERIFIED 회사 귀책은 유효한 데이터에서 기간·Final Sale·개봉 제한만 override합니다.
+
+유일한 예외는 delivered_at=null이며 VERIFIED인 경우 기간 predicate를 평가하지 않고 승인할 수 있습니다.
+
+7. Version vector
+
+
+
+
+
+policy-v0.4
+
+
+
+input-schema-v0.4
+
+
+
+output-schema-v0.4
+
+
+
+registry-v0.4
+
+
+
+adapter-v0.4
+
+
+
+evidence-validator-v1
+
+
+
+oracle-v0.4
+
+
+
+gold-v0.4
+
+
+
+suite-v0.4
+
+
+
+evaluator-v0.4
+
+하나라도 다르면 동일 baseline으로 비교하지 않습니다.
+
+8. 최종 승인
+
+모든 유효성 검증을 통과하고 더 높은 priority terminal이 없으면 POL-00.08 REFUND_ELIGIBLE입니다.
+
+P0 계약 위반은 build 실패입니다. NOTICE-10의 P1은 구현 후 관찰합니다.
+
+-----------------------------------------------------------
+
+SCHEMA-20 DecisionResult JSON Schema v0.4
+
+1. 역할
+
+Evaluator가 구조적으로 정확 비교할 유일한 출력 Schema입니다. facts는 SCHEMA-10을 그대로 참조하며 필드 생략·추가를 허용하지 않습니다.
+
+2. JSON Schema
+
+{
+  "$schema": "<https://json-schema.org/draft/2020-12/schema>",
+  "$id": "urn:order-refund-testbed:decision-result:v0.4",
+  "title": "DecisionResult v0.4",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eligibility",
+    "case_status",
+    "next_action",
+    "reason_code",
+    "primary_clause",
+    "matched_clauses",
+    "overridden_clauses",
+    "required_fields",
+    "facts",
+    "facts_hash",
+    "versions"
+  ],
+  "properties": {
+    "eligibility": {
+      "enum": [
+        "ELIGIBLE",
+        "INELIGIBLE",
+        "UNDETERMINED",
+        "NOT_APPLICABLE"
+      ]
+    },
+    "case_status": {
+      "enum": [
+        "READY",
+        "WAITING",
+        "COMPLETED",
+        "OUT_OF_SCOPE"
+      ]
+    },
+    "next_action": {
+      "enum": [
+        "APPROVE_REFUND",
+        "REJECT_REFUND",
+        "REQUEST_INFO",
+        "WAIT_EXISTING_REQUEST",
+        "ROUTE_TO_CANCEL",
+        "ROUTE_TO_MANUAL_REVIEW",
+        "NONE"
+      ]
+    },
+    "reason_code": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]+$"
+    },
+    "primary_clause": {
+      "type": "string",
+      "pattern": "^POL-[0-9]{2}\\.[0-9]{2}$"
+    },
+    "matched_clauses": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^POL-[0-9]{2}\\.[0-9]{2}$"
+      },
+      "uniqueItems": true
+    },
+    "overridden_clauses": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^POL-[0-9]{2}\\.[0-9]{2}$"
+      },
+      "uniqueItems": true
+    },
+    "required_fields": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(/([^/~]|~0|~1)*)*$"
+      },
+      "uniqueItems": true
+    },
+    "facts": {
+      "$ref": "urn:order-refund-testbed:policy-facts:v0.4"
+    },
+    "facts_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy_version",
+        "input_schema_version",
+        "output_schema_version",
+        "rule_registry_version",
+        "adapter_version",
+        "evidence_validator_version",
+        "oracle_version",
+        "gold_version",
+        "suite_version",
+        "evaluator_version"
+      ],
+      "properties": {
+        "policy_version": {
+          "const": "policy-v0.4"
+        },
+        "input_schema_version": {
+          "const": "input-schema-v0.4"
+        },
+        "output_schema_version": {
+          "const": "output-schema-v0.4"
+        },
+        "rule_registry_version": {
+          "const": "registry-v0.4"
+        },
+        "adapter_version": {
+          "const": "adapter-v0.4"
+        },
+        "evidence_validator_version": {
+          "const": "evidence-validator-v1"
+        },
+        "oracle_version": {
+          "const": "oracle-v0.4"
+        },
+        "gold_version": {
+          "const": "gold-v0.4"
+        },
+        "suite_version": {
+          "const": "suite-v0.4"
+        },
+        "evaluator_version": {
+          "const": "evaluator-v0.4"
+        }
+      }
+    }
+  }
+}
+
+
+3. Schema 밖의 정렬 제약
+
+JSON Schema가 표현하지 못하는 배열 정렬과 RFC 8785 직렬화는 VAL-10이 규범입니다.
+
+
+
+
+
+matched/overridden/required_fields: 중복 없는 사전순
+
+
+
+overridden_clauses ⊆ matched_clauses
+
+
+
+primary_clause ∈ matched_clauses
+
+
+
+facts_hash는 canonical facts의 SHA-256
+
+4. Validator 설정
+
+SCHEMA-10과 SCHEMA-20을 동일 validator에 URI로 preload합니다. draft 2020-12, format assertion off, unknown format 허용 설정을 사용합니다.
+
+-----------------------------------------------------------
+
+# POL-10 조회·참조 무결성 정책 v0.4
+
+# 1. 조회 단위
+
+request.order_item_id로 다음 네 단위를 조회합니다.
+
+- order_item_order
+
+- customer_snapshot
+
+- product
+
+- shipment
+
+각 count와 객체 null 여부는 VAL-10의 iff 규칙을 따릅니다.
+
+# 2. 조회 결과 조항
+
+| 조건 | 조항·reason | 결과 |
+
+| --- | --- | --- |
+
+| count↔object 불일치 | POL-10.14 INCONSISTENT_LOOKUP_RESULT | UNDETERMINED |
+
+| 참조키 불일치 | POL-10.15 ENTITY_REFERENCE_MISMATCH | UNDETERMINED |
+
+| snapshot ID 불일치 | POL-10.16 SNAPSHOT_REFERENCE_MISMATCH | UNDETERMINED |
+
+| order 0 / 2+ | POL-10.01 / POL-10.09 | ORDER_NOT_FOUND / NON_UNIQUE_ORDER |
+
+| customer 0 / 2+ | POL-10.02 / POL-10.10 | CUSTOMER_DATA_MISSING / NON_UNIQUE_CUSTOMER |
+
+| product 0 / 2+ | POL-10.03 / POL-10.11 | PRODUCT_DATA_MISSING / NON_UNIQUE_PRODUCT |
+
+| shipment 0 / 2+ | POL-10.04 / POL-10.12 | SHIPMENT_DATA_MISSING / NON_UNIQUE_SHIPMENT |
+
+# 3. 참조키
+
+- request.order_item_id = order.order_item_id = shipment.order_item_id
+
+- order.customer_id = customer_snapshot.customer_id
+
+- order.product_id = product.product_id
+
+- order.order_snapshot_id = customer_snapshot.order_snapshot_id = product.order_snapshot_id
+
+# 4. Order 상태
+
+| order_status | 결과 |
+
+| --- | --- |
+
+| PAID / SHIPPED | POL-10.05 CANCEL_FLOW_REQUIRED · NOT_APPLICABLE · OUT_OF_SCOPE · ROUTE_TO_CANCEL |
+
+| CANCELLED | POL-10.06 ORDER_CANCELLED · INELIGIBLE · COMPLETED · NONE |
+
+| DELIVERED | 후속 평가 |
+
+| 그 외/null | POL-10.07 INVALID_ORDER_STATUS |
+
+PAID 또는 SHIPPED인데 delivered_at이 non-null이면 POL-10.08 INCONSISTENT_ORDER_SHIPMENT_STATE입니다.
+
+CANCELLED + 완료 환불 이력은 정상 취소 환급으로 허용하며 POL-10.06이 primary 후보입니다.
+
+# 5. delivered_at
+
+- non-null: 회사 귀책과 관계없이 ISO 날짜시각 파싱과 미래 날짜를 검증
+
+- null + VERIFIED 회사 귀책: 허용, 기간 미평가
+
+- null + 그 외: POL-10.13 DELIVERED_AT_MISSING
+
+# 6. 이름 표준
+
+원천 `orders.status`는 adapter에서 `order.order_status`로 변환합니다. 정책·Oracle·Gold는 canonical 이름만 사용합니다.
+
+# 7. 우선순위
+
+문서 순서가 아니라 REG-20의 priority만 규범입니다.
+
+------------------------------------------------------
+
+REG-10 Clause·Reason Registry v0.4
+
+<aside>
+📒
+
+이 문서는 사람 검토용 의미 등록부입니다. primary 순서는 REG-20만 규범입니다.
+
+</aside>
+
+공통
+
+
+
+
+
+POL-00.01 INVALID_POLICY_FACTS
+
+
+
+POL-00.08 REFUND_ELIGIBLE
+
+조회·주문
+
+
+
+
+
+POL-10.01~04: ORDER/CUSTOMER/PRODUCT/SHIPMENT missing
+
+
+
+POL-10.05 CANCEL_FLOW_REQUIRED
+
+
+
+POL-10.06 ORDER_CANCELLED
+
+
+
+POL-10.07 INVALID_ORDER_STATUS
+
+
+
+POL-10.08 INCONSISTENT_ORDER_SHIPMENT_STATE
+
+
+
+POL-10.09~12: NON_UNIQUE_ORDER/CUSTOMER/PRODUCT/SHIPMENT
+
+
+
+POL-10.13 DELIVERED_AT_MISSING
+
+
+
+POL-10.14 INCONSISTENT_LOOKUP_RESULT
+
+
+
+POL-10.15 ENTITY_REFERENCE_MISMATCH
+
+
+
+POL-10.16 SNAPSHOT_REFERENCE_MISMATCH
+
+Tier·날짜
+
+
+
+
+
+POL-20.01 STANDARD_TIER_RULE_SELECTED — nonterminal
+
+
+
+POL-20.02 PREMIUM_TIER_RULE_SELECTED — nonterminal
+
+
+
+POL-20.03 INVALID_CUSTOMER_TIER
+
+
+
+POL-20.04 INVALID_DATE_ORDER
+
+
+
+POL-20.05 INVALID_DATE_FORMAT
+
+
+
+POL-20.06 RETURN_WINDOW_EXPIRED
+
+상품
+
+
+
+
+
+POL-30.01 FINAL_SALE_RESTRICTED
+
+
+
+POL-30.02 OPENED_ELECTRONICS
+
+
+
+POL-30.03 INVALID_PRODUCT_CATEGORY
+
+
+
+POL-30.04 PACKAGE_OPENED_UNKNOWN
+
+
+
+POL-30.05 FINAL_SALE_UNKNOWN
+
+Evidence
+
+
+
+
+
+POL-40.01 VERIFIED_COMPANY_FAULT
+
+
+
+POL-40.02 FAULT_EVIDENCE_REQUIRED
+
+
+
+POL-40.03 EVIDENCE_REJECTED_NO_OVERRIDE — nonterminal
+
+
+
+POL-40.04 INCONSISTENT_FAULT_EVIDENCE
+
+
+
+POL-40.05 INVALID_ISSUE_CODE
+
+
+
+POL-40.06 EVIDENCE_PROVENANCE_MISSING
+
+
+
+POL-40.07 INVALID_EVIDENCE_STATUS
+
+
+
+POL-40.08 UNTRUSTED_EVIDENCE_PROVENANCE
+
+환불·금액
+
+
+
+
+
+POL-50.01 ALREADY_REFUNDED
+
+
+
+POL-50.02 REFUND_IN_PROGRESS
+
+
+
+POL-50.03 INVALID_REFUND_STATUS
+
+
+
+POL-50.04 INVALID_REFUND_AMOUNT
+
+
+
+POL-50.05 REFUND_AMOUNT_EXCEEDS_PAID
+
+
+
+POL-50.06 PARTIAL_REFUND_OUT_OF_SCOPE
+
+
+
+POL-50.07 FULL_REFUND_AMOUNT_VALID — nonterminal
+
+
+
+POL-50.08 UNSUPPORTED_CURRENCY
+
+
+
+POL-50.09 CURRENCY_MISMATCH
+
+
+
+POL-50.10 INVALID_REFUND_HISTORY_RECORD
+
+규칙
+
+미등록 reason/clause를 출력할 수 없습니다. 의미·결과 튜플 변경 시 REG-10, REG-20, Oracle, Gold를 함께 갱신합니다.
+
+----------------------------------------------
+
+ORACLE-10 결정론적 판정 Oracle v0.4
+
+<aside>
+🚫
+
+Policy Agent는 Oracle을 호출할 수 없습니다. Oracle은 Gold 생성과 사후 평가 전용입니다.
+
+</aside>
+
+1. 계약
+
+입력: SCHEMA-10 PolicyFacts v0.4.
+
+출력: SCHEMA-20 DecisionResult v0.4.
+
+검증·priority: VAL-10, REG-20.
+
+2. 결정 절차
+
+
+
+
+
+JSON parse와 Input Schema; 실패하면 POL-00.01
+
+
+
+canonical normalization
+
+
+
+count↔object·reference·snapshot integrity
+
+
+
+모든 core domain validation
+
+
+
+의존 필드가 유효한 predicate를 short-circuit 없이 평가
+
+
+
+matched terminal 중 최소 REG-20 priority를 primary
+
+
+
+POL-40.01이면 실제 matched 제한만 overridden
+
+
+
+outcome tuple, required_fields, facts, facts_hash, version vector 구성
+
+
+
+Output Schema 검증
+
+
+
+RFC 8785 JCS byte 생성
+
+3. 날짜·Schema 설정
+
+Input/Output validator는 draft 2020-12, format assertion off입니다. non-null 날짜 파싱은 policy layer가 소유합니다.
+
+4. Canonicalization
+
+
+
+
+
+날짜시각 UTC Z
+
+
+
+refund_history refund_id 사전순
+
+
+
+모든 clause/path 배열 중복 제거·사전순
+
+
+
+facts_hash = lowercase SHA-256(JCS(facts))
+
+
+
+최종 결과도 JCS
+
+동일 fixture를 100회 및 Java/Python/JS reference에서 실행해 byte diff 0건이어야 합니다.
+
+5. 비교 필드
+
+SCHEMA-20 전체를 비교합니다. 자연어 설명은 출력 Schema에 없으며 채점하지 않습니다.
+
+6. 격리
+
+Oracle과 Agent는 코드 모듈·DB 권한·캐시·네트워크 endpoint를 공유하지 않습니다. Agent 입력에는 Oracle/Gold 결과를 넣지 않습니다.
+
+7. 부작용 금지
+
+Oracle은 읽기 전용입니다. 실행기는 별도 멱등키·트랜잭션·재검증을 사용합니다.
+
+-------------------------------------------------------
+
+GOLD-10 Gold TestCase 작성·변경 계약 v0.4
+
+<aside>
+🎯
+
+Gold는 모범답안 문장이 아니라 고정 PolicyFacts에 대한 SCHEMA-20 DecisionResult와 version vector의 immutable snapshot입니다.
+
+</aside>
+
+1. 두 Suite
+
+
+
+
+
+Representative-20: GOLD-20 실행 파일 — 데모·회귀·사람 검토
+
+
+
+Rule-contract suite: REG-20 전체 terminal/nonterminal, Schema, cardinality, evidence 조합, MATRIX, mutation 검출
+
+20건만으로 정책 완전성을 주장하지 않습니다.
+
+2. 필수 레코드
+
+
+
+
+
+testcase_id, difficulty, description, coverage_tags
+
+
+
+policy_facts: SCHEMA-10 전체
+
+
+
+expected_result: SCHEMA-20 전체
+
+
+
+10개 version vector
+
+
+
+파일 SHA-256과 생성 로그
+
+3. Representative-20 상태
+
+
+
+
+
+실제 JSON fixture 20건 생성 완료
+
+
+
+Easy 6 / Medium 8 / Hard 6
+
+
+
+각 expected_result에 facts와 facts_hash 포함
+
+
+
+primary/matched/overridden 구조 검증 완료
+
+4. Rule-contract coverage gate
+
+
+
+
+
+REG-20 모든 terminal reason 최소 1건
+
+
+
+모든 nonterminal predicate의 true/false 최소 1건
+
+
+
+lookup count 0/1/2와 object null/non-null 조합
+
+
+
+참조키·snapshot ID 일치/불일치
+
+
+
+Input/Output Schema 오류 소유권
+
+
+
+Standard 14/15, Premium 30/31
+
+
+
+evidence 완전 상태기계와 invalid 조합
+
+
+
+refund status/record·amount·currency 조합
+
+
+
+MATRIX 모든 행
+
+
+
+priority mutation score 기준은 NOTICE-10 관찰 후 확정
+
+5. 작성·승인
+
+Oracle 출력만 복사해 승인하지 않습니다. 사람 검토자는 policy_facts, primary priority, matched dependency, override 범위를 독립 검토합니다.
+
+정책·Schema·Registry·Adapter·Oracle 변경 시 영향 fixture를 재생성하고 새 SHA-256을 기록합니다.
+
+6. 최종 기준
+
+Baseline에는 SCHEMA-10 PolicyFacts, SCHEMA-20 DecisionResult, facts_hash와 10개 version vector를 모두 충족한 Gold만 사용합니다.
+
+---------------------------------------------------------
+
+# GOLD-20 Representative-20 실행 파일 v0.4
+
+<aside>
+
+✅
+
+**실행 가능 상태:** 20건 모두 SCHEMA-10 형태의 PolicyFacts와 SCHEMA-20 전체 expected_result를 포함합니다.
+
+</aside>
+
+# 1. Gold 파일
+
+gold_v0.4_representative20.json
+
+gold_v0.4_representative20.json
+
+- TestCase 수: 20
+
+- 난이도: Easy 6 / Medium 8 / Hard 6
+
+- JSON SHA-256: `98041803dbd8352ab0487e9072bbe14325b1c045a6ec4302074727bfcda4c81f`
+
+- canonical JSONL SHA-256: `cfcfb8aa9a25aa64183feb09c95a8d8abcf035684646011080bc974233650489`
+
+# 2. 각 레코드 구조
+
+- testcase_id, difficulty, description, coverage_tags
+
+- policy_facts: SCHEMA-10 전체
+
+- expected_result: SCHEMA-20 전체
+
+- expected_result.facts는 policy_facts와 canonical equivalent
+
+- facts_hash는 SHA-256(JCS facts)
+
+# 3. 대표 분포
+
+| 범주 | Case |
+
+| --- | --- |
+
+| 기간 경계 | G-001~005 |
+
+| 전액 기본화 | G-006 |
+
+| 상품 제한 | G-007~009, G-020 |
+
+| 환불 이력 | G-010~012 |
+
+| 금액 | G-013~014 |
+
+| 취소 흐름 | G-015 |
+
+| 회사 귀책·override | G-016~017 |
+
+| Evidence 상태 | G-018~019 |
+
+# 4. 생성 검증
+
+- testcase_id 20개 unique
+
+- primary_clause ∈ matched_clauses
+
+- overridden_clauses ⊆ matched_clauses
+
+- facts_hash 64자리 lowercase hex
+
+- policy_facts와 expected_result.facts drift 0건
+
+- G-016 primary=POL-40.01, matched에 기간·Final Sale·개봉 포함, 세 제한 모두 overridden
+
+# 5. 한계
+
+이 20건은 데모·회귀 대표군입니다. 전체 reason·cardinality·Schema 오류·evidence 조합·priority mutation은 Rule-contract suite가 별도로 생성해야 하며, 누락은 NOTICE-10에 따라 구현 후 관찰합니다.
+
+-----------------------------------------------------------
+
+# NOTICE-10 구현 후 관찰 주의사항 v0.4
+
+<aside>
+
+🧪
+
+아래 항목은 지금 정책으로 성급히 고정하지 않습니다. 구현 후 실제 결과와 로그를 보고 정책 변경 여부를 결정합니다.
+
+</aside>
+
+# P1 관찰 항목
+
+| 주의사항 | 구현 후 확인 | 판정 기준 |
+
+| --- | --- | --- |
+
+| matched_clauses 과다/누락 | Oracle과 Agent의 clause set diff | REG-20 predicate별 불일치 0건 |
+
+| Evidence 비정상 조합 | 상태기계 전 조합 테스트 | VAL-10 밖 조합 승인 0건 |
+
+| DB 오류에 REQUEST_INFO 사용 | 사용자 문의와 데이터 복구 큐 분리 필요성 | 오라우팅이 관찰되면 ROUTE_TO_DATA_REPAIR 제안 |
+
+| Canonical JSON 차이 | 언어별 Java/Python/JS golden byte 비교 | 동일 fixture byte diff 0건 |
+
+| 금액 정수 범위 | 2^53 경계·64-bit overflow 테스트 | 지원 범위 확정 전 초과 입력 거부 |
+
+| 성능·단락 평가 | 전 predicate 평가 비용과 latency | 정확도를 바꾸는 short-circuit 금지 |
+
+| Representative-20 충분성 | 자동 rule-contract suite mutation score | 미검출 mutation이 있으면 fixture 추가 |
+
+# 운영 규칙
+
+- P1은 개발자가 임의 정책으로 해소하지 않습니다.
+
+- 관찰 로그에는 fixture ID, version vector, primary/matched/overridden, 실행 언어를 기록합니다.
+
+- 정책 변경 제안은 재현 fixture와 Oracle/Agent diff를 첨부해 검토합니다.
+
+- P1 발견은 즉시 실패가 아니라 검증 backlog이며, P0 불일치는 즉시 build 실패입니다.
+
