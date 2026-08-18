@@ -1,0 +1,5778 @@
+{
+  "schema": "structured-markdown-v1",
+  "source_file": "refund_policy_spec_v0.5.md",
+  "title": "Order & Refund Testbed 정책 통합 명세 v0.5",
+  "metadata": {
+    "document_status": "최종 정책 규범 통합본",
+    "policy_version": "policy-v0.5",
+    "reference_document": {
+      "title": "Order & Refund Testbed — 최종 정책 명세 v0.5",
+      "url": "https://app.notion.com/p/3bc4a1a82b5180259902f5edc778f2eb"
+    },
+    "included_scope": [
+      "공통 원칙",
+      "REFUND-01~05",
+      "입력 사실",
+      "검증 책임",
+      "조항",
+      "전역 우선순위",
+      "충돌 처리",
+      "출력 계약",
+      "결정론 및 문서 종속관계"
+    ],
+    "excluded_scope": [
+      "정답 사례",
+      "기대 판정",
+      "정답데이터",
+      "데이터베이스 레코드와 평가 결과"
+    ]
+  },
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "1. 목적과 판정 범위"
+    },
+    {
+      "type": "paragraph",
+      "text": "이 정책은 주문 상품 한 건의 전액 환불 자격을 읽기 전용으로 판단하기 위한 규범이다.",
+      "markdown": "이 정책은 **주문 상품 한 건의 전액 환불 자격**을 읽기 전용으로 판단하기 위한 규범이다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "판정 단위는 주문 전체가 아니라 `order_item_id`로 식별되는 주문 상품 한 건이다.",
+          "markdown": "판정 단위는 주문 전체가 아니라 `order_item_id`로 식별되는 주문 상품 한 건이다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "판정 단위는 주문 전체가 아니라 order_item_id로 식별되는 주문 상품 한 건이다.",
+              "markdown": "판정 단위는 주문 전체가 아니라 `order_item_id`로 식별되는 주문 상품 한 건이다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "정책은 전액 환불 자격만 판단한다.",
+          "markdown": "정책은 전액 환불 자격만 판단한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "정책은 전액 환불 자격만 판단한다.",
+              "markdown": "정책은 전액 환불 자격만 판단한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "실제 환불 지급, 주문 취소 실행, 부분 환불 금액 산정, 상품 회수 실행, 원장 변경은 범위 밖이다.",
+          "markdown": "실제 환불 지급, 주문 취소 실행, 부분 환불 금액 산정, 상품 회수 실행, 원장 변경은 범위 밖이다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "실제 환불 지급, 주문 취소 실행, 부분 환불 금액 산정, 상품 회수 실행, 원장 변경은 범위 밖이다.",
+              "markdown": "실제 환불 지급, 주문 취소 실행, 부분 환불 금액 산정, 상품 회수 실행, 원장 변경은 범위 밖이다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "판정 프로그램은 현재 시각, 사용자 자유 입력 문장, 현재 회원 등급, 모델 추론을 정책 사실로 사용할 수 없다.",
+          "markdown": "판정 프로그램은 현재 시각, 사용자 자유 입력 문장, 현재 회원 등급, 모델 추론을 정책 사실로 사용할 수 없다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "판정 프로그램은 현재 시각, 사용자 자유 입력 문장, 현재 회원 등급, 모델 추론을 정책 사실로 사용할 수 없다.",
+              "markdown": "판정 프로그램은 현재 시각, 사용자 자유 입력 문장, 현재 회원 등급, 모델 추론을 정책 사실로 사용할 수 없다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "입력 형식 자체가 잘못된 경우에는 정책 판정 결과를 만들지 않고 입력 단계에서 거부한다.",
+          "markdown": "입력 형식 자체가 잘못된 경우에는 정책 판정 결과를 만들지 않고 입력 단계에서 거부한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "입력 형식 자체가 잘못된 경우에는 정책 판정 결과를 만들지 않고 입력 단계에서 거부한다.",
+              "markdown": "입력 형식 자체가 잘못된 경우에는 정책 판정 결과를 만들지 않고 입력 단계에서 거부한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "같은 정규화된 입력 사실과 같은 버전 묶음에는 항상 동일한 판정 결과를 반환해야 한다.",
+          "markdown": "같은 정규화된 입력 사실과 같은 버전 묶음에는 항상 동일한 판정 결과를 반환해야 한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "같은 정규화된 입력 사실과 같은 버전 묶음에는 항상 동일한 판정 결과를 반환해야 한다.",
+              "markdown": "같은 정규화된 입력 사실과 같은 버전 묶음에는 항상 동일한 판정 결과를 반환해야 한다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "1.1 최종 판정의 의미"
+    },
+    {
+      "type": "table",
+      "align": [
+        null,
+        null,
+        null
+      ],
+      "headers": [
+        {
+          "text": "판정",
+          "markdown": "판정"
+        },
+        {
+          "text": "의미",
+          "markdown": "의미"
+        },
+        {
+          "text": "일반적인 후속 처리",
+          "markdown": "일반적인 후속 처리"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "text": "환불 가능",
+            "markdown": "환불 가능"
+          },
+          {
+            "text": "정책상 전액 환불 자격이 있음",
+            "markdown": "정책상 전액 환불 자격이 있음"
+          },
+          {
+            "text": "전액 환불 승인 절차로 전달",
+            "markdown": "전액 환불 승인 절차로 전달"
+          }
+        ],
+        [
+          {
+            "text": "환불 불가",
+            "markdown": "환불 불가"
+          },
+          {
+            "text": "정책상 거절 사유가 확정됨",
+            "markdown": "정책상 거절 사유가 확정됨"
+          },
+          {
+            "text": "환불 거절",
+            "markdown": "환불 거절"
+          }
+        ],
+        [
+          {
+            "text": "추가 확인 필요",
+            "markdown": "추가 확인 필요"
+          },
+          {
+            "text": "필수 정보가 누락·불일치·오류 상태임",
+            "markdown": "필수 정보가 누락·불일치·오류 상태임"
+          },
+          {
+            "text": "정확한 정보 또는 내부 데이터 복구 요청",
+            "markdown": "정확한 정보 또는 내부 데이터 복구 요청"
+          }
+        ],
+        [
+          {
+            "text": "환불 정책 적용 대상 아님",
+            "markdown": "환불 정책 적용 대상 아님"
+          },
+          {
+            "text": "취소 절차, 진행 중 요청, 부분 환불 등 다른 절차의 대상임",
+            "markdown": "취소 절차, 진행 중 요청, 부분 환불 등 다른 절차의 대상임"
+          },
+          {
+            "text": "취소·대기·수동 검토 등 지정 절차로 전달",
+            "markdown": "취소·대기·수동 검토 등 지정 절차로 전달"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "thematic_break"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "2. REFUND-01~05 공식 정책"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "2.1 REFUND-01 — 기본 환불 기간"
+    },
+    {
+      "type": "paragraph",
+      "text": "일반 회원의 일반 상품은 배송 완료일을 0일째로 계산하여 14일째까지 전액 환불할 수 있다.",
+      "markdown": "일반 회원의 일반 상품은 배송 완료일을 0일째로 계산하여 **14일째까지** 전액 환불할 수 있다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "배송 완료 당일은 0일째다.",
+          "markdown": "배송 완료 당일은 0일째다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "배송 완료 당일은 0일째다.",
+              "markdown": "배송 완료 당일은 0일째다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "14일째는 환불 가능 기간에 포함한다.",
+          "markdown": "14일째는 환불 가능 기간에 포함한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "14일째는 환불 가능 기간에 포함한다.",
+              "markdown": "14일째는 환불 가능 기간에 포함한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "15일째부터는 환불 가능 기간이 지난 것으로 판단한다.",
+          "markdown": "15일째부터는 환불 가능 기간이 지난 것으로 판단한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "15일째부터는 환불 가능 기간이 지난 것으로 판단한다.",
+              "markdown": "15일째부터는 환불 가능 기간이 지난 것으로 판단한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "다른 거절 사유나 확인할 정보가 없으면 기간 안의 전액 환불을 승인한다.",
+          "markdown": "다른 거절 사유나 확인할 정보가 없으면 기간 안의 전액 환불을 승인한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "다른 거절 사유나 확인할 정보가 없으면 기간 안의 전액 환불을 승인한다.",
+              "markdown": "다른 거절 사유나 확인할 정보가 없으면 기간 안의 전액 환불을 승인한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "기간은 시·분·초를 24시간 단위로 나누지 않고 `Asia/Seoul` 달력 날짜 차이로 계산한다.",
+          "markdown": "기간은 시·분·초를 24시간 단위로 나누지 않고 `Asia/Seoul` 달력 날짜 차이로 계산한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "기간은 시·분·초를 24시간 단위로 나누지 않고 Asia/Seoul 달력 날짜 차이로 계산한다.",
+              "markdown": "기간은 시·분·초를 24시간 단위로 나누지 않고 `Asia/Seoul` 달력 날짜 차이로 계산한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "검증된 회사 귀책은 기간 초과 제한만 해제할 수 있다. 잘못된 날짜나 회원 등급은 해제하지 않는다.",
+          "markdown": "검증된 회사 귀책은 기간 초과 제한만 해제할 수 있다. 잘못된 날짜나 회원 등급은 해제하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "검증된 회사 귀책은 기간 초과 제한만 해제할 수 있다. 잘못된 날짜나 회원 등급은 해제하지 않는다.",
+              "markdown": "검증된 회사 귀책은 기간 초과 제한만 해제할 수 있다. 잘못된 날짜나 회원 등급은 해제하지 않는다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "규범 조항: POL-20.01, POL-20.06, POL-00.08",
+      "markdown": "**규범 조항:** `POL-20.01`, `POL-20.06`, `POL-00.08`"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "2.2 REFUND-02 — 개봉한 전자제품 제한"
+    },
+    {
+      "type": "paragraph",
+      "text": "상품 분류가 전자제품이고 포장이 개봉된 것으로 확인되면 회원 등급이나 남은 환불 기간과 관계없이 일반 환불을 거절한다.",
+      "markdown": "상품 분류가 전자제품이고 포장이 개봉된 것으로 확인되면 회원 등급이나 남은 환불 기간과 관계없이 일반 환불을 거절한다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "전자제품이 아니면 개봉 여부를 이 제한의 조건으로 사용하지 않는다.",
+          "markdown": "전자제품이 아니면 개봉 여부를 이 제한의 조건으로 사용하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "전자제품이 아니면 개봉 여부를 이 제한의 조건으로 사용하지 않는다.",
+              "markdown": "전자제품이 아니면 개봉 여부를 이 제한의 조건으로 사용하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "전자제품의 개봉 여부가 기록되어 있지 않으면 미개봉으로 추정하지 않는다.",
+          "markdown": "전자제품의 개봉 여부가 기록되어 있지 않으면 미개봉으로 추정하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "전자제품의 개봉 여부가 기록되어 있지 않으면 미개봉으로 추정하지 않는다.",
+              "markdown": "전자제품의 개봉 여부가 기록되어 있지 않으면 미개봉으로 추정하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "상품 분류 또는 개봉 여부가 잘못되거나 누락되면 판정을 보류하고 정확한 정보를 요청한다.",
+          "markdown": "상품 분류 또는 개봉 여부가 잘못되거나 누락되면 판정을 보류하고 정확한 정보를 요청한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "상품 분류 또는 개봉 여부가 잘못되거나 누락되면 판정을 보류하고 정확한 정보를 요청한다.",
+              "markdown": "상품 분류 또는 개봉 여부가 잘못되거나 누락되면 판정을 보류하고 정확한 정보를 요청한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "검증된 회사 귀책만 이 제한을 해제할 수 있다.",
+          "markdown": "검증된 회사 귀책만 이 제한을 해제할 수 있다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "검증된 회사 귀책만 이 제한을 해제할 수 있다.",
+              "markdown": "검증된 회사 귀책만 이 제한을 해제할 수 있다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "규범 조항: POL-30.02",
+      "markdown": "**규범 조항:** `POL-30.02`"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "2.3 REFUND-03 — 프리미엄 회원 환불 기간 연장"
+    },
+    {
+      "type": "paragraph",
+      "text": "주문 당시 프리미엄 회원은 배송 완료일을 0일째로 계산하여 30일째까지 전액 환불할 수 있다.",
+      "markdown": "주문 당시 프리미엄 회원은 배송 완료일을 0일째로 계산하여 **30일째까지** 전액 환불할 수 있다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "배송 완료 당일은 0일째다.",
+          "markdown": "배송 완료 당일은 0일째다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "배송 완료 당일은 0일째다.",
+              "markdown": "배송 완료 당일은 0일째다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "30일째는 환불 가능 기간에 포함한다.",
+          "markdown": "30일째는 환불 가능 기간에 포함한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "30일째는 환불 가능 기간에 포함한다.",
+              "markdown": "30일째는 환불 가능 기간에 포함한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "31일째부터는 환불 가능 기간이 지난 것으로 판단한다.",
+          "markdown": "31일째부터는 환불 가능 기간이 지난 것으로 판단한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "31일째부터는 환불 가능 기간이 지난 것으로 판단한다.",
+              "markdown": "31일째부터는 환불 가능 기간이 지난 것으로 판단한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "현재 회원 등급이 아니라 주문 당시 저장된 회원 등급만 사용한다.",
+          "markdown": "현재 회원 등급이 아니라 주문 당시 저장된 회원 등급만 사용한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "현재 회원 등급이 아니라 주문 당시 저장된 회원 등급만 사용한다.",
+              "markdown": "현재 회원 등급이 아니라 주문 당시 저장된 회원 등급만 사용한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "프리미엄 혜택은 최종 할인 판매, 개봉 전자제품, 중복 환불, 통화 또는 금액 제한을 해제하지 않는다.",
+          "markdown": "프리미엄 혜택은 최종 할인 판매, 개봉 전자제품, 중복 환불, 통화 또는 금액 제한을 해제하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "프리미엄 혜택은 최종 할인 판매, 개봉 전자제품, 중복 환불, 통화 또는 금액 제한을 해제하지 않는다.",
+              "markdown": "프리미엄 혜택은 최종 할인 판매, 개봉 전자제품, 중복 환불, 통화 또는 금액 제한을 해제하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "검증된 회사 귀책은 기간 초과 제한만 해제할 수 있다.",
+          "markdown": "검증된 회사 귀책은 기간 초과 제한만 해제할 수 있다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "검증된 회사 귀책은 기간 초과 제한만 해제할 수 있다.",
+              "markdown": "검증된 회사 귀책은 기간 초과 제한만 해제할 수 있다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "규범 조항: POL-20.02, POL-20.06, POL-00.08",
+      "markdown": "**규범 조항:** `POL-20.02`, `POL-20.06`, `POL-00.08`"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "2.4 REFUND-04 — 최종 할인 판매 상품 제한"
+    },
+    {
+      "type": "paragraph",
+      "text": "최종 할인 판매로 지정된 상품은 환불 기간 안이거나 프리미엄 회원이더라도 일반 환불을 거절한다.",
+      "markdown": "최종 할인 판매로 지정된 상품은 환불 기간 안이거나 프리미엄 회원이더라도 일반 환불을 거절한다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "프리미엄 회원 또는 미개봉이라는 사실만으로 이 제한을 해제할 수 없다.",
+          "markdown": "프리미엄 회원 또는 미개봉이라는 사실만으로 이 제한을 해제할 수 없다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "프리미엄 회원 또는 미개봉이라는 사실만으로 이 제한을 해제할 수 없다.",
+              "markdown": "프리미엄 회원 또는 미개봉이라는 사실만으로 이 제한을 해제할 수 없다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "최종 할인 판매 여부가 기록되어 있지 않으면 일반 상품으로 추정하지 않는다.",
+          "markdown": "최종 할인 판매 여부가 기록되어 있지 않으면 일반 상품으로 추정하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "최종 할인 판매 여부가 기록되어 있지 않으면 일반 상품으로 추정하지 않는다.",
+              "markdown": "최종 할인 판매 여부가 기록되어 있지 않으면 일반 상품으로 추정하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "최종 할인 판매 여부가 누락되거나 잘못되면 판정을 보류하고 정확한 정보를 요청한다.",
+          "markdown": "최종 할인 판매 여부가 누락되거나 잘못되면 판정을 보류하고 정확한 정보를 요청한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "최종 할인 판매 여부가 누락되거나 잘못되면 판정을 보류하고 정확한 정보를 요청한다.",
+              "markdown": "최종 할인 판매 여부가 누락되거나 잘못되면 판정을 보류하고 정확한 정보를 요청한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "검증된 회사 귀책만 이 제한을 해제할 수 있다.",
+          "markdown": "검증된 회사 귀책만 이 제한을 해제할 수 있다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "검증된 회사 귀책만 이 제한을 해제할 수 있다.",
+              "markdown": "검증된 회사 귀책만 이 제한을 해제할 수 있다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "규범 조항: POL-30.01",
+      "markdown": "**규범 조항:** `POL-30.01`"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "2.5 REFUND-05 — 회사 귀책 예외"
+    },
+    {
+      "type": "paragraph",
+      "text": "회사의 인증된 증빙 시스템이 다음 사유 중 하나를 회사 책임으로 검증한 경우에만 회사 귀책 예외를 적용한다.",
+      "markdown": "회사의 인증된 증빙 시스템이 다음 사유 중 하나를 회사 책임으로 검증한 경우에만 회사 귀책 예외를 적용한다."
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "start": 1,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "주문한 상품과 실제 배송된 상품이 다른 경우",
+          "markdown": "주문한 상품과 실제 배송된 상품이 다른 경우",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "주문한 상품과 실제 배송된 상품이 다른 경우",
+              "markdown": "주문한 상품과 실제 배송된 상품이 다른 경우"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "배송 과정에서 상품이 파손된 경우",
+          "markdown": "배송 과정에서 상품이 파손된 경우",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "배송 과정에서 상품이 파손된 경우",
+              "markdown": "배송 과정에서 상품이 파손된 경우"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "상품 설명상 필수 구성품이 배송 시점부터 누락된 경우",
+          "markdown": "상품 설명상 필수 구성품이 배송 시점부터 누락된 경우",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "상품 설명상 필수 구성품이 배송 시점부터 누락된 경우",
+              "markdown": "상품 설명상 필수 구성품이 배송 시점부터 누락된 경우"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "정상적인 설치·사용이 어려운 제조 또는 기능 결함이 확인된 경우",
+          "markdown": "정상적인 설치·사용이 어려운 제조 또는 기능 결함이 확인된 경우",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "정상적인 설치·사용이 어려운 제조 또는 기능 결함이 확인된 경우",
+              "markdown": "정상적인 설치·사용이 어려운 제조 또는 기능 결함이 확인된 경우"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "고객 주장, 상담 메모, 자유 입력 문장 또는 출처가 확인되지 않은 자료만으로는 회사 귀책을 확정할 수 없다.",
+      "markdown": "고객 주장, 상담 메모, 자유 입력 문장 또는 출처가 확인되지 않은 자료만으로는 회사 귀책을 확정할 수 없다."
+    },
+    {
+      "type": "heading",
+      "level": 4,
+      "text": "회사 귀책으로 보지 않는 경우"
+    },
+    {
+      "type": "paragraph",
+      "text": "별도의 회사 귀책 사유가 검증되지 않은 다음 사유는 회사 귀책으로 보지 않는다.",
+      "markdown": "별도의 회사 귀책 사유가 검증되지 않은 다음 사유는 회사 귀책으로 보지 않는다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "단순 변심, 색상·크기·사용감에 관한 주관적 불만",
+          "markdown": "단순 변심, 색상·크기·사용감에 관한 주관적 불만",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "단순 변심, 색상·크기·사용감에 관한 주관적 불만",
+              "markdown": "단순 변심, 색상·크기·사용감에 관한 주관적 불만"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "고객의 사용 부주의, 임의 수리·개조, 분실 또는 오염으로 발생한 손상",
+          "markdown": "고객의 사용 부주의, 임의 수리·개조, 분실 또는 오염으로 발생한 손상",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "고객의 사용 부주의, 임의 수리·개조, 분실 또는 오염으로 발생한 손상",
+              "markdown": "고객의 사용 부주의, 임의 수리·개조, 분실 또는 오염으로 발생한 손상"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "정상적인 마모, 사용 환경 또는 호환성 문제",
+          "markdown": "정상적인 마모, 사용 환경 또는 호환성 문제",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "정상적인 마모, 사용 환경 또는 호환성 문제",
+              "markdown": "정상적인 마모, 사용 환경 또는 호환성 문제"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "배송 후 고객이 구성품을 분실한 경우",
+          "markdown": "배송 후 고객이 구성품을 분실한 경우",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "배송 후 고객이 구성품을 분실한 경우",
+              "markdown": "배송 후 고객이 구성품을 분실한 경우"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "가격 변동, 할인 종료, 다른 판매처와의 가격 차이",
+          "markdown": "가격 변동, 할인 종료, 다른 판매처와의 가격 차이",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "가격 변동, 할인 종료, 다른 판매처와의 가격 차이",
+              "markdown": "가격 변동, 할인 종료, 다른 판매처와의 가격 차이"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "검증자·검증 시각·출처를 확인할 수 없는 자료",
+          "markdown": "검증자·검증 시각·출처를 확인할 수 없는 자료",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "검증자·검증 시각·출처를 확인할 수 없는 자료",
+              "markdown": "검증자·검증 시각·출처를 확인할 수 없는 자료"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "포장을 열었다는 사실만으로 고객 과실을 추정하지 않는다. 오배송·누락·결함 확인에 필요한 범위에서 개봉했더라도 검증된 회사 귀책의 적용을 막지 않는다.",
+      "markdown": "포장을 열었다는 사실만으로 고객 과실을 추정하지 않는다. 오배송·누락·결함 확인에 필요한 범위에서 개봉했더라도 검증된 회사 귀책의 적용을 막지 않는다."
+    },
+    {
+      "type": "heading",
+      "level": 4,
+      "text": "회사 귀책 예외가 해제하는 제한"
+    },
+    {
+      "type": "paragraph",
+      "text": "검증된 회사 귀책은 다음 세 제한만 해제한다.",
+      "markdown": "검증된 회사 귀책은 다음 세 제한만 해제한다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "`POL-20.06` 환불 기간 초과",
+          "markdown": "`POL-20.06` 환불 기간 초과",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "POL-20.06 환불 기간 초과",
+              "markdown": "`POL-20.06` 환불 기간 초과"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`POL-30.01` 최종 할인 판매",
+          "markdown": "`POL-30.01` 최종 할인 판매",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "POL-30.01 최종 할인 판매",
+              "markdown": "`POL-30.01` 최종 할인 판매"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`POL-30.02` 개봉한 전자제품",
+          "markdown": "`POL-30.02` 개봉한 전자제품",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "POL-30.02 개봉한 전자제품",
+              "markdown": "`POL-30.02` 개봉한 전자제품"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "다음 문제는 회사 귀책으로 해제할 수 없다.",
+      "markdown": "다음 문제는 회사 귀책으로 해제할 수 없다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "입력 형식 오류",
+          "markdown": "입력 형식 오류",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "입력 형식 오류",
+              "markdown": "입력 형식 오류"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "주문·고객·상품·배송 조회의 누락·중복·참조 불일치",
+          "markdown": "주문·고객·상품·배송 조회의 누락·중복·참조 불일치",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "주문·고객·상품·배송 조회의 누락·중복·참조 불일치",
+              "markdown": "주문·고객·상품·배송 조회의 누락·중복·참조 불일치"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "주문 상태 오류",
+          "markdown": "주문 상태 오류",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "주문 상태 오류",
+              "markdown": "주문 상태 오류"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "이미 완료되었거나 처리 중인 환불",
+          "markdown": "이미 완료되었거나 처리 중인 환불",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "이미 완료되었거나 처리 중인 환불",
+              "markdown": "이미 완료되었거나 처리 중인 환불"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "환불 이력 손상",
+          "markdown": "환불 이력 손상",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "환불 이력 손상",
+              "markdown": "환불 이력 손상"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "통화·금액 오류",
+          "markdown": "통화·금액 오류",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "통화·금액 오류",
+              "markdown": "통화·금액 오류"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "증빙 상태·출처 오류",
+          "markdown": "증빙 상태·출처 오류",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "증빙 상태·출처 오류",
+              "markdown": "증빙 상태·출처 오류"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "회원 등급, 상품 분류, 최종 할인 판매 여부, 전자제품 개봉 여부의 데이터 오류",
+          "markdown": "회원 등급, 상품 분류, 최종 할인 판매 여부, 전자제품 개봉 여부의 데이터 오류",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "회원 등급, 상품 분류, 최종 할인 판매 여부, 전자제품 개봉 여부의 데이터 오류",
+              "markdown": "회원 등급, 상품 분류, 최종 할인 판매 여부, 전자제품 개봉 여부의 데이터 오류"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "규범 조항: POL-40.01~`POL-40.08`",
+      "markdown": "**규범 조항:** `POL-40.01`~`POL-40.08`"
+    },
+    {
+      "type": "thematic_break"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "3. 정책 입력 사실과 신뢰 경계"
+    },
+    {
+      "type": "paragraph",
+      "text": "정책은 원천 데이터베이스 열을 직접 해석하지 않고 정규화된 PolicyFacts만 입력으로 사용한다.",
+      "markdown": "정책은 원천 데이터베이스 열을 직접 해석하지 않고 정규화된 `PolicyFacts`만 입력으로 사용한다."
+    },
+    {
+      "type": "table",
+      "align": [
+        null,
+        null,
+        null
+      ],
+      "headers": [
+        {
+          "text": "객체",
+          "markdown": "객체"
+        },
+        {
+          "text": "정책에 필요한 핵심 사실",
+          "markdown": "정책에 필요한 핵심 사실"
+        },
+        {
+          "text": "신뢰 소유자",
+          "markdown": "신뢰 소유자"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "text": "trusted_context",
+            "markdown": "`trusted_context`"
+          },
+          {
+            "text": "평가 기준일, 시간대",
+            "markdown": "평가 기준일, 시간대"
+          },
+          {
+            "text": "실행 서버·Harness",
+            "markdown": "실행 서버·Harness"
+          }
+        ],
+        [
+          {
+            "text": "request",
+            "markdown": "`request`"
+          },
+          {
+            "text": "환불 요청 ID, 주문 상품 ID, 요청액, 통화",
+            "markdown": "환불 요청 ID, 주문 상품 ID, 요청액, 통화"
+          },
+          {
+            "text": "요청 계층과 서버",
+            "markdown": "요청 계층과 서버"
+          }
+        ],
+        [
+          {
+            "text": "lookup_counts",
+            "markdown": "`lookup_counts`"
+          },
+          {
+            "text": "주문·고객 스냅샷·상품·배송 조회 건수",
+            "markdown": "주문·고객 스냅샷·상품·배송 조회 건수"
+          },
+          {
+            "text": "Adapter",
+            "markdown": "Adapter"
+          }
+        ],
+        [
+          {
+            "text": "order",
+            "markdown": "`order`"
+          },
+          {
+            "text": "주문·참조 ID, 스냅샷 ID, 주문 시각·상태, 순결제액·통화",
+            "markdown": "주문·참조 ID, 스냅샷 ID, 주문 시각·상태, 순결제액·통화"
+          },
+          {
+            "text": "주문 시점 스냅샷",
+            "markdown": "주문 시점 스냅샷"
+          }
+        ],
+        [
+          {
+            "text": "customer_snapshot",
+            "markdown": "`customer_snapshot`"
+          },
+          {
+            "text": "주문 당시 회원 등급과 스냅샷 시각",
+            "markdown": "주문 당시 회원 등급과 스냅샷 시각"
+          },
+          {
+            "text": "주문 시점 스냅샷",
+            "markdown": "주문 시점 스냅샷"
+          }
+        ],
+        [
+          {
+            "text": "product",
+            "markdown": "`product`"
+          },
+          {
+            "text": "주문 당시 상품 분류·최종 할인 판매 여부",
+            "markdown": "주문 당시 상품 분류·최종 할인 판매 여부"
+          },
+          {
+            "text": "주문 시점 스냅샷",
+            "markdown": "주문 시점 스냅샷"
+          }
+        ],
+        [
+          {
+            "text": "shipment",
+            "markdown": "`shipment`"
+          },
+          {
+            "text": "배송 완료일, 개봉 여부, 문제 사유와 증빙",
+            "markdown": "배송 완료일, 개봉 여부, 문제 사유와 증빙"
+          },
+          {
+            "text": "배송 시스템·Evidence Service",
+            "markdown": "배송 시스템·Evidence Service"
+          }
+        ],
+        [
+          {
+            "text": "refund_history",
+            "markdown": "`refund_history`"
+          },
+          {
+            "text": "같은 주문 상품의 기존 환불 ID·상태·금액·통화",
+            "markdown": "같은 주문 상품의 기존 환불 ID·상태·금액·통화"
+          },
+          {
+            "text": "환불 원장",
+            "markdown": "환불 원장"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "3.1 입력 사실 사용 원칙"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "현재 고객 등급이나 현재 상품 마스터 값으로 주문 시점 스냅샷을 덮어쓰지 않는다.",
+          "markdown": "현재 고객 등급이나 현재 상품 마스터 값으로 주문 시점 스냅샷을 덮어쓰지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "현재 고객 등급이나 현재 상품 마스터 값으로 주문 시점 스냅샷을 덮어쓰지 않는다.",
+              "markdown": "현재 고객 등급이나 현재 상품 마스터 값으로 주문 시점 스냅샷을 덮어쓰지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "환불 금액은 해당 주문 상품의 할인 배분 후 순결제액을 사용한다.",
+          "markdown": "환불 금액은 해당 주문 상품의 할인 배분 후 순결제액을 사용한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "환불 금액은 해당 주문 상품의 할인 배분 후 순결제액을 사용한다.",
+              "markdown": "환불 금액은 해당 주문 상품의 할인 배분 후 순결제액을 사용한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`unit_price × quantity`, 현재 판매가 또는 할인 전 표시가격을 환불 기준으로 사용하지 않는다.",
+          "markdown": "`unit_price × quantity`, 현재 판매가 또는 할인 전 표시가격을 환불 기준으로 사용하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "unit_price × quantity, 현재 판매가 또는 할인 전 표시가격을 환불 기준으로 사용하지 않는다.",
+              "markdown": "`unit_price × quantity`, 현재 판매가 또는 할인 전 표시가격을 환불 기준으로 사용하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "최초 배송비, 반품 배송비, 쿠폰 복원, 포인트·기프트 잔액은 상품 환불액과 별도 원장 항목이다.",
+          "markdown": "최초 배송비, 반품 배송비, 쿠폰 복원, 포인트·기프트 잔액은 상품 환불액과 별도 원장 항목이다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "최초 배송비, 반품 배송비, 쿠폰 복원, 포인트·기프트 잔액은 상품 환불액과 별도 원장 항목이다.",
+              "markdown": "최초 배송비, 반품 배송비, 쿠폰 복원, 포인트·기프트 잔액은 상품 환불액과 별도 원장 항목이다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "빈 문자열은 정규화 계층에서 `null`로 처리한다.",
+          "markdown": "빈 문자열은 정규화 계층에서 `null`로 처리한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "빈 문자열은 정규화 계층에서 null로 처리한다.",
+              "markdown": "빈 문자열은 정규화 계층에서 `null`로 처리한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "유효한 날짜시각은 UTC `Z`로 정규화한다.",
+          "markdown": "유효한 날짜시각은 UTC `Z`로 정규화한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "유효한 날짜시각은 UTC Z로 정규화한다.",
+              "markdown": "유효한 날짜시각은 UTC `Z`로 정규화한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "환불 이력은 `refund_id` 사전순으로 정렬한다.",
+          "markdown": "환불 이력은 `refund_id` 사전순으로 정렬한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "환불 이력은 refund_id 사전순으로 정렬한다.",
+              "markdown": "환불 이력은 `refund_id` 사전순으로 정렬한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "평가 기준일, 주문 스냅샷, 환불 이력, 증빙 출처와 신뢰 확인값은 사용자나 Agent가 수정할 수 없다.",
+          "markdown": "평가 기준일, 주문 스냅샷, 환불 이력, 증빙 출처와 신뢰 확인값은 사용자나 Agent가 수정할 수 없다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "평가 기준일, 주문 스냅샷, 환불 이력, 증빙 출처와 신뢰 확인값은 사용자나 Agent가 수정할 수 없다.",
+              "markdown": "평가 기준일, 주문 스냅샷, 환불 이력, 증빙 출처와 신뢰 확인값은 사용자나 Agent가 수정할 수 없다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "thematic_break"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "4. 검증 책임과 오류 소유권"
+    },
+    {
+      "type": "paragraph",
+      "text": "동일한 오류를 여러 계층이 중복 판정하지 않도록 오류 소유자를 하나로 고정한다.",
+      "markdown": "동일한 오류를 여러 계층이 중복 판정하지 않도록 오류 소유자를 하나로 고정한다."
+    },
+    {
+      "type": "table",
+      "align": [
+        null,
+        null,
+        null
+      ],
+      "headers": [
+        {
+          "text": "계층",
+          "markdown": "계층"
+        },
+        {
+          "text": "소유 오류",
+          "markdown": "소유 오류"
+        },
+        {
+          "text": "처리",
+          "markdown": "처리"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "text": "S0 입력 계약",
+            "markdown": "S0 입력 계약"
+          },
+          {
+            "text": "JSON 파싱, 필수·추가 속성, 기본 자료형, 빈 문자열 제한, 안전 정수 범위",
+            "markdown": "JSON 파싱, 필수·추가 속성, 기본 자료형, 빈 문자열 제한, 안전 정수 범위"
+          },
+          {
+            "text": "입력 거부, 정책 판정 결과 없음",
+            "markdown": "입력 거부, 정책 판정 결과 없음"
+          }
+        ],
+        [
+          {
+            "text": "S1 Adapter 무결성",
+            "markdown": "S1 Adapter 무결성"
+          },
+          {
+            "text": "조회 건수와 객체 불일치, 참조키, 스냅샷 ID",
+            "markdown": "조회 건수와 객체 불일치, 참조키, 스냅샷 ID"
+          },
+          {
+            "text": "POL-10.14~`POL-10.16`",
+            "markdown": "`POL-10.14`~`POL-10.16`"
+          }
+        ],
+        [
+          {
+            "text": "S2 업무 데이터 검증",
+            "markdown": "S2 업무 데이터 검증"
+          },
+          {
+            "text": "null, 허용값, 범위, 상태 조합, 날짜 파싱과 시간 순서",
+            "markdown": "`null`, 허용값, 범위, 상태 조합, 날짜 파싱과 시간 순서"
+          },
+          {
+            "text": "각 정책 문서의 오류 조항",
+            "markdown": "각 정책 문서의 오류 조항"
+          }
+        ],
+        [
+          {
+            "text": "S3 정책 규칙 평가",
+            "markdown": "S3 정책 규칙 평가"
+          },
+          {
+            "text": "유효한 사실에 대한 제한·예외 조건",
+            "markdown": "유효한 사실에 대한 제한·예외 조건"
+          },
+          {
+            "text": "전역 우선순위로 대표 조항 선택",
+            "markdown": "전역 우선순위로 대표 조항 선택"
+          }
+        ],
+        [
+          {
+            "text": "S4 출력 검증",
+            "markdown": "S4 출력 검증"
+          },
+          {
+            "text": "결과 구조, 배열 정렬, 해시, 버전",
+            "markdown": "결과 구조, 배열 정렬, 해시, 버전"
+          },
+          {
+            "text": "평가 입력 거부",
+            "markdown": "평가 입력 거부"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "4.1 핵심 원칙"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "JSON 구조 또는 기본 자료형이 잘못된 입력은 업무 오류 코드로 바꾸지 않는다.",
+          "markdown": "JSON 구조 또는 기본 자료형이 잘못된 입력은 업무 오류 코드로 바꾸지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "JSON 구조 또는 기본 자료형이 잘못된 입력은 업무 오류 코드로 바꾸지 않는다.",
+              "markdown": "JSON 구조 또는 기본 자료형이 잘못된 입력은 업무 오류 코드로 바꾸지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "날짜의 JSON Schema `format`은 설명용이며, 실제 날짜 파싱 오류는 `POL-20.05`가 소유한다.",
+          "markdown": "날짜의 JSON Schema `format`은 설명용이며, 실제 날짜 파싱 오류는 `POL-20.05`가 소유한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "날짜의 JSON Schema format은 설명용이며, 실제 날짜 파싱 오류는 POL-20.05가 소유한다.",
+              "markdown": "날짜의 JSON Schema `format`은 설명용이며, 실제 날짜 파싱 오류는 `POL-20.05`가 소유한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "자료형이 허용한 `null`만 업무 데이터 검증에서 처리한다.",
+          "markdown": "자료형이 허용한 `null`만 업무 데이터 검증에서 처리한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "자료형이 허용한 null만 업무 데이터 검증에서 처리한다.",
+              "markdown": "자료형이 허용한 `null`만 업무 데이터 검증에서 처리한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "서로 독립적인 오류는 동시에 일치 조항에 기록할 수 있다.",
+          "markdown": "서로 독립적인 오류는 동시에 일치 조항에 기록할 수 있다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "서로 독립적인 오류는 동시에 일치 조항에 기록할 수 있다.",
+              "markdown": "서로 독립적인 오류는 동시에 일치 조항에 기록할 수 있다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "최종 대표 조항만 전역 우선순위로 하나를 선택한다.",
+          "markdown": "최종 대표 조항만 전역 우선순위로 하나를 선택한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "최종 대표 조항만 전역 우선순위로 하나를 선택한다.",
+              "markdown": "최종 대표 조항만 전역 우선순위로 하나를 선택한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "검증된 회사 귀책이어도 핵심 데이터 검증을 생략하지 않는다.",
+          "markdown": "검증된 회사 귀책이어도 핵심 데이터 검증을 생략하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "검증된 회사 귀책이어도 핵심 데이터 검증을 생략하지 않는다.",
+              "markdown": "검증된 회사 귀책이어도 핵심 데이터 검증을 생략하지 않는다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "thematic_break"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "5. 상세 정책 조항"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "5.1 POL-10 — 조회·참조 무결성과 주문 상태"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "조회 건수와 객체"
+    },
+    {
+      "type": "paragraph",
+      "text": "각 조회 단위는 다음 조건을 만족해야 한다.",
+      "markdown": "각 조회 단위는 다음 조건을 만족해야 한다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "조회 건수가 1이면 대응 객체가 존재해야 한다.",
+          "markdown": "조회 건수가 1이면 대응 객체가 존재해야 한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "조회 건수가 1이면 대응 객체가 존재해야 한다.",
+              "markdown": "조회 건수가 1이면 대응 객체가 존재해야 한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "조회 건수가 1이 아니면 대응 객체는 `null`이어야 한다.",
+          "markdown": "조회 건수가 1이 아니면 대응 객체는 `null`이어야 한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "조회 건수가 1이 아니면 대응 객체는 null이어야 한다.",
+              "markdown": "조회 건수가 1이 아니면 대응 객체는 `null`이어야 한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "이 관계가 깨지면 값을 임의 선택하지 않고 `POL-10.14 INCONSISTENT_LOOKUP_RESULT`로 처리한다.",
+          "markdown": "이 관계가 깨지면 값을 임의 선택하지 않고 `POL-10.14 INCONSISTENT_LOOKUP_RESULT`로 처리한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "이 관계가 깨지면 값을 임의 선택하지 않고 POL-10.14 INCONSISTENT_LOOKUP_RESULT로 처리한다.",
+              "markdown": "이 관계가 깨지면 값을 임의 선택하지 않고 `POL-10.14 INCONSISTENT_LOOKUP_RESULT`로 처리한다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "align": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "headers": [
+        {
+          "text": "조회 결과",
+          "markdown": "조회 결과"
+        },
+        {
+          "text": "주문",
+          "markdown": "주문"
+        },
+        {
+          "text": "고객 스냅샷",
+          "markdown": "고객 스냅샷"
+        },
+        {
+          "text": "상품",
+          "markdown": "상품"
+        },
+        {
+          "text": "배송",
+          "markdown": "배송"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "text": "0건",
+            "markdown": "0건"
+          },
+          {
+            "text": "POL-10.01",
+            "markdown": "`POL-10.01`"
+          },
+          {
+            "text": "POL-10.02",
+            "markdown": "`POL-10.02`"
+          },
+          {
+            "text": "POL-10.03",
+            "markdown": "`POL-10.03`"
+          },
+          {
+            "text": "POL-10.04",
+            "markdown": "`POL-10.04`"
+          }
+        ],
+        [
+          {
+            "text": "2건 이상",
+            "markdown": "2건 이상"
+          },
+          {
+            "text": "POL-10.09",
+            "markdown": "`POL-10.09`"
+          },
+          {
+            "text": "POL-10.10",
+            "markdown": "`POL-10.10`"
+          },
+          {
+            "text": "POL-10.11",
+            "markdown": "`POL-10.11`"
+          },
+          {
+            "text": "POL-10.12",
+            "markdown": "`POL-10.12`"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "참조키"
+    },
+    {
+      "type": "paragraph",
+      "text": "다음 값은 서로 같아야 한다.",
+      "markdown": "다음 값은 서로 같아야 한다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "`request.order_item_id = order.order_item_id = shipment.order_item_id`",
+          "markdown": "`request.order_item_id = order.order_item_id = shipment.order_item_id`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "request.order_item_id = order.order_item_id = shipment.order_item_id",
+              "markdown": "`request.order_item_id = order.order_item_id = shipment.order_item_id`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`order.customer_id = customer_snapshot.customer_id`",
+          "markdown": "`order.customer_id = customer_snapshot.customer_id`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "order.customer_id = customer_snapshot.customer_id",
+              "markdown": "`order.customer_id = customer_snapshot.customer_id`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`order.product_id = product.product_id`",
+          "markdown": "`order.product_id = product.product_id`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "order.product_id = product.product_id",
+              "markdown": "`order.product_id = product.product_id`"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "불일치하면 POL-10.15 ENTITY_REFERENCE_MISMATCH다.",
+      "markdown": "불일치하면 `POL-10.15 ENTITY_REFERENCE_MISMATCH`다."
+    },
+    {
+      "type": "paragraph",
+      "text": "다음 스냅샷 ID도 서로 같아야 한다.",
+      "markdown": "다음 스냅샷 ID도 서로 같아야 한다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "`order.order_snapshot_id`",
+          "markdown": "`order.order_snapshot_id`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "order.order_snapshot_id",
+              "markdown": "`order.order_snapshot_id`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`customer_snapshot.order_snapshot_id`",
+          "markdown": "`customer_snapshot.order_snapshot_id`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "customer_snapshot.order_snapshot_id",
+              "markdown": "`customer_snapshot.order_snapshot_id`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`product.order_snapshot_id`",
+          "markdown": "`product.order_snapshot_id`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "product.order_snapshot_id",
+              "markdown": "`product.order_snapshot_id`"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "불일치하면 POL-10.16 SNAPSHOT_REFERENCE_MISMATCH다.",
+      "markdown": "불일치하면 `POL-10.16 SNAPSHOT_REFERENCE_MISMATCH`다."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "주문 상태"
+    },
+    {
+      "type": "table",
+      "align": [
+        null,
+        null
+      ],
+      "headers": [
+        {
+          "text": "주문 상태",
+          "markdown": "주문 상태"
+        },
+        {
+          "text": "정책 결과",
+          "markdown": "정책 결과"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "text": "DELIVERED",
+            "markdown": "`DELIVERED`"
+          },
+          {
+            "text": "환불 정책 계속 평가",
+            "markdown": "환불 정책 계속 평가"
+          }
+        ],
+        [
+          {
+            "text": "PAID, SHIPPED",
+            "markdown": "`PAID`, `SHIPPED`"
+          },
+          {
+            "text": "POL-10.05 CANCEL_FLOW_REQUIRED; 환불 판단 대신 취소 절차로 전달",
+            "markdown": "`POL-10.05 CANCEL_FLOW_REQUIRED`; 환불 판단 대신 취소 절차로 전달"
+          }
+        ],
+        [
+          {
+            "text": "CANCELLED",
+            "markdown": "`CANCELLED`"
+          },
+          {
+            "text": "POL-10.06 ORDER_CANCELLED; 새 환불 대상으로 처리하지 않음",
+            "markdown": "`POL-10.06 ORDER_CANCELLED`; 새 환불 대상으로 처리하지 않음"
+          }
+        ],
+        [
+          {
+            "text": "그 외 또는 null",
+            "markdown": "그 외 또는 `null`"
+          },
+          {
+            "text": "POL-10.07 INVALID_ORDER_STATUS",
+            "markdown": "`POL-10.07 INVALID_ORDER_STATUS`"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "PAID 또는 SHIPPED인데 배송 완료일이 존재하면 POL-10.08 INCONSISTENT_ORDER_SHIPMENT_STATE다.",
+      "markdown": "`PAID` 또는 `SHIPPED`인데 배송 완료일이 존재하면 `POL-10.08 INCONSISTENT_ORDER_SHIPMENT_STATE`다."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "배송 완료일 누락"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "배송 완료일이 존재하면 회사 귀책 여부와 관계없이 날짜 형식과 미래 날짜 여부를 검증한다.",
+          "markdown": "배송 완료일이 존재하면 회사 귀책 여부와 관계없이 날짜 형식과 미래 날짜 여부를 검증한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "배송 완료일이 존재하면 회사 귀책 여부와 관계없이 날짜 형식과 미래 날짜 여부를 검증한다.",
+              "markdown": "배송 완료일이 존재하면 회사 귀책 여부와 관계없이 날짜 형식과 미래 날짜 여부를 검증한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "배송 완료일이 `null`이고 회사 귀책이 검증되지 않았으면 `POL-10.13 DELIVERED_AT_MISSING`이다.",
+          "markdown": "배송 완료일이 `null`이고 회사 귀책이 검증되지 않았으면 `POL-10.13 DELIVERED_AT_MISSING`이다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "배송 완료일이 null이고 회사 귀책이 검증되지 않았으면 POL-10.13 DELIVERED_AT_MISSING이다.",
+              "markdown": "배송 완료일이 `null`이고 회사 귀책이 검증되지 않았으면 `POL-10.13 DELIVERED_AT_MISSING`이다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "배송 완료일이 `null`이어도 회사 귀책이 검증된 경우에는 날짜를 만들지 않고 기간 조건을 평가하지 않은 채 나머지 조건을 계속 확인할 수 있다.",
+          "markdown": "배송 완료일이 `null`이어도 회사 귀책이 검증된 경우에는 날짜를 만들지 않고 기간 조건을 평가하지 않은 채 나머지 조건을 계속 확인할 수 있다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "배송 완료일이 null이어도 회사 귀책이 검증된 경우에는 날짜를 만들지 않고 기간 조건을 평가하지 않은 채 나머지 조건을 계속 확인할 수 있다.",
+              "markdown": "배송 완료일이 `null`이어도 회사 귀책이 검증된 경우에는 날짜를 만들지 않고 기간 조건을 평가하지 않은 채 나머지 조건을 계속 확인할 수 있다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "5.2 POL-20 — 회원 등급·날짜·환불 기간"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "회원 등급 선택"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "주문 당시 등급이 `STANDARD`이면 `POL-20.01 STANDARD_TIER_RULE_SELECTED`를 기록하고 0~14일 규칙을 선택한다.",
+          "markdown": "주문 당시 등급이 `STANDARD`이면 `POL-20.01 STANDARD_TIER_RULE_SELECTED`를 기록하고 0~14일 규칙을 선택한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "주문 당시 등급이 STANDARD이면 POL-20.01 STANDARD_TIER_RULE_SELECTED를 기록하고 0~14일 규칙을 선택한다.",
+              "markdown": "주문 당시 등급이 `STANDARD`이면 `POL-20.01 STANDARD_TIER_RULE_SELECTED`를 기록하고 0~14일 규칙을 선택한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "주문 당시 등급이 `PREMIUM`이면 `POL-20.02 PREMIUM_TIER_RULE_SELECTED`를 기록하고 0~30일 규칙을 선택한다.",
+          "markdown": "주문 당시 등급이 `PREMIUM`이면 `POL-20.02 PREMIUM_TIER_RULE_SELECTED`를 기록하고 0~30일 규칙을 선택한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "주문 당시 등급이 PREMIUM이면 POL-20.02 PREMIUM_TIER_RULE_SELECTED를 기록하고 0~30일 규칙을 선택한다.",
+              "markdown": "주문 당시 등급이 `PREMIUM`이면 `POL-20.02 PREMIUM_TIER_RULE_SELECTED`를 기록하고 0~30일 규칙을 선택한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "등급이 `null`이거나 허용값이 아니면 `POL-20.03 INVALID_CUSTOMER_TIER`다.",
+          "markdown": "등급이 `null`이거나 허용값이 아니면 `POL-20.03 INVALID_CUSTOMER_TIER`다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "등급이 null이거나 허용값이 아니면 POL-20.03 INVALID_CUSTOMER_TIER다.",
+              "markdown": "등급이 `null`이거나 허용값이 아니면 `POL-20.03 INVALID_CUSTOMER_TIER`다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`POL-20.01`과 `POL-20.02`는 기간 안이라는 뜻이 아니라 적용할 기간 규칙을 선택했다는 비종결 조항이다.",
+          "markdown": "`POL-20.01`과 `POL-20.02`는 기간 안이라는 뜻이 아니라 적용할 기간 규칙을 선택했다는 비종결 조항이다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "POL-20.01과 POL-20.02는 기간 안이라는 뜻이 아니라 적용할 기간 규칙을 선택했다는 비종결 조항이다.",
+              "markdown": "`POL-20.01`과 `POL-20.02`는 기간 안이라는 뜻이 아니라 적용할 기간 규칙을 선택했다는 비종결 조항이다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "날짜 파싱"
+    },
+    {
+      "type": "paragraph",
+      "text": "다음 값은 엄격한 RFC 3339로 파싱한다.",
+      "markdown": "다음 값은 엄격한 RFC 3339로 파싱한다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "`evaluation_date`",
+          "markdown": "`evaluation_date`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "evaluation_date",
+              "markdown": "`evaluation_date`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`order.ordered_at`",
+          "markdown": "`order.ordered_at`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "order.ordered_at",
+              "markdown": "`order.ordered_at`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "고객·상품 스냅샷의 `snapshotted_at`",
+          "markdown": "고객·상품 스냅샷의 `snapshotted_at`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "고객·상품 스냅샷의 snapshotted_at",
+              "markdown": "고객·상품 스냅샷의 `snapshotted_at`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "값이 존재하는 `shipment.delivered_at`",
+          "markdown": "값이 존재하는 `shipment.delivered_at`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "값이 존재하는 shipment.delivered_at",
+              "markdown": "값이 존재하는 `shipment.delivered_at`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "증빙 상태가 `VERIFIED` 또는 `REJECTED`일 때의 `verified_at`",
+          "markdown": "증빙 상태가 `VERIFIED` 또는 `REJECTED`일 때의 `verified_at`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "증빙 상태가 VERIFIED 또는 REJECTED일 때의 verified_at",
+              "markdown": "증빙 상태가 `VERIFIED` 또는 `REJECTED`일 때의 `verified_at`"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "존재하지 않는 달력 날짜, 시간대 없는 날짜시각, 윤초, 24:00 표기 등은 POL-20.05 INVALID_DATE_FORMAT이다.",
+      "markdown": "존재하지 않는 달력 날짜, 시간대 없는 날짜시각, 윤초, `24:00` 표기 등은 `POL-20.05 INVALID_DATE_FORMAT`이다."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "시간 순서"
+    },
+    {
+      "type": "paragraph",
+      "text": "모든 날짜시각을 UTC 시점으로 바꾼 뒤 다음을 강제한다.",
+      "markdown": "모든 날짜시각을 UTC 시점으로 바꾼 뒤 다음을 강제한다."
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "start": 1,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "고객 스냅샷 시각과 상품 스냅샷 시각은 주문 시각과 같아야 한다.",
+          "markdown": "고객 스냅샷 시각과 상품 스냅샷 시각은 주문 시각과 같아야 한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "고객 스냅샷 시각과 상품 스냅샷 시각은 주문 시각과 같아야 한다.",
+              "markdown": "고객 스냅샷 시각과 상품 스냅샷 시각은 주문 시각과 같아야 한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "배송 완료 시각은 주문 시각보다 빠를 수 없다.",
+          "markdown": "배송 완료 시각은 주문 시각보다 빠를 수 없다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "배송 완료 시각은 주문 시각보다 빠를 수 없다.",
+              "markdown": "배송 완료 시각은 주문 시각보다 빠를 수 없다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "필요한 모든 시각은 `Asia/Seoul` 기준 평가일 다음 날 00:00보다 이전이어야 한다.",
+          "markdown": "필요한 모든 시각은 `Asia/Seoul` 기준 평가일 다음 날 00:00보다 이전이어야 한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "필요한 모든 시각은 Asia/Seoul 기준 평가일 다음 날 00:00보다 이전이어야 한다.",
+              "markdown": "필요한 모든 시각은 `Asia/Seoul` 기준 평가일 다음 날 00:00보다 이전이어야 한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "배송 완료일이 있으면 증빙 검증 시각은 배송 완료 시각보다 빠를 수 없다.",
+          "markdown": "배송 완료일이 있으면 증빙 검증 시각은 배송 완료 시각보다 빠를 수 없다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "배송 완료일이 있으면 증빙 검증 시각은 배송 완료 시각보다 빠를 수 없다.",
+              "markdown": "배송 완료일이 있으면 증빙 검증 시각은 배송 완료 시각보다 빠를 수 없다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "배송 완료일 `null` 특례에서는 증빙 검증 시각이 주문 시각보다 빠를 수 없다.",
+          "markdown": "배송 완료일 `null` 특례에서는 증빙 검증 시각이 주문 시각보다 빠를 수 없다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "배송 완료일 null 특례에서는 증빙 검증 시각이 주문 시각보다 빠를 수 없다.",
+              "markdown": "배송 완료일 `null` 특례에서는 증빙 검증 시각이 주문 시각보다 빠를 수 없다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "위반하면 POL-20.04 INVALID_DATE_ORDER다.",
+      "markdown": "위반하면 `POL-20.04 INVALID_DATE_ORDER`다."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "기간 계산"
+    },
+    {
+      "type": "paragraph",
+      "text": "elapsed_days = evaluation_date의 서울 달력 날짜 - delivered_at의 서울 달력 날짜로 계산한다.",
+      "markdown": "`elapsed_days = evaluation_date의 서울 달력 날짜 - delivered_at의 서울 달력 날짜`로 계산한다."
+    },
+    {
+      "type": "table",
+      "align": [
+        null,
+        "right",
+        "right"
+      ],
+      "headers": [
+        {
+          "text": "주문 당시 등급",
+          "markdown": "주문 당시 등급"
+        },
+        {
+          "text": "환불 가능",
+          "markdown": "환불 가능"
+        },
+        {
+          "text": "기간 초과",
+          "markdown": "기간 초과"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "text": "STANDARD",
+            "markdown": "`STANDARD`"
+          },
+          {
+            "text": "0~14일",
+            "markdown": "0~14일"
+          },
+          {
+            "text": "15일 이상",
+            "markdown": "15일 이상"
+          }
+        ],
+        [
+          {
+            "text": "PREMIUM",
+            "markdown": "`PREMIUM`"
+          },
+          {
+            "text": "0~30일",
+            "markdown": "0~30일"
+          },
+          {
+            "text": "31일 이상",
+            "markdown": "31일 이상"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "기간을 초과하면 POL-20.06 RETURN_WINDOW_EXPIRED다. 검증된 회사 귀책은 이 조항만 해제하며 잘못된 등급이나 날짜는 해제하지 않는다.",
+      "markdown": "기간을 초과하면 `POL-20.06 RETURN_WINDOW_EXPIRED`다. 검증된 회사 귀책은 이 조항만 해제하며 잘못된 등급이나 날짜는 해제하지 않는다."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "5.3 POL-30 — 상품 상태와 일반 환불 제한"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "상품 데이터 검증"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "허용 상품 분류: `ELECTRONICS`, `FASHION`, `HOME`, `BEAUTY`, `OTHER`",
+          "markdown": "허용 상품 분류: `ELECTRONICS`, `FASHION`, `HOME`, `BEAUTY`, `OTHER`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "허용 상품 분류: ELECTRONICS, FASHION, HOME, BEAUTY, OTHER",
+              "markdown": "허용 상품 분류: `ELECTRONICS`, `FASHION`, `HOME`, `BEAUTY`, `OTHER`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "상품 분류가 `null` 또는 미등록 값이면 `POL-30.03 INVALID_PRODUCT_CATEGORY`",
+          "markdown": "상품 분류가 `null` 또는 미등록 값이면 `POL-30.03 INVALID_PRODUCT_CATEGORY`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "상품 분류가 null 또는 미등록 값이면 POL-30.03 INVALID_PRODUCT_CATEGORY",
+              "markdown": "상품 분류가 `null` 또는 미등록 값이면 `POL-30.03 INVALID_PRODUCT_CATEGORY`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "최종 할인 판매 여부가 `null`이면 `POL-30.05 FINAL_SALE_UNKNOWN`",
+          "markdown": "최종 할인 판매 여부가 `null`이면 `POL-30.05 FINAL_SALE_UNKNOWN`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "최종 할인 판매 여부가 null이면 POL-30.05 FINAL_SALE_UNKNOWN",
+              "markdown": "최종 할인 판매 여부가 `null`이면 `POL-30.05 FINAL_SALE_UNKNOWN`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "전자제품의 개봉 여부가 `null`이면 `POL-30.04 PACKAGE_OPENED_UNKNOWN`",
+          "markdown": "전자제품의 개봉 여부가 `null`이면 `POL-30.04 PACKAGE_OPENED_UNKNOWN`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "전자제품의 개봉 여부가 null이면 POL-30.04 PACKAGE_OPENED_UNKNOWN",
+              "markdown": "전자제품의 개봉 여부가 `null`이면 `POL-30.04 PACKAGE_OPENED_UNKNOWN`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "비전자제품의 개봉 여부는 `null`이어도 유효하다.",
+          "markdown": "비전자제품의 개봉 여부는 `null`이어도 유효하다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "비전자제품의 개봉 여부는 null이어도 유효하다.",
+              "markdown": "비전자제품의 개봉 여부는 `null`이어도 유효하다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "제한 조건"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "`final_sale = true`이면 `POL-30.01 FINAL_SALE_RESTRICTED`",
+          "markdown": "`final_sale = true`이면 `POL-30.01 FINAL_SALE_RESTRICTED`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "final_sale = true이면 POL-30.01 FINAL_SALE_RESTRICTED",
+              "markdown": "`final_sale = true`이면 `POL-30.01 FINAL_SALE_RESTRICTED`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`category = ELECTRONICS`이고 `package_opened = true`이면 `POL-30.02 OPENED_ELECTRONICS`",
+          "markdown": "`category = ELECTRONICS`이고 `package_opened = true`이면 `POL-30.02 OPENED_ELECTRONICS`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "category = ELECTRONICS이고 package_opened = true이면 POL-30.02 OPENED_ELECTRONICS",
+              "markdown": "`category = ELECTRONICS`이고 `package_opened = true`이면 `POL-30.02 OPENED_ELECTRONICS`"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "최종 할인 판매, 개봉 전자제품, 기간 초과는 동시에 일치할 수 있다. 검증된 회사 귀책은 실제로 일치한 POL-30.01, POL-30.02만 해제하며 상품 데이터 오류는 해제하지 않는다.",
+      "markdown": "최종 할인 판매, 개봉 전자제품, 기간 초과는 동시에 일치할 수 있다. 검증된 회사 귀책은 실제로 일치한 `POL-30.01`, `POL-30.02`만 해제하며 상품 데이터 오류는 해제하지 않는다."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "5.4 POL-40 — 회사 귀책과 증빙"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "허용 문제 코드"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "`WRONG_ITEM`",
+          "markdown": "`WRONG_ITEM`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "WRONG_ITEM",
+              "markdown": "`WRONG_ITEM`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`DAMAGED`",
+          "markdown": "`DAMAGED`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "DAMAGED",
+              "markdown": "`DAMAGED`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`MISSING_PARTS`",
+          "markdown": "`MISSING_PARTS`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "MISSING_PARTS",
+              "markdown": "`MISSING_PARTS`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`DEFECTIVE`",
+          "markdown": "`DEFECTIVE`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "DEFECTIVE",
+              "markdown": "`DEFECTIVE`"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "여러 문제가 동시에 확인되더라도 대표 코드는 WRONG_ITEM → DAMAGED → MISSING_PARTS → DEFECTIVE 순서에서 가장 앞선 항목 하나를 선택한다. 나머지는 감사 로그에 남기며 대표 코드 선택은 환불 자격이나 금액을 바꾸지 않는다.",
+      "markdown": "여러 문제가 동시에 확인되더라도 대표 코드는 `WRONG_ITEM → DAMAGED → MISSING_PARTS → DEFECTIVE` 순서에서 가장 앞선 항목 하나를 선택한다. 나머지는 감사 로그에 남기며 대표 코드 선택은 환불 자격이나 금액을 바꾸지 않는다."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "증빙 상태기계"
+    },
+    {
+      "type": "table",
+      "align": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "headers": [
+        {
+          "text": "상태",
+          "markdown": "상태"
+        },
+        {
+          "text": "문제 코드",
+          "markdown": "문제 코드"
+        },
+        {
+          "text": "검증자·시각·출처",
+          "markdown": "검증자·시각·출처"
+        },
+        {
+          "text": "신뢰 확인값",
+          "markdown": "신뢰 확인값"
+        },
+        {
+          "text": "처리",
+          "markdown": "처리"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "text": "NONE",
+            "markdown": "`NONE`"
+          },
+          {
+            "text": "null",
+            "markdown": "`null`"
+          },
+          {
+            "text": "모두 null",
+            "markdown": "모두 `null`"
+          },
+          {
+            "text": "false",
+            "markdown": "`false`"
+          },
+          {
+            "text": "회사 귀책 예외 없이 일반 정책 평가",
+            "markdown": "회사 귀책 예외 없이 일반 정책 평가"
+          }
+        ],
+        [
+          {
+            "text": "PENDING",
+            "markdown": "`PENDING`"
+          },
+          {
+            "text": "유효 코드",
+            "markdown": "유효 코드"
+          },
+          {
+            "text": "모두 null",
+            "markdown": "모두 `null`"
+          },
+          {
+            "text": "false",
+            "markdown": "`false`"
+          },
+          {
+            "text": "POL-40.02; 증빙 확인 완료까지 판정 보류",
+            "markdown": "`POL-40.02`; 증빙 확인 완료까지 판정 보류"
+          }
+        ],
+        [
+          {
+            "text": "VERIFIED",
+            "markdown": "`VERIFIED`"
+          },
+          {
+            "text": "유효 코드",
+            "markdown": "유효 코드"
+          },
+          {
+            "text": "모두 존재",
+            "markdown": "모두 존재"
+          },
+          {
+            "text": "true",
+            "markdown": "`true`"
+          },
+          {
+            "text": "신뢰 검증 통과 시 POL-40.01",
+            "markdown": "신뢰 검증 통과 시 `POL-40.01`"
+          }
+        ],
+        [
+          {
+            "text": "REJECTED",
+            "markdown": "`REJECTED`"
+          },
+          {
+            "text": "유효 코드",
+            "markdown": "유효 코드"
+          },
+          {
+            "text": "모두 존재",
+            "markdown": "모두 존재"
+          },
+          {
+            "text": "true",
+            "markdown": "`true`"
+          },
+          {
+            "text": "POL-40.03; 회사 귀책 예외만 제거하고 일반 정책 평가",
+            "markdown": "`POL-40.03`; 회사 귀책 예외만 제거하고 일반 정책 평가"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "증빙 오류 평가 순서"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "start": 1,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "미등록 상태: `POL-40.07 INVALID_EVIDENCE_STATUS`",
+          "markdown": "미등록 상태: `POL-40.07 INVALID_EVIDENCE_STATUS`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "미등록 상태: POL-40.07 INVALID_EVIDENCE_STATUS",
+              "markdown": "미등록 상태: `POL-40.07 INVALID_EVIDENCE_STATUS`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "미등록 문제 코드: `POL-40.05 INVALID_ISSUE_CODE`",
+          "markdown": "미등록 문제 코드: `POL-40.05 INVALID_ISSUE_CODE`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "미등록 문제 코드: POL-40.05 INVALID_ISSUE_CODE",
+              "markdown": "미등록 문제 코드: `POL-40.05 INVALID_ISSUE_CODE`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "상태·코드·`null`·신뢰 확인값 조합 오류: `POL-40.04 INCONSISTENT_FAULT_EVIDENCE`",
+          "markdown": "상태·코드·`null`·신뢰 확인값 조합 오류: `POL-40.04 INCONSISTENT_FAULT_EVIDENCE`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "상태·코드·null·신뢰 확인값 조합 오류: POL-40.04 INCONSISTENT_FAULT_EVIDENCE",
+              "markdown": "상태·코드·`null`·신뢰 확인값 조합 오류: `POL-40.04 INCONSISTENT_FAULT_EVIDENCE`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`VERIFIED`·`REJECTED`의 검증자·검증 시각·출처 누락: `POL-40.06 EVIDENCE_PROVENANCE_MISSING`",
+          "markdown": "`VERIFIED`·`REJECTED`의 검증자·검증 시각·출처 누락: `POL-40.06 EVIDENCE_PROVENANCE_MISSING`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "VERIFIED·REJECTED의 검증자·검증 시각·출처 누락: POL-40.06 EVIDENCE_PROVENANCE_MISSING",
+              "markdown": "`VERIFIED`·`REJECTED`의 검증자·검증 시각·출처 누락: `POL-40.06 EVIDENCE_PROVENANCE_MISSING`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "출처가 존재하지만 서명, 검증자, 출처 또는 신뢰 확인이 실패함: `POL-40.08 UNTRUSTED_EVIDENCE_PROVENANCE`",
+          "markdown": "출처가 존재하지만 서명, 검증자, 출처 또는 신뢰 확인이 실패함: `POL-40.08 UNTRUSTED_EVIDENCE_PROVENANCE`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "출처가 존재하지만 서명, 검증자, 출처 또는 신뢰 확인이 실패함: POL-40.08 UNTRUSTED_EVIDENCE_PROVENANCE",
+              "markdown": "출처가 존재하지만 서명, 검증자, 출처 또는 신뢰 확인이 실패함: `POL-40.08 UNTRUSTED_EVIDENCE_PROVENANCE`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`PENDING`: `POL-40.02 FAULT_EVIDENCE_REQUIRED`",
+          "markdown": "`PENDING`: `POL-40.02 FAULT_EVIDENCE_REQUIRED`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "PENDING: POL-40.02 FAULT_EVIDENCE_REQUIRED",
+              "markdown": "`PENDING`: `POL-40.02 FAULT_EVIDENCE_REQUIRED`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`REJECTED`: `POL-40.03 EVIDENCE_REJECTED_NO_OVERRIDE`",
+          "markdown": "`REJECTED`: `POL-40.03 EVIDENCE_REJECTED_NO_OVERRIDE`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "REJECTED: POL-40.03 EVIDENCE_REJECTED_NO_OVERRIDE",
+              "markdown": "`REJECTED`: `POL-40.03 EVIDENCE_REJECTED_NO_OVERRIDE`"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "앞 단계가 유효할 때만 다음 조건을 평가한다. 하나의 결함을 여러 증빙 오류 조항이 중복 소유하지 않는다. 구체적인 검증자·출처 허용 목록과 서명 검사는 evidence-validator-v2가 소유하며 구현자가 값을 임의 추가할 수 없다.",
+      "markdown": "앞 단계가 유효할 때만 다음 조건을 평가한다. 하나의 결함을 여러 증빙 오류 조항이 중복 소유하지 않는다. 구체적인 검증자·출처 허용 목록과 서명 검사는 `evidence-validator-v2`가 소유하며 구현자가 값을 임의 추가할 수 없다."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "VERIFIED의 효과와 경계"
+    },
+    {
+      "type": "paragraph",
+      "text": "유효한 VERIFIED만 POL-40.01 VERIFIED_COMPANY_FAULT가 된다.",
+      "markdown": "유효한 `VERIFIED`만 `POL-40.01 VERIFIED_COMPANY_FAULT`가 된다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "환불 기간 초과, 최종 할인 판매, 개봉 전자제품 제한만 해제한다.",
+          "markdown": "환불 기간 초과, 최종 할인 판매, 개봉 전자제품 제한만 해제한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "환불 기간 초과, 최종 할인 판매, 개봉 전자제품 제한만 해제한다.",
+              "markdown": "환불 기간 초과, 최종 할인 판매, 개봉 전자제품 제한만 해제한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "별도의 30일·90일 같은 임의 유효기간을 추가하지 않는다.",
+          "markdown": "별도의 30일·90일 같은 임의 유효기간을 추가하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "별도의 30일·90일 같은 임의 유효기간을 추가하지 않는다.",
+              "markdown": "별도의 30일·90일 같은 임의 유효기간을 추가하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "배송 완료일이 `null`이면 기간을 계산하지 않고 승인 조건을 계속 확인할 수 있다.",
+          "markdown": "배송 완료일이 `null`이면 기간을 계산하지 않고 승인 조건을 계속 확인할 수 있다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "배송 완료일이 null이면 기간을 계산하지 않고 승인 조건을 계속 확인할 수 있다.",
+              "markdown": "배송 완료일이 `null`이면 기간을 계산하지 않고 승인 조건을 계속 확인할 수 있다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "주문·상품·배송 핵심 사실과 환불 이력·통화·금액은 여전히 유효해야 한다.",
+          "markdown": "주문·상품·배송 핵심 사실과 환불 이력·통화·금액은 여전히 유효해야 한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "주문·상품·배송 핵심 사실과 환불 이력·통화·금액은 여전히 유효해야 한다.",
+              "markdown": "주문·상품·배송 핵심 사실과 환불 이력·통화·금액은 여전히 유효해야 한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`REJECTED`는 환불 거절 사유가 아니다. 회사 귀책 예외를 적용하지 않는다는 뜻이다.",
+          "markdown": "`REJECTED`는 환불 거절 사유가 아니다. 회사 귀책 예외를 적용하지 않는다는 뜻이다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "REJECTED는 환불 거절 사유가 아니다. 회사 귀책 예외를 적용하지 않는다는 뜻이다.",
+              "markdown": "`REJECTED`는 환불 거절 사유가 아니다. 회사 귀책 예외를 적용하지 않는다는 뜻이다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`PENDING` 상태에서 사용자나 Agent에게 신뢰 확인값 생성을 요청하지 않는다. Evidence Service 검토 큐로 전달한다.",
+          "markdown": "`PENDING` 상태에서 사용자나 Agent에게 신뢰 확인값 생성을 요청하지 않는다. Evidence Service 검토 큐로 전달한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "PENDING 상태에서 사용자나 Agent에게 신뢰 확인값 생성을 요청하지 않는다. Evidence Service 검토 큐로 전달한다.",
+              "markdown": "`PENDING` 상태에서 사용자나 Agent에게 신뢰 확인값 생성을 요청하지 않는다. Evidence Service 검토 큐로 전달한다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "회수·비용·실행 경계"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "회사 귀책 반품의 표준 회수비와 반품 배송비는 회사가 부담하며 상품 환불액에서 차감하지 않는다.",
+          "markdown": "회사 귀책 반품의 표준 회수비와 반품 배송비는 회사가 부담하며 상품 환불액에서 차감하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "회사 귀책 반품의 표준 회수비와 반품 배송비는 회사가 부담하며 상품 환불액에서 차감하지 않는다.",
+              "markdown": "회사 귀책 반품의 표준 회수비와 반품 배송비는 회사가 부담하며 상품 환불액에서 차감하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "고객이 사전 승인 없이 선택한 별도 택배·특급 비용은 자동 환급하지 않는다.",
+          "markdown": "고객이 사전 승인 없이 선택한 별도 택배·특급 비용은 자동 환급하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "고객이 사전 승인 없이 선택한 별도 택배·특급 비용은 자동 환급하지 않는다.",
+              "markdown": "고객이 사전 승인 없이 선택한 별도 택배·특급 비용은 자동 환급하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "환불 자격 승인과 실제 지급은 서로 다른 단계다.",
+          "markdown": "환불 자격 승인과 실제 지급은 서로 다른 단계다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "환불 자격 승인과 실제 지급은 서로 다른 단계다.",
+              "markdown": "환불 자격 승인과 실제 지급은 서로 다른 단계다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "실제 지급은 신뢰된 Returns Service의 `RECEIVED` 또는 `WAIVED_BY_POLICY` 상태를 요구한다.",
+          "markdown": "실제 지급은 신뢰된 Returns Service의 `RECEIVED` 또는 `WAIVED_BY_POLICY` 상태를 요구한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "실제 지급은 신뢰된 Returns Service의 RECEIVED 또는 WAIVED_BY_POLICY 상태를 요구한다.",
+              "markdown": "실제 지급은 신뢰된 Returns Service의 `RECEIVED` 또는 `WAIVED_BY_POLICY` 상태를 요구한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "자유 입력 메모나 운영자의 구두 판단으로 회수를 면제할 수 없다.",
+          "markdown": "자유 입력 메모나 운영자의 구두 판단으로 회수를 면제할 수 없다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "자유 입력 메모나 운영자의 구두 판단으로 회수를 면제할 수 없다.",
+              "markdown": "자유 입력 메모나 운영자의 구두 판단으로 회수를 면제할 수 없다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "정책 판정 프로그램은 상품 회수나 돈의 지급을 실행하지 않는다.",
+          "markdown": "정책 판정 프로그램은 상품 회수나 돈의 지급을 실행하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "정책 판정 프로그램은 상품 회수나 돈의 지급을 실행하지 않는다.",
+              "markdown": "정책 판정 프로그램은 상품 회수나 돈의 지급을 실행하지 않는다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "5.5 POL-50 — 환불 이력·통화·금액 통제"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "환불 이력 범위와 무결성"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "현재 요청과 같은 `order_item_id`의 환불 이력만 사용한다.",
+          "markdown": "현재 요청과 같은 `order_item_id`의 환불 이력만 사용한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "현재 요청과 같은 order_item_id의 환불 이력만 사용한다.",
+              "markdown": "현재 요청과 같은 `order_item_id`의 환불 이력만 사용한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "같은 주문의 다른 상품 환불은 현재 상품을 차단하지 않는다.",
+          "markdown": "같은 주문의 다른 상품 환불은 현재 상품을 차단하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "같은 주문의 다른 상품 환불은 현재 상품을 차단하지 않는다.",
+              "markdown": "같은 주문의 다른 상품 환불은 현재 상품을 차단하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "환불 이력은 `refund_id` 사전순의 정규 원장만 사용한다.",
+          "markdown": "환불 이력은 `refund_id` 사전순의 정규 원장만 사용한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "환불 이력은 refund_id 사전순의 정규 원장만 사용한다.",
+              "markdown": "환불 이력은 `refund_id` 사전순의 정규 원장만 사용한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "빈·중복 환불 ID, 다른 주문 상품 참조, 잘못된 금액·통화, 활성 이력 충돌은 `POL-50.10 INVALID_REFUND_HISTORY_RECORD`다.",
+          "markdown": "빈·중복 환불 ID, 다른 주문 상품 참조, 잘못된 금액·통화, 활성 이력 충돌은 `POL-50.10 INVALID_REFUND_HISTORY_RECORD`다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "빈·중복 환불 ID, 다른 주문 상품 참조, 잘못된 금액·통화, 활성 이력 충돌은 POL-50.10 INVALID_REFUND_HISTORY_RECORD다.",
+              "markdown": "빈·중복 환불 ID, 다른 주문 상품 참조, 잘못된 금액·통화, 활성 이력 충돌은 `POL-50.10 INVALID_REFUND_HISTORY_RECORD`다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "미등록 환불 상태는 `POL-50.03 INVALID_REFUND_STATUS`다.",
+          "markdown": "미등록 환불 상태는 `POL-50.03 INVALID_REFUND_STATUS`다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "미등록 환불 상태는 POL-50.03 INVALID_REFUND_STATUS다.",
+              "markdown": "미등록 환불 상태는 `POL-50.03 INVALID_REFUND_STATUS`다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`REQUESTED`, `APPROVED`, `COMPLETED` 이력은 합계 최대 한 건이어야 한다.",
+          "markdown": "`REQUESTED`, `APPROVED`, `COMPLETED` 이력은 합계 최대 한 건이어야 한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "REQUESTED, APPROVED, COMPLETED 이력은 합계 최대 한 건이어야 한다.",
+              "markdown": "`REQUESTED`, `APPROVED`, `COMPLETED` 이력은 합계 최대 한 건이어야 한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "현재 요청 ID가 기존 `REJECTED` 이력의 ID와 같으면 `POL-50.11 REFUND_REQUEST_ID_REUSED`다.",
+          "markdown": "현재 요청 ID가 기존 `REJECTED` 이력의 ID와 같으면 `POL-50.11 REFUND_REQUEST_ID_REUSED`다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "현재 요청 ID가 기존 REJECTED 이력의 ID와 같으면 POL-50.11 REFUND_REQUEST_ID_REUSED다.",
+              "markdown": "현재 요청 ID가 기존 `REJECTED` 이력의 ID와 같으면 `POL-50.11 REFUND_REQUEST_ID_REUSED`다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "기존 상태별 처리"
+    },
+    {
+      "type": "table",
+      "align": [
+        null,
+        null
+      ],
+      "headers": [
+        {
+          "text": "기존 이력",
+          "markdown": "기존 이력"
+        },
+        {
+          "text": "처리",
+          "markdown": "처리"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "text": "APPROVED 또는 COMPLETED",
+            "markdown": "`APPROVED` 또는 `COMPLETED`"
+          },
+          {
+            "text": "POL-50.01 ALREADY_REFUNDED; 새 전액 환불 거절",
+            "markdown": "`POL-50.01 ALREADY_REFUNDED`; 새 전액 환불 거절"
+          }
+        ],
+        [
+          {
+            "text": "REQUESTED",
+            "markdown": "`REQUESTED`"
+          },
+          {
+            "text": "POL-50.02 REFUND_IN_PROGRESS; 새 판단을 만들지 않고 기존 처리 대기",
+            "markdown": "`POL-50.02 REFUND_IN_PROGRESS`; 새 판단을 만들지 않고 기존 처리 대기"
+          }
+        ],
+        [
+          {
+            "text": "REJECTED만 존재",
+            "markdown": "`REJECTED`만 존재"
+          },
+          {
+            "text": "요청 ID가 재사용되지 않았다면 일반 정책 계속 평가",
+            "markdown": "요청 ID가 재사용되지 않았다면 일반 정책 계속 평가"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "통화"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "start": 1,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "요청 통화와 주문 통화가 모두 존재하지만 서로 다르면 `POL-50.09 CURRENCY_MISMATCH`다.",
+          "markdown": "요청 통화와 주문 통화가 모두 존재하지만 서로 다르면 `POL-50.09 CURRENCY_MISMATCH`다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "요청 통화와 주문 통화가 모두 존재하지만 서로 다르면 POL-50.09 CURRENCY_MISMATCH다.",
+              "markdown": "요청 통화와 주문 통화가 모두 존재하지만 서로 다르면 `POL-50.09 CURRENCY_MISMATCH`다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "둘 중 하나가 `null`이거나 `KRW`가 아니면 `POL-50.08 UNSUPPORTED_CURRENCY`다.",
+          "markdown": "둘 중 하나가 `null`이거나 `KRW`가 아니면 `POL-50.08 UNSUPPORTED_CURRENCY`다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "둘 중 하나가 null이거나 KRW가 아니면 POL-50.08 UNSUPPORTED_CURRENCY다.",
+              "markdown": "둘 중 하나가 `null`이거나 `KRW`가 아니면 `POL-50.08 UNSUPPORTED_CURRENCY`다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "환율을 조회하거나 다른 통화를 임의로 원화로 바꾸지 않는다.",
+          "markdown": "환율을 조회하거나 다른 통화를 임의로 원화로 바꾸지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "환율을 조회하거나 다른 통화를 임의로 원화로 바꾸지 않는다.",
+              "markdown": "환율을 조회하거나 다른 통화를 임의로 원화로 바꾸지 않는다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "금액"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "`paid_item_amount`는 할인 배분 후 해당 주문 상품의 순결제액이다.",
+          "markdown": "`paid_item_amount`는 할인 배분 후 해당 주문 상품의 순결제액이다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "paid_item_amount는 할인 배분 후 해당 주문 상품의 순결제액이다.",
+              "markdown": "`paid_item_amount`는 할인 배분 후 해당 주문 상품의 순결제액이다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "요청액 `null`은 누락이 아니라 순결제액 전액 요청을 뜻한다.",
+          "markdown": "요청액 `null`은 누락이 아니라 순결제액 전액 요청을 뜻한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "요청액 null은 누락이 아니라 순결제액 전액 요청을 뜻한다.",
+              "markdown": "요청액 `null`은 누락이 아니라 순결제액 전액 요청을 뜻한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "비교할 때만 유효 요청액을 순결제액으로 계산하며 원래 입력의 `null`은 유지한다.",
+          "markdown": "비교할 때만 유효 요청액을 순결제액으로 계산하며 원래 입력의 `null`은 유지한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "비교할 때만 유효 요청액을 순결제액으로 계산하며 원래 입력의 null은 유지한다.",
+              "markdown": "비교할 때만 유효 요청액을 순결제액으로 계산하며 원래 입력의 `null`은 유지한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "결제액 또는 명시된 요청액이 0 이하이거나 안전 정수 범위를 벗어나면 `POL-50.04 INVALID_REFUND_AMOUNT`다.",
+          "markdown": "결제액 또는 명시된 요청액이 0 이하이거나 안전 정수 범위를 벗어나면 `POL-50.04 INVALID_REFUND_AMOUNT`다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "결제액 또는 명시된 요청액이 0 이하이거나 안전 정수 범위를 벗어나면 POL-50.04 INVALID_REFUND_AMOUNT다.",
+              "markdown": "결제액 또는 명시된 요청액이 0 이하이거나 안전 정수 범위를 벗어나면 `POL-50.04 INVALID_REFUND_AMOUNT`다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "요청액이 순결제액보다 크면 `POL-50.05 REFUND_AMOUNT_EXCEEDS_PAID`로 거절한다.",
+          "markdown": "요청액이 순결제액보다 크면 `POL-50.05 REFUND_AMOUNT_EXCEEDS_PAID`로 거절한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "요청액이 순결제액보다 크면 POL-50.05 REFUND_AMOUNT_EXCEEDS_PAID로 거절한다.",
+              "markdown": "요청액이 순결제액보다 크면 `POL-50.05 REFUND_AMOUNT_EXCEEDS_PAID`로 거절한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "요청액이 순결제액보다 작으면 `POL-50.06 PARTIAL_REFUND_OUT_OF_SCOPE`로 수동 검토에 전달한다.",
+          "markdown": "요청액이 순결제액보다 작으면 `POL-50.06 PARTIAL_REFUND_OUT_OF_SCOPE`로 수동 검토에 전달한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "요청액이 순결제액보다 작으면 POL-50.06 PARTIAL_REFUND_OUT_OF_SCOPE로 수동 검토에 전달한다.",
+              "markdown": "요청액이 순결제액보다 작으면 `POL-50.06 PARTIAL_REFUND_OUT_OF_SCOPE`로 수동 검토에 전달한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "요청액이 순결제액과 같으면 `POL-50.07 FULL_REFUND_AMOUNT_VALID`를 기록하고 다른 정책을 계속 평가한다.",
+          "markdown": "요청액이 순결제액과 같으면 `POL-50.07 FULL_REFUND_AMOUNT_VALID`를 기록하고 다른 정책을 계속 평가한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "요청액이 순결제액과 같으면 POL-50.07 FULL_REFUND_AMOUNT_VALID를 기록하고 다른 정책을 계속 평가한다.",
+              "markdown": "요청액이 순결제액과 같으면 `POL-50.07 FULL_REFUND_AMOUNT_VALID`를 기록하고 다른 정책을 계속 평가한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "부분 환불을 전액으로 올림하거나 초과 요청액을 결제액으로 자동 절삭하지 않는다.",
+          "markdown": "부분 환불을 전액으로 올림하거나 초과 요청액을 결제액으로 자동 절삭하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "부분 환불을 전액으로 올림하거나 초과 요청액을 결제액으로 자동 절삭하지 않는다.",
+              "markdown": "부분 환불을 전액으로 올림하거나 초과 요청액을 결제액으로 자동 절삭하지 않는다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "회사 귀책과 실행 경계"
+    },
+    {
+      "type": "paragraph",
+      "text": "검증된 회사 귀책도 기존 환불, 처리 중 요청, 이력 오류, 통화 오류, 초과·부분 환불 조건을 해제하지 않는다.",
+      "markdown": "검증된 회사 귀책도 기존 환불, 처리 중 요청, 이력 오류, 통화 오류, 초과·부분 환불 조건을 해제하지 않는다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "정책은 원결제수단 환급, 쿠폰·포인트 복원, 회수 완료 또는 지급을 실행하지 않는다.",
+          "markdown": "정책은 원결제수단 환급, 쿠폰·포인트 복원, 회수 완료 또는 지급을 실행하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "정책은 원결제수단 환급, 쿠폰·포인트 복원, 회수 완료 또는 지급을 실행하지 않는다.",
+              "markdown": "정책은 원결제수단 환급, 쿠폰·포인트 복원, 회수 완료 또는 지급을 실행하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "원결제수단을 사용할 수 없으면 계좌·포인트·크레딧으로 임의 전환하지 않고 지급수단 검토 상태로 보류한다.",
+          "markdown": "원결제수단을 사용할 수 없으면 계좌·포인트·크레딧으로 임의 전환하지 않고 지급수단 검토 상태로 보류한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "원결제수단을 사용할 수 없으면 계좌·포인트·크레딧으로 임의 전환하지 않고 지급수단 검토 상태로 보류한다.",
+              "markdown": "원결제수단을 사용할 수 없으면 계좌·포인트·크레딧으로 임의 전환하지 않고 지급수단 검토 상태로 보류한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "실제 실행기는 환불 요청 ID를 멱등키로 사용하고 지급 직전에 기존 환불 이력을 다시 확인해야 한다.",
+          "markdown": "실제 실행기는 환불 요청 ID를 멱등키로 사용하고 지급 직전에 기존 환불 이력을 다시 확인해야 한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "실제 실행기는 환불 요청 ID를 멱등키로 사용하고 지급 직전에 기존 환불 이력을 다시 확인해야 한다.",
+              "markdown": "실제 실행기는 환불 요청 ID를 멱등키로 사용하고 지급 직전에 기존 환불 이력을 다시 확인해야 한다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "thematic_break"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "6. 전역 조항 우선순위"
+    },
+    {
+      "type": "paragraph",
+      "text": "동시에 여러 종결 조항이 일치하면 우선순위 숫자가 가장 작은 조항을 대표 조항으로 선택한다. 동일 우선순위는 허용하지 않는다.",
+      "markdown": "동시에 여러 종결 조항이 일치하면 **우선순위 숫자가 가장 작은 조항**을 대표 조항으로 선택한다. 동일 우선순위는 허용하지 않는다."
+    },
+    {
+      "type": "table",
+      "align": [
+        "right",
+        null,
+        null,
+        null
+      ],
+      "headers": [
+        {
+          "text": "우선순위",
+          "markdown": "우선순위"
+        },
+        {
+          "text": "조항",
+          "markdown": "조항"
+        },
+        {
+          "text": "사유 코드",
+          "markdown": "사유 코드"
+        },
+        {
+          "text": "종결 여부",
+          "markdown": "종결 여부"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "text": "110",
+            "markdown": "110"
+          },
+          {
+            "text": "POL-10.14",
+            "markdown": "`POL-10.14`"
+          },
+          {
+            "text": "INCONSISTENT_LOOKUP_RESULT",
+            "markdown": "`INCONSISTENT_LOOKUP_RESULT`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "111",
+            "markdown": "111"
+          },
+          {
+            "text": "POL-10.15",
+            "markdown": "`POL-10.15`"
+          },
+          {
+            "text": "ENTITY_REFERENCE_MISMATCH",
+            "markdown": "`ENTITY_REFERENCE_MISMATCH`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "112",
+            "markdown": "112"
+          },
+          {
+            "text": "POL-10.16",
+            "markdown": "`POL-10.16`"
+          },
+          {
+            "text": "SNAPSHOT_REFERENCE_MISMATCH",
+            "markdown": "`SNAPSHOT_REFERENCE_MISMATCH`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "120",
+            "markdown": "120"
+          },
+          {
+            "text": "POL-10.01",
+            "markdown": "`POL-10.01`"
+          },
+          {
+            "text": "ORDER_NOT_FOUND",
+            "markdown": "`ORDER_NOT_FOUND`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "121",
+            "markdown": "121"
+          },
+          {
+            "text": "POL-10.09",
+            "markdown": "`POL-10.09`"
+          },
+          {
+            "text": "NON_UNIQUE_ORDER",
+            "markdown": "`NON_UNIQUE_ORDER`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "130",
+            "markdown": "130"
+          },
+          {
+            "text": "POL-10.02",
+            "markdown": "`POL-10.02`"
+          },
+          {
+            "text": "CUSTOMER_DATA_MISSING",
+            "markdown": "`CUSTOMER_DATA_MISSING`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "131",
+            "markdown": "131"
+          },
+          {
+            "text": "POL-10.10",
+            "markdown": "`POL-10.10`"
+          },
+          {
+            "text": "NON_UNIQUE_CUSTOMER",
+            "markdown": "`NON_UNIQUE_CUSTOMER`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "140",
+            "markdown": "140"
+          },
+          {
+            "text": "POL-10.03",
+            "markdown": "`POL-10.03`"
+          },
+          {
+            "text": "PRODUCT_DATA_MISSING",
+            "markdown": "`PRODUCT_DATA_MISSING`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "141",
+            "markdown": "141"
+          },
+          {
+            "text": "POL-10.11",
+            "markdown": "`POL-10.11`"
+          },
+          {
+            "text": "NON_UNIQUE_PRODUCT",
+            "markdown": "`NON_UNIQUE_PRODUCT`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "150",
+            "markdown": "150"
+          },
+          {
+            "text": "POL-10.04",
+            "markdown": "`POL-10.04`"
+          },
+          {
+            "text": "SHIPMENT_DATA_MISSING",
+            "markdown": "`SHIPMENT_DATA_MISSING`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "151",
+            "markdown": "151"
+          },
+          {
+            "text": "POL-10.12",
+            "markdown": "`POL-10.12`"
+          },
+          {
+            "text": "NON_UNIQUE_SHIPMENT",
+            "markdown": "`NON_UNIQUE_SHIPMENT`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "160",
+            "markdown": "160"
+          },
+          {
+            "text": "POL-10.07",
+            "markdown": "`POL-10.07`"
+          },
+          {
+            "text": "INVALID_ORDER_STATUS",
+            "markdown": "`INVALID_ORDER_STATUS`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "161",
+            "markdown": "161"
+          },
+          {
+            "text": "POL-10.08",
+            "markdown": "`POL-10.08`"
+          },
+          {
+            "text": "INCONSISTENT_ORDER_SHIPMENT_STATE",
+            "markdown": "`INCONSISTENT_ORDER_SHIPMENT_STATE`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "170",
+            "markdown": "170"
+          },
+          {
+            "text": "POL-10.05",
+            "markdown": "`POL-10.05`"
+          },
+          {
+            "text": "CANCEL_FLOW_REQUIRED",
+            "markdown": "`CANCEL_FLOW_REQUIRED`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "171",
+            "markdown": "171"
+          },
+          {
+            "text": "POL-10.06",
+            "markdown": "`POL-10.06`"
+          },
+          {
+            "text": "ORDER_CANCELLED",
+            "markdown": "`ORDER_CANCELLED`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "200",
+            "markdown": "200"
+          },
+          {
+            "text": "POL-50.10",
+            "markdown": "`POL-50.10`"
+          },
+          {
+            "text": "INVALID_REFUND_HISTORY_RECORD",
+            "markdown": "`INVALID_REFUND_HISTORY_RECORD`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "201",
+            "markdown": "201"
+          },
+          {
+            "text": "POL-50.03",
+            "markdown": "`POL-50.03`"
+          },
+          {
+            "text": "INVALID_REFUND_STATUS",
+            "markdown": "`INVALID_REFUND_STATUS`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "210",
+            "markdown": "210"
+          },
+          {
+            "text": "POL-50.01",
+            "markdown": "`POL-50.01`"
+          },
+          {
+            "text": "ALREADY_REFUNDED",
+            "markdown": "`ALREADY_REFUNDED`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "211",
+            "markdown": "211"
+          },
+          {
+            "text": "POL-50.02",
+            "markdown": "`POL-50.02`"
+          },
+          {
+            "text": "REFUND_IN_PROGRESS",
+            "markdown": "`REFUND_IN_PROGRESS`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "212",
+            "markdown": "212"
+          },
+          {
+            "text": "POL-50.11",
+            "markdown": "`POL-50.11`"
+          },
+          {
+            "text": "REFUND_REQUEST_ID_REUSED",
+            "markdown": "`REFUND_REQUEST_ID_REUSED`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "300",
+            "markdown": "300"
+          },
+          {
+            "text": "POL-50.09",
+            "markdown": "`POL-50.09`"
+          },
+          {
+            "text": "CURRENCY_MISMATCH",
+            "markdown": "`CURRENCY_MISMATCH`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "301",
+            "markdown": "301"
+          },
+          {
+            "text": "POL-50.08",
+            "markdown": "`POL-50.08`"
+          },
+          {
+            "text": "UNSUPPORTED_CURRENCY",
+            "markdown": "`UNSUPPORTED_CURRENCY`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "310",
+            "markdown": "310"
+          },
+          {
+            "text": "POL-50.04",
+            "markdown": "`POL-50.04`"
+          },
+          {
+            "text": "INVALID_REFUND_AMOUNT",
+            "markdown": "`INVALID_REFUND_AMOUNT`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "311",
+            "markdown": "311"
+          },
+          {
+            "text": "POL-50.05",
+            "markdown": "`POL-50.05`"
+          },
+          {
+            "text": "REFUND_AMOUNT_EXCEEDS_PAID",
+            "markdown": "`REFUND_AMOUNT_EXCEEDS_PAID`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "312",
+            "markdown": "312"
+          },
+          {
+            "text": "POL-50.06",
+            "markdown": "`POL-50.06`"
+          },
+          {
+            "text": "PARTIAL_REFUND_OUT_OF_SCOPE",
+            "markdown": "`PARTIAL_REFUND_OUT_OF_SCOPE`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "320",
+            "markdown": "320"
+          },
+          {
+            "text": "POL-50.07",
+            "markdown": "`POL-50.07`"
+          },
+          {
+            "text": "FULL_REFUND_AMOUNT_VALID",
+            "markdown": "`FULL_REFUND_AMOUNT_VALID`"
+          },
+          {
+            "text": "비종결",
+            "markdown": "비종결"
+          }
+        ],
+        [
+          {
+            "text": "400",
+            "markdown": "400"
+          },
+          {
+            "text": "POL-40.07",
+            "markdown": "`POL-40.07`"
+          },
+          {
+            "text": "INVALID_EVIDENCE_STATUS",
+            "markdown": "`INVALID_EVIDENCE_STATUS`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "401",
+            "markdown": "401"
+          },
+          {
+            "text": "POL-40.04",
+            "markdown": "`POL-40.04`"
+          },
+          {
+            "text": "INCONSISTENT_FAULT_EVIDENCE",
+            "markdown": "`INCONSISTENT_FAULT_EVIDENCE`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "402",
+            "markdown": "402"
+          },
+          {
+            "text": "POL-40.05",
+            "markdown": "`POL-40.05`"
+          },
+          {
+            "text": "INVALID_ISSUE_CODE",
+            "markdown": "`INVALID_ISSUE_CODE`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "403",
+            "markdown": "403"
+          },
+          {
+            "text": "POL-40.02",
+            "markdown": "`POL-40.02`"
+          },
+          {
+            "text": "FAULT_EVIDENCE_REQUIRED",
+            "markdown": "`FAULT_EVIDENCE_REQUIRED`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "404",
+            "markdown": "404"
+          },
+          {
+            "text": "POL-40.06",
+            "markdown": "`POL-40.06`"
+          },
+          {
+            "text": "EVIDENCE_PROVENANCE_MISSING",
+            "markdown": "`EVIDENCE_PROVENANCE_MISSING`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "405",
+            "markdown": "405"
+          },
+          {
+            "text": "POL-40.08",
+            "markdown": "`POL-40.08`"
+          },
+          {
+            "text": "UNTRUSTED_EVIDENCE_PROVENANCE",
+            "markdown": "`UNTRUSTED_EVIDENCE_PROVENANCE`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "410",
+            "markdown": "410"
+          },
+          {
+            "text": "POL-40.03",
+            "markdown": "`POL-40.03`"
+          },
+          {
+            "text": "EVIDENCE_REJECTED_NO_OVERRIDE",
+            "markdown": "`EVIDENCE_REJECTED_NO_OVERRIDE`"
+          },
+          {
+            "text": "비종결",
+            "markdown": "비종결"
+          }
+        ],
+        [
+          {
+            "text": "500",
+            "markdown": "500"
+          },
+          {
+            "text": "POL-20.03",
+            "markdown": "`POL-20.03`"
+          },
+          {
+            "text": "INVALID_CUSTOMER_TIER",
+            "markdown": "`INVALID_CUSTOMER_TIER`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "501",
+            "markdown": "501"
+          },
+          {
+            "text": "POL-30.03",
+            "markdown": "`POL-30.03`"
+          },
+          {
+            "text": "INVALID_PRODUCT_CATEGORY",
+            "markdown": "`INVALID_PRODUCT_CATEGORY`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "502",
+            "markdown": "502"
+          },
+          {
+            "text": "POL-30.05",
+            "markdown": "`POL-30.05`"
+          },
+          {
+            "text": "FINAL_SALE_UNKNOWN",
+            "markdown": "`FINAL_SALE_UNKNOWN`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "503",
+            "markdown": "503"
+          },
+          {
+            "text": "POL-30.04",
+            "markdown": "`POL-30.04`"
+          },
+          {
+            "text": "PACKAGE_OPENED_UNKNOWN",
+            "markdown": "`PACKAGE_OPENED_UNKNOWN`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "510",
+            "markdown": "510"
+          },
+          {
+            "text": "POL-20.05",
+            "markdown": "`POL-20.05`"
+          },
+          {
+            "text": "INVALID_DATE_FORMAT",
+            "markdown": "`INVALID_DATE_FORMAT`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "511",
+            "markdown": "511"
+          },
+          {
+            "text": "POL-20.04",
+            "markdown": "`POL-20.04`"
+          },
+          {
+            "text": "INVALID_DATE_ORDER",
+            "markdown": "`INVALID_DATE_ORDER`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "512",
+            "markdown": "512"
+          },
+          {
+            "text": "POL-10.13",
+            "markdown": "`POL-10.13`"
+          },
+          {
+            "text": "DELIVERED_AT_MISSING",
+            "markdown": "`DELIVERED_AT_MISSING`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "520",
+            "markdown": "520"
+          },
+          {
+            "text": "POL-20.01",
+            "markdown": "`POL-20.01`"
+          },
+          {
+            "text": "STANDARD_TIER_RULE_SELECTED",
+            "markdown": "`STANDARD_TIER_RULE_SELECTED`"
+          },
+          {
+            "text": "비종결",
+            "markdown": "비종결"
+          }
+        ],
+        [
+          {
+            "text": "521",
+            "markdown": "521"
+          },
+          {
+            "text": "POL-20.02",
+            "markdown": "`POL-20.02`"
+          },
+          {
+            "text": "PREMIUM_TIER_RULE_SELECTED",
+            "markdown": "`PREMIUM_TIER_RULE_SELECTED`"
+          },
+          {
+            "text": "비종결",
+            "markdown": "비종결"
+          }
+        ],
+        [
+          {
+            "text": "600",
+            "markdown": "600"
+          },
+          {
+            "text": "POL-40.01",
+            "markdown": "`POL-40.01`"
+          },
+          {
+            "text": "VERIFIED_COMPANY_FAULT",
+            "markdown": "`VERIFIED_COMPANY_FAULT`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "700",
+            "markdown": "700"
+          },
+          {
+            "text": "POL-30.01",
+            "markdown": "`POL-30.01`"
+          },
+          {
+            "text": "FINAL_SALE_RESTRICTED",
+            "markdown": "`FINAL_SALE_RESTRICTED`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "701",
+            "markdown": "701"
+          },
+          {
+            "text": "POL-30.02",
+            "markdown": "`POL-30.02`"
+          },
+          {
+            "text": "OPENED_ELECTRONICS",
+            "markdown": "`OPENED_ELECTRONICS`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "720",
+            "markdown": "720"
+          },
+          {
+            "text": "POL-20.06",
+            "markdown": "`POL-20.06`"
+          },
+          {
+            "text": "RETURN_WINDOW_EXPIRED",
+            "markdown": "`RETURN_WINDOW_EXPIRED`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ],
+        [
+          {
+            "text": "800",
+            "markdown": "800"
+          },
+          {
+            "text": "POL-00.08",
+            "markdown": "`POL-00.08`"
+          },
+          {
+            "text": "REFUND_ELIGIBLE",
+            "markdown": "`REFUND_ELIGIBLE`"
+          },
+          {
+            "text": "종결",
+            "markdown": "종결"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "6.1 종결 결과 묶음"
+    },
+    {
+      "type": "table",
+      "align": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "headers": [
+        {
+          "text": "대표 사유",
+          "markdown": "대표 사유"
+        },
+        {
+          "text": "자격",
+          "markdown": "자격"
+        },
+        {
+          "text": "사건 상태",
+          "markdown": "사건 상태"
+        },
+        {
+          "text": "후속 처리",
+          "markdown": "후속 처리"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "text": "조회·참조·데이터 누락·불일치·오류, 증빙 확인 필요",
+            "markdown": "조회·참조·데이터 누락·불일치·오류, 증빙 확인 필요"
+          },
+          {
+            "text": "추가 확인 필요",
+            "markdown": "추가 확인 필요"
+          },
+          {
+            "text": "대기",
+            "markdown": "대기"
+          },
+          {
+            "text": "정보 확인 요청",
+            "markdown": "정보 확인 요청"
+          }
+        ],
+        [
+          {
+            "text": "취소 절차 필요",
+            "markdown": "취소 절차 필요"
+          },
+          {
+            "text": "환불 정책 적용 대상 아님",
+            "markdown": "환불 정책 적용 대상 아님"
+          },
+          {
+            "text": "범위 밖",
+            "markdown": "범위 밖"
+          },
+          {
+            "text": "취소 절차로 전달",
+            "markdown": "취소 절차로 전달"
+          }
+        ],
+        [
+          {
+            "text": "주문 취소됨, 종료된 환불 요청 ID 재사용",
+            "markdown": "주문 취소됨, 종료된 환불 요청 ID 재사용"
+          },
+          {
+            "text": "환불 정책 적용 대상 아님",
+            "markdown": "환불 정책 적용 대상 아님"
+          },
+          {
+            "text": "완료",
+            "markdown": "완료"
+          },
+          {
+            "text": "추가 조치 없음",
+            "markdown": "추가 조치 없음"
+          }
+        ],
+        [
+          {
+            "text": "이미 승인·완료된 환불",
+            "markdown": "이미 승인·완료된 환불"
+          },
+          {
+            "text": "환불 불가",
+            "markdown": "환불 불가"
+          },
+          {
+            "text": "완료",
+            "markdown": "완료"
+          },
+          {
+            "text": "추가 조치 없음",
+            "markdown": "추가 조치 없음"
+          }
+        ],
+        [
+          {
+            "text": "기존 환불 진행 중",
+            "markdown": "기존 환불 진행 중"
+          },
+          {
+            "text": "환불 정책 적용 대상 아님",
+            "markdown": "환불 정책 적용 대상 아님"
+          },
+          {
+            "text": "대기",
+            "markdown": "대기"
+          },
+          {
+            "text": "기존 요청 완료 대기",
+            "markdown": "기존 요청 완료 대기"
+          }
+        ],
+        [
+          {
+            "text": "초과 환불, 최종 할인 판매, 개봉 전자제품, 기간 초과",
+            "markdown": "초과 환불, 최종 할인 판매, 개봉 전자제품, 기간 초과"
+          },
+          {
+            "text": "환불 불가",
+            "markdown": "환불 불가"
+          },
+          {
+            "text": "판정 준비 완료",
+            "markdown": "판정 준비 완료"
+          },
+          {
+            "text": "환불 거절",
+            "markdown": "환불 거절"
+          }
+        ],
+        [
+          {
+            "text": "부분 환불",
+            "markdown": "부분 환불"
+          },
+          {
+            "text": "환불 정책 적용 대상 아님",
+            "markdown": "환불 정책 적용 대상 아님"
+          },
+          {
+            "text": "범위 밖",
+            "markdown": "범위 밖"
+          },
+          {
+            "text": "수동 검토로 전달",
+            "markdown": "수동 검토로 전달"
+          }
+        ],
+        [
+          {
+            "text": "검증된 회사 귀책, 일반 승인",
+            "markdown": "검증된 회사 귀책, 일반 승인"
+          },
+          {
+            "text": "환불 가능",
+            "markdown": "환불 가능"
+          },
+          {
+            "text": "판정 준비 완료",
+            "markdown": "판정 준비 완료"
+          },
+          {
+            "text": "전액 환불 승인 절차로 전달",
+            "markdown": "전액 환불 승인 절차로 전달"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "thematic_break"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "7. 조항 집합과 대표 조항 선택"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "start": 1,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "의존 필드가 유효한 모든 정책 조건을 중간 종료 없이 평가한다.",
+          "markdown": "의존 필드가 유효한 모든 정책 조건을 중간 종료 없이 평가한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "의존 필드가 유효한 모든 정책 조건을 중간 종료 없이 평가한다.",
+              "markdown": "의존 필드가 유효한 모든 정책 조건을 중간 종료 없이 평가한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "참인 모든 조항을 `matched_clauses`에 중복 없이 기록한다.",
+          "markdown": "참인 모든 조항을 `matched_clauses`에 중복 없이 기록한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "참인 모든 조항을 matched_clauses에 중복 없이 기록한다.",
+              "markdown": "참인 모든 조항을 `matched_clauses`에 중복 없이 기록한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "업무 종결 조항이 하나도 없을 때만 `POL-00.08 REFUND_ELIGIBLE`을 마지막 승인 조항으로 추가한다.",
+          "markdown": "업무 종결 조항이 하나도 없을 때만 `POL-00.08 REFUND_ELIGIBLE`을 마지막 승인 조항으로 추가한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "업무 종결 조항이 하나도 없을 때만 POL-00.08 REFUND_ELIGIBLE을 마지막 승인 조항으로 추가한다.",
+              "markdown": "업무 종결 조항이 하나도 없을 때만 `POL-00.08 REFUND_ELIGIBLE`을 마지막 승인 조항으로 추가한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "종결 조항 중 전역 우선순위 숫자가 가장 작은 조항을 `primary_clause`로 선택한다.",
+          "markdown": "종결 조항 중 전역 우선순위 숫자가 가장 작은 조항을 `primary_clause`로 선택한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "종결 조항 중 전역 우선순위 숫자가 가장 작은 조항을 primary_clause로 선택한다.",
+              "markdown": "종결 조항 중 전역 우선순위 숫자가 가장 작은 조항을 `primary_clause`로 선택한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "대표 조항이 `POL-40.01`이면 실제로 일치한 `POL-30.01`, `POL-30.02`, `POL-20.06`만 `overridden_clauses`에도 기록한다.",
+          "markdown": "대표 조항이 `POL-40.01`이면 실제로 일치한 `POL-30.01`, `POL-30.02`, `POL-20.06`만 `overridden_clauses`에도 기록한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "대표 조항이 POL-40.01이면 실제로 일치한 POL-30.01, POL-30.02, POL-20.06만 overridden_clauses에도 기록한다.",
+              "markdown": "대표 조항이 `POL-40.01`이면 실제로 일치한 `POL-30.01`, `POL-30.02`, `POL-20.06`만 `overridden_clauses`에도 기록한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "해제된 조항도 `matched_clauses`에서 제거하지 않는다.",
+          "markdown": "해제된 조항도 `matched_clauses`에서 제거하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "해제된 조항도 matched_clauses에서 제거하지 않는다.",
+              "markdown": "해제된 조항도 `matched_clauses`에서 제거하지 않는다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "다음 불변식을 항상 만족해야 한다.",
+      "markdown": "다음 불변식을 항상 만족해야 한다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "`primary_clause ∈ matched_clauses`",
+          "markdown": "`primary_clause ∈ matched_clauses`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "primary_clause ∈ matched_clauses",
+              "markdown": "`primary_clause ∈ matched_clauses`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`overridden_clauses ⊆ matched_clauses`",
+          "markdown": "`overridden_clauses ⊆ matched_clauses`",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "overridden_clauses ⊆ matched_clauses",
+              "markdown": "`overridden_clauses ⊆ matched_clauses`"
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "모든 조항 배열은 중복 없이 사전순으로 정렬",
+          "markdown": "모든 조항 배열은 중복 없이 사전순으로 정렬",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "모든 조항 배열은 중복 없이 사전순으로 정렬",
+              "markdown": "모든 조항 배열은 중복 없이 사전순으로 정렬"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "thematic_break"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "8. 추가 확인 필드 산정 규칙"
+    },
+    {
+      "type": "paragraph",
+      "text": "추가 확인이 필요한 필드는 사람이 임의 작성하지 않고 다음 알고리즘으로 산정한다.",
+      "markdown": "추가 확인이 필요한 필드는 사람이 임의 작성하지 않고 다음 알고리즘으로 산정한다."
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "start": 1,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "최종 후속 처리가 정보 확인 요청이 아니면 `required_fields`는 빈 배열이다.",
+          "markdown": "최종 후속 처리가 정보 확인 요청이 아니면 `required_fields`는 빈 배열이다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "최종 후속 처리가 정보 확인 요청이 아니면 required_fields는 빈 배열이다.",
+              "markdown": "최종 후속 처리가 정보 확인 요청이 아니면 `required_fields`는 빈 배열이다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "정보 확인 요청이면 일치한 모든 정보 요청 종결 조항에서 실제로 실패한 최소 필드 경로를 합친다.",
+          "markdown": "정보 확인 요청이면 일치한 모든 정보 요청 종결 조항에서 실제로 실패한 최소 필드 경로를 합친다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "정보 확인 요청이면 일치한 모든 정보 요청 종결 조항에서 실제로 실패한 최소 필드 경로를 합친다.",
+              "markdown": "정보 확인 요청이면 일치한 모든 정보 요청 종결 조항에서 실제로 실패한 최소 필드 경로를 합친다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "대표 조항 하나의 필드만 넣지 않는다. 한 번의 요청으로 확인 가능한 모든 독립 오류 필드를 포함한다.",
+          "markdown": "대표 조항 하나의 필드만 넣지 않는다. 한 번의 요청으로 확인 가능한 모든 독립 오류 필드를 포함한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "대표 조항 하나의 필드만 넣지 않는다. 한 번의 요청으로 확인 가능한 모든 독립 오류 필드를 포함한다.",
+              "markdown": "대표 조항 하나의 필드만 넣지 않는다. 한 번의 요청으로 확인 가능한 모든 독립 오류 필드를 포함한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "조회 건수와 객체 불일치는 실패한 조회 건수 경로와 대응 객체 경로를 함께 포함한다.",
+          "markdown": "조회 건수와 객체 불일치는 실패한 조회 건수 경로와 대응 객체 경로를 함께 포함한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "조회 건수와 객체 불일치는 실패한 조회 건수 경로와 대응 객체 경로를 함께 포함한다.",
+              "markdown": "조회 건수와 객체 불일치는 실패한 조회 건수 경로와 대응 객체 경로를 함께 포함한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "참조 불일치는 실제로 서로 다른 양쪽 필드 경로를 포함한다.",
+          "markdown": "참조 불일치는 실제로 서로 다른 양쪽 필드 경로를 포함한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "참조 불일치는 실제로 서로 다른 양쪽 필드 경로를 포함한다.",
+              "markdown": "참조 불일치는 실제로 서로 다른 양쪽 필드 경로를 포함한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "상품·회원 등급·날짜·증빙·환불 이력 오류는 실패한 정확한 말단 필드를 포함한다.",
+          "markdown": "상품·회원 등급·날짜·증빙·환불 이력 오류는 실패한 정확한 말단 필드를 포함한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "상품·회원 등급·날짜·증빙·환불 이력 오류는 실패한 정확한 말단 필드를 포함한다.",
+              "markdown": "상품·회원 등급·날짜·증빙·환불 이력 오류는 실패한 정확한 말단 필드를 포함한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "통화 불일치에서는 이미 `KRW`인 신뢰 가능한 쪽을 제외하고 수정이 필요한 쪽만 포함한다.",
+          "markdown": "통화 불일치에서는 이미 `KRW`인 신뢰 가능한 쪽을 제외하고 수정이 필요한 쪽만 포함한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "통화 불일치에서는 이미 KRW인 신뢰 가능한 쪽을 제외하고 수정이 필요한 쪽만 포함한다.",
+              "markdown": "통화 불일치에서는 이미 `KRW`인 신뢰 가능한 쪽을 제외하고 수정이 필요한 쪽만 포함한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "환불 이력 배열 경로는 `refund_id` 사전순 정규화 후의 인덱스를 사용한다.",
+          "markdown": "환불 이력 배열 경로는 `refund_id` 사전순 정규화 후의 인덱스를 사용한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "환불 이력 배열 경로는 refund_id 사전순 정규화 후의 인덱스를 사용한다.",
+              "markdown": "환불 이력 배열 경로는 `refund_id` 사전순 정규화 후의 인덱스를 사용한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "RFC 6901 JSON Pointer 형식으로 중복 제거 후 사전순 정렬한다.",
+          "markdown": "RFC 6901 JSON Pointer 형식으로 중복 제거 후 사전순 정렬한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "RFC 6901 JSON Pointer 형식으로 중복 제거 후 사전순 정렬한다.",
+              "markdown": "RFC 6901 JSON Pointer 형식으로 중복 제거 후 사전순 정렬한다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "정보 확인의 수신자도 데이터 소유권으로 고정한다.",
+      "markdown": "정보 확인의 수신자도 데이터 소유권으로 고정한다."
+    },
+    {
+      "type": "table",
+      "align": [
+        null,
+        null
+      ],
+      "headers": [
+        {
+          "text": "경로",
+          "markdown": "경로"
+        },
+        {
+          "text": "확인 책임",
+          "markdown": "확인 책임"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "text": "/request/*",
+            "markdown": "`/request/*`"
+          },
+          {
+            "text": "요청자 입력 보정 큐",
+            "markdown": "요청자 입력 보정 큐"
+          }
+        ],
+        [
+          {
+            "text": "/shipment/evidence/*",
+            "markdown": "`/shipment/evidence/*`"
+          },
+          {
+            "text": "Evidence Service 검토 큐",
+            "markdown": "Evidence Service 검토 큐"
+          }
+        ],
+        [
+          {
+            "text": "신뢰 문맥·조회·주문·스냅샷·상품·배송·환불 이력",
+            "markdown": "신뢰 문맥·조회·주문·스냅샷·상품·배송·환불 이력"
+          },
+          {
+            "text": "내부 데이터 복구 큐",
+            "markdown": "내부 데이터 복구 큐"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "사용자나 Agent는 내부 신뢰 필드 또는 증빙 출처 필드를 직접 수정할 수 없다.",
+      "markdown": "사용자나 Agent는 내부 신뢰 필드 또는 증빙 출처 필드를 직접 수정할 수 없다."
+    },
+    {
+      "type": "thematic_break"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "9. 대표 충돌 처리"
+    },
+    {
+      "type": "table",
+      "align": [
+        null,
+        null
+      ],
+      "headers": [
+        {
+          "text": "동시에 성립한 조건",
+          "markdown": "동시에 성립한 조건"
+        },
+        {
+          "text": "대표 처리",
+          "markdown": "대표 처리"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "text": "입력 형식 오류와 업무 값 오류",
+            "markdown": "입력 형식 오류와 업무 값 오류"
+          },
+          {
+            "text": "입력 단계에서 거부하고 정책 결과를 만들지 않음",
+            "markdown": "입력 단계에서 거부하고 정책 결과를 만들지 않음"
+          }
+        ],
+        [
+          {
+            "text": "조회 건수 1건인데 객체 null",
+            "markdown": "조회 건수 1건인데 객체 `null`"
+          },
+          {
+            "text": "POL-10.14; 누락으로 추정하지 않음",
+            "markdown": "`POL-10.14`; 누락으로 추정하지 않음"
+          }
+        ],
+        [
+          {
+            "text": "요청·주문·배송의 주문 상품 ID 불일치",
+            "markdown": "요청·주문·배송의 주문 상품 ID 불일치"
+          },
+          {
+            "text": "POL-10.15; 업무 정책으로 진행하지 않음",
+            "markdown": "`POL-10.15`; 업무 정책으로 진행하지 않음"
+          }
+        ],
+        [
+          {
+            "text": "스냅샷 ID 불일치",
+            "markdown": "스냅샷 ID 불일치"
+          },
+          {
+            "text": "POL-10.16; 현재값으로 보정하지 않음",
+            "markdown": "`POL-10.16`; 현재값으로 보정하지 않음"
+          }
+        ],
+        [
+          {
+            "text": "검증된 회사 귀책과 회원 등급·상품 데이터 오류",
+            "markdown": "검증된 회사 귀책과 회원 등급·상품 데이터 오류"
+          },
+          {
+            "text": "해당 데이터 오류가 우선; 회사 귀책으로 해제하지 않음",
+            "markdown": "해당 데이터 오류가 우선; 회사 귀책으로 해제하지 않음"
+          }
+        ],
+        [
+          {
+            "text": "검증된 회사 귀책과 배송 완료일 null",
+            "markdown": "검증된 회사 귀책과 배송 완료일 `null`"
+          },
+          {
+            "text": "기간을 평가하지 않고 POL-40.01 승인 가능",
+            "markdown": "기간을 평가하지 않고 `POL-40.01` 승인 가능"
+          }
+        ],
+        [
+          {
+            "text": "검증된 회사 귀책과 유효하지 않은 배송 완료일",
+            "markdown": "검증된 회사 귀책과 유효하지 않은 배송 완료일"
+          },
+          {
+            "text": "날짜 오류가 우선",
+            "markdown": "날짜 오류가 우선"
+          }
+        ],
+        [
+          {
+            "text": "검증된 회사 귀책과 기간 초과·최종 할인 판매·개봉",
+            "markdown": "검증된 회사 귀책과 기간 초과·최종 할인 판매·개봉"
+          },
+          {
+            "text": "POL-40.01; 세 제한 중 실제 일치 항목을 해제 목록에 기록",
+            "markdown": "`POL-40.01`; 세 제한 중 실제 일치 항목을 해제 목록에 기록"
+          }
+        ],
+        [
+          {
+            "text": "검증된 회사 귀책과 완료 환불",
+            "markdown": "검증된 회사 귀책과 완료 환불"
+          },
+          {
+            "text": "POL-50.01; 중복 환불 금지가 우선",
+            "markdown": "`POL-50.01`; 중복 환불 금지가 우선"
+          }
+        ],
+        [
+          {
+            "text": "검증된 회사 귀책과 부분·초과 요청액",
+            "markdown": "검증된 회사 귀책과 부분·초과 요청액"
+          },
+          {
+            "text": "금액 정책이 우선",
+            "markdown": "금액 정책이 우선"
+          }
+        ],
+        [
+          {
+            "text": "최종 할인 판매·개봉·기간 초과",
+            "markdown": "최종 할인 판매·개봉·기간 초과"
+          },
+          {
+            "text": "세 조항 모두 기록하고 POL-30.01을 대표 사유로 선택",
+            "markdown": "세 조항 모두 기록하고 `POL-30.01`을 대표 사유로 선택"
+          }
+        ],
+        [
+          {
+            "text": "취소된 주문과 완료 환불",
+            "markdown": "취소된 주문과 완료 환불"
+          },
+          {
+            "text": "POL-10.06; 기존 환불을 취소 환급이라고 추정하지 않음",
+            "markdown": "`POL-10.06`; 기존 환불을 취소 환급이라고 추정하지 않음"
+          }
+        ],
+        [
+          {
+            "text": "손상된 환불 이력과 완료 상태",
+            "markdown": "손상된 환불 이력과 완료 상태"
+          },
+          {
+            "text": "POL-50.10; 원장 무결성이 우선",
+            "markdown": "`POL-50.10`; 원장 무결성이 우선"
+          }
+        ],
+        [
+          {
+            "text": "요청액 null과 유효한 순결제액",
+            "markdown": "요청액 `null`과 유효한 순결제액"
+          },
+          {
+            "text": "전액 요청으로 비교하되 입력 사실의 null 유지",
+            "markdown": "전액 요청으로 비교하되 입력 사실의 `null` 유지"
+          }
+        ],
+        [
+          {
+            "text": "종료된 요청 ID 재사용과 다른 완료 환불",
+            "markdown": "종료된 요청 ID 재사용과 다른 완료 환불"
+          },
+          {
+            "text": "POL-50.01이 POL-50.11보다 우선",
+            "markdown": "`POL-50.01`이 `POL-50.11`보다 우선"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "새로운 충돌 조합을 코드의 숨은 조건문으로 해결하면 안 된다. 기존 전역 우선순위로 해결되지 않는 경우에만 정책·우선순위·충돌 규정을 함께 개정한다.",
+      "markdown": "새로운 충돌 조합을 코드의 숨은 조건문으로 해결하면 안 된다. 기존 전역 우선순위로 해결되지 않는 경우에만 정책·우선순위·충돌 규정을 함께 개정한다."
+    },
+    {
+      "type": "thematic_break"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "10. 결정론적 판정 절차"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "start": 1,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "JSON 파싱과 입력 구조를 검증한다. 실패하면 정책 결과를 생성하지 않는다.",
+          "markdown": "JSON 파싱과 입력 구조를 검증한다. 실패하면 정책 결과를 생성하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "JSON 파싱과 입력 구조를 검증한다. 실패하면 정책 결과를 생성하지 않는다.",
+              "markdown": "JSON 파싱과 입력 구조를 검증한다. 실패하면 정책 결과를 생성하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "입력 구조가 유효한 정규 `PolicyFacts`만 받는다.",
+          "markdown": "입력 구조가 유효한 정규 `PolicyFacts`만 받는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "입력 구조가 유효한 정규 PolicyFacts만 받는다.",
+              "markdown": "입력 구조가 유효한 정규 `PolicyFacts`만 받는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "조회 건수와 객체, 참조키와 스냅샷 ID를 검증한다.",
+          "markdown": "조회 건수와 객체, 참조키와 스냅샷 ID를 검증한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "조회 건수와 객체, 참조키와 스냅샷 ID를 검증한다.",
+              "markdown": "조회 건수와 객체, 참조키와 스냅샷 ID를 검증한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "주문 상태, 환불 이력, 통화·금액, 증빙, 회원 등급, 상품과 날짜의 핵심 업무 값을 검증한다.",
+          "markdown": "주문 상태, 환불 이력, 통화·금액, 증빙, 회원 등급, 상품과 날짜의 핵심 업무 값을 검증한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "주문 상태, 환불 이력, 통화·금액, 증빙, 회원 등급, 상품과 날짜의 핵심 업무 값을 검증한다.",
+              "markdown": "주문 상태, 환불 이력, 통화·금액, 증빙, 회원 등급, 상품과 날짜의 핵심 업무 값을 검증한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "의존 필드가 유효한 모든 정책 조건을 중간 종료 없이 평가한다.",
+          "markdown": "의존 필드가 유효한 모든 정책 조건을 중간 종료 없이 평가한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "의존 필드가 유효한 모든 정책 조건을 중간 종료 없이 평가한다.",
+              "markdown": "의존 필드가 유효한 모든 정책 조건을 중간 종료 없이 평가한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "다른 업무 종결 조항이 없을 때만 일반 승인 조항을 추가한다.",
+          "markdown": "다른 업무 종결 조항이 없을 때만 일반 승인 조항을 추가한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "다른 업무 종결 조항이 없을 때만 일반 승인 조항을 추가한다.",
+              "markdown": "다른 업무 종결 조항이 없을 때만 일반 승인 조항을 추가한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "일치한 종결 조항 중 전역 우선순위 숫자가 가장 작은 조항을 대표 조항으로 선택한다.",
+          "markdown": "일치한 종결 조항 중 전역 우선순위 숫자가 가장 작은 조항을 대표 조항으로 선택한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "일치한 종결 조항 중 전역 우선순위 숫자가 가장 작은 조항을 대표 조항으로 선택한다.",
+              "markdown": "일치한 종결 조항 중 전역 우선순위 숫자가 가장 작은 조항을 대표 조항으로 선택한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "검증된 회사 귀책이 대표 조항이면 실제로 일치한 세 제한만 해제 목록에 기록한다.",
+          "markdown": "검증된 회사 귀책이 대표 조항이면 실제로 일치한 세 제한만 해제 목록에 기록한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "검증된 회사 귀책이 대표 조항이면 실제로 일치한 세 제한만 해제 목록에 기록한다.",
+              "markdown": "검증된 회사 귀책이 대표 조항이면 실제로 일치한 세 제한만 해제 목록에 기록한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "대표 조항의 결과 묶음과 추가 확인 필드를 생성한다.",
+          "markdown": "대표 조항의 결과 묶음과 추가 확인 필드를 생성한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "대표 조항의 결과 묶음과 추가 확인 필드를 생성한다.",
+              "markdown": "대표 조항의 결과 묶음과 추가 확인 필드를 생성한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "입력 사실 전체, 사실 해시와 버전 묶음을 결과에 포함한다.",
+          "markdown": "입력 사실 전체, 사실 해시와 버전 묶음을 결과에 포함한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "입력 사실 전체, 사실 해시와 버전 묶음을 결과에 포함한다.",
+              "markdown": "입력 사실 전체, 사실 해시와 버전 묶음을 결과에 포함한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "출력 구조와 불변식을 검증한 뒤 정규 JSON 바이트를 생성한다.",
+          "markdown": "출력 구조와 불변식을 검증한 뒤 정규 JSON 바이트를 생성한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "출력 구조와 불변식을 검증한 뒤 정규 JSON 바이트를 생성한다.",
+              "markdown": "출력 구조와 불변식을 검증한 뒤 정규 JSON 바이트를 생성한다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "판정 구현의 공개 함수는 decide(policy_facts: dict) -> dict 형식을 따른다. 입력 구조가 잘못된 인자를 직접 넘기면 정책 결과 대신 명시적인 입력 계약 오류를 발생시켜야 한다.",
+      "markdown": "판정 구현의 공개 함수는 `decide(policy_facts: dict) -> dict` 형식을 따른다. 입력 구조가 잘못된 인자를 직접 넘기면 정책 결과 대신 명시적인 입력 계약 오류를 발생시켜야 한다."
+    },
+    {
+      "type": "thematic_break"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "11. 출력 계약"
+    },
+    {
+      "type": "paragraph",
+      "text": "유효한 입력에 대한 최종 결과는 다음 필드를 모두 포함해야 한다.",
+      "markdown": "유효한 입력에 대한 최종 결과는 다음 필드를 모두 포함해야 한다."
+    },
+    {
+      "type": "table",
+      "align": [
+        null,
+        null
+      ],
+      "headers": [
+        {
+          "text": "필드",
+          "markdown": "필드"
+        },
+        {
+          "text": "의미",
+          "markdown": "의미"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "text": "eligibility",
+            "markdown": "`eligibility`"
+          },
+          {
+            "text": "환불 가능·불가·추가 확인·적용 대상 아님",
+            "markdown": "환불 가능·불가·추가 확인·적용 대상 아님"
+          }
+        ],
+        [
+          {
+            "text": "case_status",
+            "markdown": "`case_status`"
+          },
+          {
+            "text": "준비 완료·대기·완료·범위 밖",
+            "markdown": "준비 완료·대기·완료·범위 밖"
+          }
+        ],
+        [
+          {
+            "text": "next_action",
+            "markdown": "`next_action`"
+          },
+          {
+            "text": "승인·거절·정보 요청·기존 요청 대기·취소·수동 검토·없음",
+            "markdown": "승인·거절·정보 요청·기존 요청 대기·취소·수동 검토·없음"
+          }
+        ],
+        [
+          {
+            "text": "reason_code",
+            "markdown": "`reason_code`"
+          },
+          {
+            "text": "대표 조항의 등록된 사유 코드",
+            "markdown": "대표 조항의 등록된 사유 코드"
+          }
+        ],
+        [
+          {
+            "text": "primary_clause",
+            "markdown": "`primary_clause`"
+          },
+          {
+            "text": "전역 우선순위로 선택한 대표 종결 조항",
+            "markdown": "전역 우선순위로 선택한 대표 종결 조항"
+          }
+        ],
+        [
+          {
+            "text": "matched_clauses",
+            "markdown": "`matched_clauses`"
+          },
+          {
+            "text": "참인 모든 정책 조항",
+            "markdown": "참인 모든 정책 조항"
+          }
+        ],
+        [
+          {
+            "text": "overridden_clauses",
+            "markdown": "`overridden_clauses`"
+          },
+          {
+            "text": "회사 귀책으로 해제된 실제 일치 제한",
+            "markdown": "회사 귀책으로 해제된 실제 일치 제한"
+          }
+        ],
+        [
+          {
+            "text": "required_fields",
+            "markdown": "`required_fields`"
+          },
+          {
+            "text": "추가 확인이 필요한 정확한 필드 경로",
+            "markdown": "추가 확인이 필요한 정확한 필드 경로"
+          }
+        ],
+        [
+          {
+            "text": "facts",
+            "markdown": "`facts`"
+          },
+          {
+            "text": "판정에 사용한 정규 입력 사실 전체",
+            "markdown": "판정에 사용한 정규 입력 사실 전체"
+          }
+        ],
+        [
+          {
+            "text": "facts_hash",
+            "markdown": "`facts_hash`"
+          },
+          {
+            "text": "정규 입력 사실의 SHA-256",
+            "markdown": "정규 입력 사실의 SHA-256"
+          }
+        ],
+        [
+          {
+            "text": "versions",
+            "markdown": "`versions`"
+          },
+          {
+            "text": "정책·스키마·등록부·Adapter·검증기·판정기의 버전 묶음",
+            "markdown": "정책·스키마·등록부·Adapter·검증기·판정기의 버전 묶음"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "결과는 다음을 만족해야 한다.",
+      "markdown": "결과는 다음을 만족해야 한다."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "`reason_code`는 대표 조항의 등록된 사유 코드와 같아야 한다.",
+          "markdown": "`reason_code`는 대표 조항의 등록된 사유 코드와 같아야 한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "reason_code는 대표 조항의 등록된 사유 코드와 같아야 한다.",
+              "markdown": "`reason_code`는 대표 조항의 등록된 사유 코드와 같아야 한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "자격·사건 상태·후속 처리는 대표 조항의 등록된 결과 묶음과 같아야 한다.",
+          "markdown": "자격·사건 상태·후속 처리는 대표 조항의 등록된 결과 묶음과 같아야 한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "자격·사건 상태·후속 처리는 대표 조항의 등록된 결과 묶음과 같아야 한다.",
+              "markdown": "자격·사건 상태·후속 처리는 대표 조항의 등록된 결과 묶음과 같아야 한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`facts`는 실제 판정 입력과 정규적으로 동일해야 한다.",
+          "markdown": "`facts`는 실제 판정 입력과 정규적으로 동일해야 한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "facts는 실제 판정 입력과 정규적으로 동일해야 한다.",
+              "markdown": "`facts`는 실제 판정 입력과 정규적으로 동일해야 한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "`facts_hash`는 RFC 8785 JCS 방식으로 직렬화한 `facts`의 소문자 SHA-256이다.",
+          "markdown": "`facts_hash`는 RFC 8785 JCS 방식으로 직렬화한 `facts`의 소문자 SHA-256이다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "facts_hash는 RFC 8785 JCS 방식으로 직렬화한 facts의 소문자 SHA-256이다.",
+              "markdown": "`facts_hash`는 RFC 8785 JCS 방식으로 직렬화한 `facts`의 소문자 SHA-256이다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "조항과 필드 배열은 중복 없이 사전순으로 정렬한다.",
+          "markdown": "조항과 필드 배열은 중복 없이 사전순으로 정렬한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "조항과 필드 배열은 중복 없이 사전순으로 정렬한다.",
+              "markdown": "조항과 필드 배열은 중복 없이 사전순으로 정렬한다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "thematic_break"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "12. 정규화와 재현성"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "날짜시각은 UTC `Z`로 정규화한다.",
+          "markdown": "날짜시각은 UTC `Z`로 정규화한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "날짜시각은 UTC Z로 정규화한다.",
+              "markdown": "날짜시각은 UTC `Z`로 정규화한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "환불 이력은 `refund_id` 사전순으로 정렬한다.",
+          "markdown": "환불 이력은 `refund_id` 사전순으로 정렬한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "환불 이력은 refund_id 사전순으로 정렬한다.",
+              "markdown": "환불 이력은 `refund_id` 사전순으로 정렬한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "요청액 `null`은 입력 사실에 그대로 유지하고 비교용 전액만 내부에서 파생한다.",
+          "markdown": "요청액 `null`은 입력 사실에 그대로 유지하고 비교용 전액만 내부에서 파생한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "요청액 null은 입력 사실에 그대로 유지하고 비교용 전액만 내부에서 파생한다.",
+              "markdown": "요청액 `null`은 입력 사실에 그대로 유지하고 비교용 전액만 내부에서 파생한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "조항·해제·추가 확인 배열은 중복 제거 후 사전순으로 정렬한다.",
+          "markdown": "조항·해제·추가 확인 배열은 중복 제거 후 사전순으로 정렬한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "조항·해제·추가 확인 배열은 중복 제거 후 사전순으로 정렬한다.",
+              "markdown": "조항·해제·추가 확인 배열은 중복 제거 후 사전순으로 정렬한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "입력 사실과 최종 결과는 RFC 8785 JCS로 직렬화한다.",
+          "markdown": "입력 사실과 최종 결과는 RFC 8785 JCS로 직렬화한다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "입력 사실과 최종 결과는 RFC 8785 JCS로 직렬화한다.",
+              "markdown": "입력 사실과 최종 결과는 RFC 8785 JCS로 직렬화한다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "같은 입력을 반복 실행했을 때 결과 바이트와 사실 해시가 달라지면 안 된다.",
+          "markdown": "같은 입력을 반복 실행했을 때 결과 바이트와 사실 해시가 달라지면 안 된다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "같은 입력을 반복 실행했을 때 결과 바이트와 사실 해시가 달라지면 안 된다.",
+              "markdown": "같은 입력을 반복 실행했을 때 결과 바이트와 사실 해시가 달라지면 안 된다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "판정 프로그램은 파일·DB 쓰기, 현재 시각, 난수, 환경별 로케일, 네트워크, LLM, 전역 변경 가능 캐시를 사용하지 않는다.",
+          "markdown": "판정 프로그램은 파일·DB 쓰기, 현재 시각, 난수, 환경별 로케일, 네트워크, LLM, 전역 변경 가능 캐시를 사용하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "판정 프로그램은 파일·DB 쓰기, 현재 시각, 난수, 환경별 로케일, 네트워크, LLM, 전역 변경 가능 캐시를 사용하지 않는다.",
+              "markdown": "판정 프로그램은 파일·DB 쓰기, 현재 시각, 난수, 환경별 로케일, 네트워크, LLM, 전역 변경 가능 캐시를 사용하지 않는다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "12.1 핵심 버전 묶음"
+    },
+    {
+      "type": "table",
+      "align": [
+        null,
+        null
+      ],
+      "headers": [
+        {
+          "text": "구성요소",
+          "markdown": "구성요소"
+        },
+        {
+          "text": "버전",
+          "markdown": "버전"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "text": "정책",
+            "markdown": "정책"
+          },
+          {
+            "text": "policy-v0.5",
+            "markdown": "`policy-v0.5`"
+          }
+        ],
+        [
+          {
+            "text": "입력 형식",
+            "markdown": "입력 형식"
+          },
+          {
+            "text": "input-schema-v0.5",
+            "markdown": "`input-schema-v0.5`"
+          }
+        ],
+        [
+          {
+            "text": "출력 형식",
+            "markdown": "출력 형식"
+          },
+          {
+            "text": "output-schema-v0.5",
+            "markdown": "`output-schema-v0.5`"
+          }
+        ],
+        [
+          {
+            "text": "조항·우선순위 등록부",
+            "markdown": "조항·우선순위 등록부"
+          },
+          {
+            "text": "registry-v0.5",
+            "markdown": "`registry-v0.5`"
+          }
+        ],
+        [
+          {
+            "text": "Adapter",
+            "markdown": "Adapter"
+          },
+          {
+            "text": "adapter-v0.5",
+            "markdown": "`adapter-v0.5`"
+          }
+        ],
+        [
+          {
+            "text": "증빙 검증기",
+            "markdown": "증빙 검증기"
+          },
+          {
+            "text": "evidence-validator-v2",
+            "markdown": "`evidence-validator-v2`"
+          }
+        ],
+        [
+          {
+            "text": "판정 프로그램",
+            "markdown": "판정 프로그램"
+          },
+          {
+            "text": "oracle-v0.5",
+            "markdown": "`oracle-v0.5`"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "하나라도 다르면 동일한 정책 기준의 결과로 비교할 수 없다.",
+      "markdown": "하나라도 다르면 동일한 정책 기준의 결과로 비교할 수 없다."
+    },
+    {
+      "type": "thematic_break"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "13. 정책 종속관계"
+    },
+    {
+      "type": "code",
+      "language": "mermaid",
+      "text": "flowchart TD\n    A[\"공통 판정 원칙 · POL-00\"] --> B[\"입력·검증·출력 계약 · DATA·VAL·SCHEMA\"]\n    B --> C[\"개별 정책 평가\"]\n    C --> D[\"조회·주문 · POL-10\"]\n    C --> E[\"환불 이력·금액 · POL-50\"]\n    C --> F[\"회사 귀책·증빙 · POL-40\"]\n    C --> G[\"기간·회원등급·상품 · POL-20·POL-30\"]\n    F -.->|\"검증된 회사 귀책은 세 제한만 해제\"| G\n    D --> H[\"조항·전역 우선순위 · REG-10·REG-20\"]\n    E --> H\n    F --> H\n    G --> H\n    H --> I[\"충돌 규정·결정론적 판정 · MATRIX-10·ORACLE-10\"]"
+    },
+    {
+      "type": "paragraph",
+      "text": "개별 정책은 자신의 조건과 의미를 먼저 정의하고, 등록부가 조항을 등록하고 우선순위를 부여한다. 정책이 등록부에 의존하면서 등록부도 정책에 의존하는 순환 구조를 만들면 안 된다.",
+      "markdown": "개별 정책은 자신의 조건과 의미를 먼저 정의하고, 등록부가 조항을 등록하고 우선순위를 부여한다. 정책이 등록부에 의존하면서 등록부도 정책에 의존하는 순환 구조를 만들면 안 된다."
+    },
+    {
+      "type": "thematic_break"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "14. 구현자가 임의로 판단하면 안 되는 사항"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "누락된 값을 `false`, 0, 일반 회원 또는 일반 상품으로 기본화하지 않는다.",
+          "markdown": "누락된 값을 `false`, 0, 일반 회원 또는 일반 상품으로 기본화하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "누락된 값을 false, 0, 일반 회원 또는 일반 상품으로 기본화하지 않는다.",
+              "markdown": "누락된 값을 `false`, 0, 일반 회원 또는 일반 상품으로 기본화하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "두 건 이상의 조회 결과 중 하나를 임의로 선택하지 않는다.",
+          "markdown": "두 건 이상의 조회 결과 중 하나를 임의로 선택하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "두 건 이상의 조회 결과 중 하나를 임의로 선택하지 않는다.",
+              "markdown": "두 건 이상의 조회 결과 중 하나를 임의로 선택하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "현재 회원 등급이나 현재 상품 정보로 주문 스냅샷을 대체하지 않는다.",
+          "markdown": "현재 회원 등급이나 현재 상품 정보로 주문 스냅샷을 대체하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "현재 회원 등급이나 현재 상품 정보로 주문 스냅샷을 대체하지 않는다.",
+              "markdown": "현재 회원 등급이나 현재 상품 정보로 주문 스냅샷을 대체하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "증빙 기각을 환불 거절로 바꾸지 않는다.",
+          "markdown": "증빙 기각을 환불 거절로 바꾸지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "증빙 기각을 환불 거절로 바꾸지 않는다.",
+              "markdown": "증빙 기각을 환불 거절로 바꾸지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "회사 귀책이라는 이유로 중복 환불, 통화·금액 또는 데이터 오류를 무시하지 않는다.",
+          "markdown": "회사 귀책이라는 이유로 중복 환불, 통화·금액 또는 데이터 오류를 무시하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "회사 귀책이라는 이유로 중복 환불, 통화·금액 또는 데이터 오류를 무시하지 않는다.",
+              "markdown": "회사 귀책이라는 이유로 중복 환불, 통화·금액 또는 데이터 오류를 무시하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "최종 할인 판매, 개봉 전자제품, 기간 초과가 동시에 성립할 때 하나만 기록하지 않는다.",
+          "markdown": "최종 할인 판매, 개봉 전자제품, 기간 초과가 동시에 성립할 때 하나만 기록하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "최종 할인 판매, 개봉 전자제품, 기간 초과가 동시에 성립할 때 하나만 기록하지 않는다.",
+              "markdown": "최종 할인 판매, 개봉 전자제품, 기간 초과가 동시에 성립할 때 하나만 기록하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "요청액 `null`을 금액 누락 오류로 처리하지 않는다.",
+          "markdown": "요청액 `null`을 금액 누락 오류로 처리하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "요청액 null을 금액 누락 오류로 처리하지 않는다.",
+              "markdown": "요청액 `null`을 금액 누락 오류로 처리하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "부분 환불을 전액으로 올림하거나 초과 요청액을 결제액으로 줄이지 않는다.",
+          "markdown": "부분 환불을 전액으로 올림하거나 초과 요청액을 결제액으로 줄이지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "부분 환불을 전액으로 올림하거나 초과 요청액을 결제액으로 줄이지 않는다.",
+              "markdown": "부분 환불을 전액으로 올림하거나 초과 요청액을 결제액으로 줄이지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "환율, 반품비, 쿠폰·포인트 금액을 임의 계산하지 않는다.",
+          "markdown": "환율, 반품비, 쿠폰·포인트 금액을 임의 계산하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "환율, 반품비, 쿠폰·포인트 금액을 임의 계산하지 않는다.",
+              "markdown": "환율, 반품비, 쿠폰·포인트 금액을 임의 계산하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "정책 문서에 없는 예외 기간, 증빙 유효기간 또는 우선순위를 코드에 추가하지 않는다.",
+          "markdown": "정책 문서에 없는 예외 기간, 증빙 유효기간 또는 우선순위를 코드에 추가하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "정책 문서에 없는 예외 기간, 증빙 유효기간 또는 우선순위를 코드에 추가하지 않는다.",
+              "markdown": "정책 문서에 없는 예외 기간, 증빙 유효기간 또는 우선순위를 코드에 추가하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "사용자나 Agent가 내부 신뢰 정보와 증빙 출처를 생성·수정하도록 허용하지 않는다.",
+          "markdown": "사용자나 Agent가 내부 신뢰 정보와 증빙 출처를 생성·수정하도록 허용하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "사용자나 Agent가 내부 신뢰 정보와 증빙 출처를 생성·수정하도록 허용하지 않는다.",
+              "markdown": "사용자나 Agent가 내부 신뢰 정보와 증빙 출처를 생성·수정하도록 허용하지 않는다."
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "실제 환불 실행이나 원장 변경을 정책 판정 함수에 포함하지 않는다.",
+          "markdown": "실제 환불 실행이나 원장 변경을 정책 판정 함수에 포함하지 않는다.",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "실제 환불 실행이나 원장 변경을 정책 판정 함수에 포함하지 않는다.",
+              "markdown": "실제 환불 실행이나 원장 변경을 정책 판정 함수에 포함하지 않는다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "thematic_break"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "15. 규범 출처"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "items": [
+        {
+          "task": false,
+          "checked": null,
+          "text": "[최종 정책 허브 v0.5](https://app.notion.com/p/3bc4a1a82b5180259902f5edc778f2eb)",
+          "markdown": "[최종 정책 허브 v0.5](https://app.notion.com/p/3bc4a1a82b5180259902f5edc778f2eb)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "최종 정책 허브 v0.5",
+              "markdown": "[최종 정책 허브 v0.5](https://app.notion.com/p/3bc4a1a82b5180259902f5edc778f2eb)",
+              "links": [
+                {
+                  "text": "최종 정책 허브 v0.5",
+                  "url": "https://app.notion.com/p/3bc4a1a82b5180259902f5edc778f2eb",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "[POL-00 공통 판정 원칙](https://app.notion.com/p/3bc4a1a82b518108b43ae2e0e0f80d3d)",
+          "markdown": "[POL-00 공통 판정 원칙](https://app.notion.com/p/3bc4a1a82b518108b43ae2e0e0f80d3d)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "POL-00 공통 판정 원칙",
+              "markdown": "[POL-00 공통 판정 원칙](https://app.notion.com/p/3bc4a1a82b518108b43ae2e0e0f80d3d)",
+              "links": [
+                {
+                  "text": "POL-00 공통 판정 원칙",
+                  "url": "https://app.notion.com/p/3bc4a1a82b518108b43ae2e0e0f80d3d",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "[POL-10 조회·참조 무결성](https://app.notion.com/p/3bc4a1a82b51815fbc43ff90cfded3cc)",
+          "markdown": "[POL-10 조회·참조 무결성](https://app.notion.com/p/3bc4a1a82b51815fbc43ff90cfded3cc)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "POL-10 조회·참조 무결성",
+              "markdown": "[POL-10 조회·참조 무결성](https://app.notion.com/p/3bc4a1a82b51815fbc43ff90cfded3cc)",
+              "links": [
+                {
+                  "text": "POL-10 조회·참조 무결성",
+                  "url": "https://app.notion.com/p/3bc4a1a82b51815fbc43ff90cfded3cc",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "[POL-20 기간·회원등급](https://app.notion.com/p/3bc4a1a82b5181deabf9f14db19b0c94)",
+          "markdown": "[POL-20 기간·회원등급](https://app.notion.com/p/3bc4a1a82b5181deabf9f14db19b0c94)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "POL-20 기간·회원등급",
+              "markdown": "[POL-20 기간·회원등급](https://app.notion.com/p/3bc4a1a82b5181deabf9f14db19b0c94)",
+              "links": [
+                {
+                  "text": "POL-20 기간·회원등급",
+                  "url": "https://app.notion.com/p/3bc4a1a82b5181deabf9f14db19b0c94",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "[POL-30 상품·기간 제한](https://app.notion.com/p/3bc4a1a82b5181dc9490d2a9896be414)",
+          "markdown": "[POL-30 상품·기간 제한](https://app.notion.com/p/3bc4a1a82b5181dc9490d2a9896be414)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "POL-30 상품·기간 제한",
+              "markdown": "[POL-30 상품·기간 제한](https://app.notion.com/p/3bc4a1a82b5181dc9490d2a9896be414)",
+              "links": [
+                {
+                  "text": "POL-30 상품·기간 제한",
+                  "url": "https://app.notion.com/p/3bc4a1a82b5181dc9490d2a9896be414",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "[POL-40 회사 귀책](https://app.notion.com/p/3bc4a1a82b518125a9b3d2e211c2faf1)",
+          "markdown": "[POL-40 회사 귀책](https://app.notion.com/p/3bc4a1a82b518125a9b3d2e211c2faf1)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "POL-40 회사 귀책",
+              "markdown": "[POL-40 회사 귀책](https://app.notion.com/p/3bc4a1a82b518125a9b3d2e211c2faf1)",
+              "links": [
+                {
+                  "text": "POL-40 회사 귀책",
+                  "url": "https://app.notion.com/p/3bc4a1a82b518125a9b3d2e211c2faf1",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "[POL-50 환불 이력·금액](https://app.notion.com/p/3bc4a1a82b5181599508f0e4ff179390)",
+          "markdown": "[POL-50 환불 이력·금액](https://app.notion.com/p/3bc4a1a82b5181599508f0e4ff179390)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "POL-50 환불 이력·금액",
+              "markdown": "[POL-50 환불 이력·금액](https://app.notion.com/p/3bc4a1a82b5181599508f0e4ff179390)",
+              "links": [
+                {
+                  "text": "POL-50 환불 이력·금액",
+                  "url": "https://app.notion.com/p/3bc4a1a82b5181599508f0e4ff179390",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "[DATA-10 정책 입력 계약](https://app.notion.com/p/3bc4a1a82b5181a4b629dfc14efbab66)",
+          "markdown": "[DATA-10 정책 입력 계약](https://app.notion.com/p/3bc4a1a82b5181a4b629dfc14efbab66)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "DATA-10 정책 입력 계약",
+              "markdown": "[DATA-10 정책 입력 계약](https://app.notion.com/p/3bc4a1a82b5181a4b629dfc14efbab66)",
+              "links": [
+                {
+                  "text": "DATA-10 정책 입력 계약",
+                  "url": "https://app.notion.com/p/3bc4a1a82b5181a4b629dfc14efbab66",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "[SCHEMA-10 PolicyFacts](https://app.notion.com/p/3bc4a1a82b5181c783b3e18e12ac765e)",
+          "markdown": "[SCHEMA-10 PolicyFacts](https://app.notion.com/p/3bc4a1a82b5181c783b3e18e12ac765e)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "SCHEMA-10 PolicyFacts",
+              "markdown": "[SCHEMA-10 PolicyFacts](https://app.notion.com/p/3bc4a1a82b5181c783b3e18e12ac765e)",
+              "links": [
+                {
+                  "text": "SCHEMA-10 PolicyFacts",
+                  "url": "https://app.notion.com/p/3bc4a1a82b5181c783b3e18e12ac765e",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "[SCHEMA-20 DecisionResult](https://app.notion.com/p/3bc4a1a82b5181e78773c7c962854082)",
+          "markdown": "[SCHEMA-20 DecisionResult](https://app.notion.com/p/3bc4a1a82b5181e78773c7c962854082)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "SCHEMA-20 DecisionResult",
+              "markdown": "[SCHEMA-20 DecisionResult](https://app.notion.com/p/3bc4a1a82b5181e78773c7c962854082)",
+              "links": [
+                {
+                  "text": "SCHEMA-20 DecisionResult",
+                  "url": "https://app.notion.com/p/3bc4a1a82b5181e78773c7c962854082",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "[VAL-10 검증 소유권](https://app.notion.com/p/3bc4a1a82b518177940cc385cde054ad)",
+          "markdown": "[VAL-10 검증 소유권](https://app.notion.com/p/3bc4a1a82b518177940cc385cde054ad)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "VAL-10 검증 소유권",
+              "markdown": "[VAL-10 검증 소유권](https://app.notion.com/p/3bc4a1a82b518177940cc385cde054ad)",
+              "links": [
+                {
+                  "text": "VAL-10 검증 소유권",
+                  "url": "https://app.notion.com/p/3bc4a1a82b518177940cc385cde054ad",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "[REG-10 조항·사유 등록부](https://app.notion.com/p/3bc4a1a82b51812086dbdc05c06c82fc)",
+          "markdown": "[REG-10 조항·사유 등록부](https://app.notion.com/p/3bc4a1a82b51812086dbdc05c06c82fc)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "REG-10 조항·사유 등록부",
+              "markdown": "[REG-10 조항·사유 등록부](https://app.notion.com/p/3bc4a1a82b51812086dbdc05c06c82fc)",
+              "links": [
+                {
+                  "text": "REG-10 조항·사유 등록부",
+                  "url": "https://app.notion.com/p/3bc4a1a82b51812086dbdc05c06c82fc",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "[REG-20 전역 우선순위](https://app.notion.com/p/3bc4a1a82b5181868f6cd35fcad5c007)",
+          "markdown": "[REG-20 전역 우선순위](https://app.notion.com/p/3bc4a1a82b5181868f6cd35fcad5c007)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "REG-20 전역 우선순위",
+              "markdown": "[REG-20 전역 우선순위](https://app.notion.com/p/3bc4a1a82b5181868f6cd35fcad5c007)",
+              "links": [
+                {
+                  "text": "REG-20 전역 우선순위",
+                  "url": "https://app.notion.com/p/3bc4a1a82b5181868f6cd35fcad5c007",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "[MATRIX-10 충돌 매트릭스](https://app.notion.com/p/3bc4a1a82b5181338e67c71c87dc23c7)",
+          "markdown": "[MATRIX-10 충돌 매트릭스](https://app.notion.com/p/3bc4a1a82b5181338e67c71c87dc23c7)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "MATRIX-10 충돌 매트릭스",
+              "markdown": "[MATRIX-10 충돌 매트릭스](https://app.notion.com/p/3bc4a1a82b5181338e67c71c87dc23c7)",
+              "links": [
+                {
+                  "text": "MATRIX-10 충돌 매트릭스",
+                  "url": "https://app.notion.com/p/3bc4a1a82b5181338e67c71c87dc23c7",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "[ORACLE-10 결정론적 판정 계약](https://app.notion.com/p/3bc4a1a82b51810f9346da4a163d690e)",
+          "markdown": "[ORACLE-10 결정론적 판정 계약](https://app.notion.com/p/3bc4a1a82b51810f9346da4a163d690e)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "ORACLE-10 결정론적 판정 계약",
+              "markdown": "[ORACLE-10 결정론적 판정 계약](https://app.notion.com/p/3bc4a1a82b51810f9346da4a163d690e)",
+              "links": [
+                {
+                  "text": "ORACLE-10 결정론적 판정 계약",
+                  "url": "https://app.notion.com/p/3bc4a1a82b51810f9346da4a163d690e",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "task": false,
+          "checked": null,
+          "text": "[DEP-10 문서 종속관계](https://app.notion.com/p/3bc4a1a82b5181538663c9b238ed959e)",
+          "markdown": "[DEP-10 문서 종속관계](https://app.notion.com/p/3bc4a1a82b5181538663c9b238ed959e)",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "DEP-10 문서 종속관계",
+              "markdown": "[DEP-10 문서 종속관계](https://app.notion.com/p/3bc4a1a82b5181538663c9b238ed959e)",
+              "links": [
+                {
+                  "text": "DEP-10 문서 종속관계",
+                  "url": "https://app.notion.com/p/3bc4a1a82b5181538663c9b238ed959e",
+                  "title": null
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
