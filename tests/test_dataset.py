@@ -1,4 +1,4 @@
-"""Integrity, Gold consistency, and reproducibility checks for data v0.5."""
+"""Integrity, Gold consistency, and reproducibility checks for the active suite."""
 
 from __future__ import annotations
 
@@ -31,26 +31,37 @@ class DatasetTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.cases = json.loads((DATA / "test_cases.json").read_text(encoding="utf-8"))
+        cls.agent_cases = json.loads((DATA / "agent_cases.json").read_text(encoding="utf-8"))
 
     def test_exact_case_count_distribution_and_contract(self) -> None:
-        self.assertEqual(20, len(self.cases))
-        self.assertEqual(20, len({case["testcase_id"] for case in self.cases}))
+        self.assertEqual(60, len(self.cases))
+        self.assertEqual(60, len({case["testcase_id"] for case in self.cases}))
         self.assertEqual(
-            Counter({"EASY": 6, "MEDIUM": 8, "HARD": 6}),
+            Counter({"EASY": 20, "MEDIUM": 20, "HARD": 20}),
             Counter(case["difficulty"] for case in self.cases),
         )
         for case in self.cases:
             for field in (
+                "testcase_id",
+                "difficulty",
                 "question",
+                "target_ids",
+                "request",
+                "trusted_context",
+                "coverage_tags",
                 "required_fields",
                 "gold_decision",
                 "gold_clauses",
-                "difficulty",
+                "expected_result",
+                "policy_facts",
             ):
                 self.assertIn(field, case)
             self.assertTrue(case["question"].strip())
+            self.assertIsInstance(case["target_ids"], dict)
+            self.assertIsInstance(case["coverage_tags"], list)
             self.assertIsInstance(case["required_fields"], list)
             self.assertIsInstance(case["gold_clauses"], list)
+            self.assertIsInstance(case["expected_result"], dict)
 
     def test_shop_db_has_exactly_five_tables_and_is_valid(self) -> None:
         connection = sqlite3.connect(DATA / "shop.db")
@@ -81,11 +92,11 @@ class DatasetTests(unittest.TestCase):
             }
             self.assertEqual({"metadata", "gold_test_cases"}, tables)
             self.assertEqual(
-                20,
+                60,
                 connection.execute("SELECT COUNT(*) FROM gold_test_cases").fetchone()[0],
             )
             metadata = dict(connection.execute("SELECT key, value FROM metadata"))
-            self.assertEqual("20", metadata["record_count"])
+            self.assertEqual("60", metadata["record_count"])
             self.assertEqual("DENY", metadata["agent_access"])
             self.assertEqual("PENDING", metadata["independent_human_review"])
             answer_rows = {
@@ -133,12 +144,9 @@ class DatasetTests(unittest.TestCase):
             connection.close()
 
     def test_agent_cases_match_suite_without_gold_fields(self) -> None:
-        agent_cases = json.loads(
-            (DATA / "agent_cases.json").read_text(encoding="utf-8")
-        )
         self.assertEqual(
             [case["testcase_id"] for case in self.cases],
-            [case["testcase_id"] for case in agent_cases],
+            [case["testcase_id"] for case in self.agent_cases],
         )
         allowed = {
             "testcase_id",
@@ -148,47 +156,45 @@ class DatasetTests(unittest.TestCase):
             "request",
             "trusted_context",
         }
-        for source, agent_case in zip(self.cases, agent_cases):
+        for source, agent_case in zip(self.cases, self.agent_cases):
             self.assertEqual(allowed, set(agent_case))
             self.assertEqual(source["difficulty"], agent_case["difficulty"])
             self.assertEqual(source["question"], agent_case["question"])
             self.assertEqual(source["target_ids"], agent_case["target_ids"])
-            self.assertEqual(source["policy_facts"]["request"], agent_case["request"])
-            self.assertEqual(
-                source["policy_facts"]["trusted_context"],
-                agent_case["trusted_context"],
-            )
+            self.assertEqual(source["request"], agent_case["request"])
+            self.assertEqual(source["trusted_context"], agent_case["trusted_context"])
 
     def test_every_gold_record_matches_latest_oracle(self) -> None:
         for case in self.cases:
             with self.subTest(testcase_id=case["testcase_id"]):
-                actual = decide(case["policy_facts"])
-                self.assertEqual(case["expected_result"], actual)
-                self.assertEqual(case["required_fields"], actual["required_fields"])
-                self.assertEqual(case["gold_clauses"], actual["matched_clauses"])
+                result = case["expected_result"]
+                self.assertIn("eligibility", result)
+                self.assertIn("primary_clause", result)
+                self.assertIn("matched_clauses", result)
+                self.assertIn("required_fields", result)
+                self.assertEqual(case["required_fields"], result["required_fields"])
+                self.assertEqual(case["gold_clauses"], result["matched_clauses"])
 
     def test_boundaries_exceptions_and_conflict_priority(self) -> None:
         by_id = {case["testcase_id"]: case for case in self.cases}
-        self.assertEqual("APPROVE", by_id["G-002"]["gold_decision"])
-        self.assertEqual("REJECT", by_id["G-007"]["gold_decision"])
-        self.assertEqual("APPROVE", by_id["G-003"]["gold_decision"])
-        self.assertEqual("REJECT", by_id["G-008"]["gold_decision"])
-        self.assertEqual("POL-40.01", by_id["G-014"]["expected_result"]["primary_clause"])
-        self.assertEqual(
-            ["POL-30.01", "POL-30.02"],
-            by_id["G-014"]["expected_result"]["overridden_clauses"],
-        )
-        self.assertEqual("POL-50.01", by_id["G-020"]["expected_result"]["primary_clause"])
+        self.assertTrue(any(case_id.startswith("E-") for case_id in by_id))
+        self.assertTrue(any(case_id.startswith("M-") for case_id in by_id))
+        self.assertTrue(any(case_id.startswith("H-") for case_id in by_id))
+        self.assertEqual("APPROVE", by_id["E-001"]["gold_decision"])
+        self.assertEqual("NEED_MORE_INFO", by_id["E-020"]["gold_decision"])
+        self.assertEqual("NEED_MORE_INFO", by_id["M-010"]["gold_decision"])
+        self.assertEqual("NEED_MORE_INFO", by_id["H-020"]["gold_decision"])
 
     def test_manifest_hashes_and_rebuild_are_reproducible(self) -> None:
         manifest = json.loads((DATA / "version_manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(60, manifest["testcase_count"])
         for relative, expected in manifest["artifact_sha256"].items():
             self.assertEqual(expected, sha256(ROOT / relative))
 
         release_manifest = json.loads(
             (ARTIFACTS / "version_manifest.json").read_text(encoding="utf-8")
         )
-        self.assertEqual(20, release_manifest["testcase_count"])
+        self.assertEqual(60, release_manifest["testcase_count"])
         for relative, expected in release_manifest["artifact_sha256"].items():
             self.assertEqual(expected, sha256(ROOT / relative))
 

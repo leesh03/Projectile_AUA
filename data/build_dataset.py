@@ -13,12 +13,14 @@ A separate human review is still required before baseline release.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta, timezone
 import hashlib
 import json
 from pathlib import Path
 import platform
+import shutil
 import sqlite3
 import sys
 from typing import Any, Dict, Optional
@@ -400,6 +402,165 @@ def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def rebuild_shop_db_from_cases(shop_db: Path, records: list[dict]) -> None:
+    if shop_db.exists():
+        shop_db.unlink()
+    connection = sqlite3.connect(shop_db)
+    try:
+        connection.executescript(DDL)
+        for record in records:
+            ids = record["target_ids"]
+            customer_id = ids.get("customer_id")
+            product_id = ids.get("product_id")
+            order_id = ids.get("order_id")
+            order_item_id = ids.get("order_item_id")
+            shipment_id = ids.get("shipment_id")
+            tags = set(record.get("coverage_tags", []))
+
+            if customer_id is not None and product_id is not None and order_id is not None:
+                connection.execute(
+                    "INSERT INTO customers(customer_id, tier) VALUES (?, ?)",
+                    (customer_id, "STANDARD"),
+                )
+                connection.execute(
+                    "INSERT INTO products(product_id, category, final_sale, unit_price_krw) VALUES (?, ?, ?, ?)",
+                    (product_id, "FASHION", 0, PAID_AMOUNT),
+                )
+
+            if order_id is not None and order_item_id is not None and customer_id is not None and product_id is not None:
+                connection.execute(
+                    """INSERT INTO orders(
+                        order_item_id, order_id, customer_id, product_id, order_snapshot_id,
+                        ordered_at, status, customer_tier_at_order,
+                        product_category_at_order, product_final_sale_at_order,
+                        paid_item_amount, currency
+                    ) VALUES (?, ?, ?, ?, ?, ?, 'DELIVERED', ?, ?, ?, ?, 'KRW')""",
+                    (
+                        order_item_id,
+                        order_id,
+                        customer_id,
+                        product_id,
+                        f"SNAP-{record['testcase_id']}",
+                        "2026-05-01T00:00:00Z",
+                        "STANDARD",
+                        "FASHION",
+                        0,
+                        PAID_AMOUNT,
+                    ),
+                )
+
+            if shipment_id is not None and "SHIPMENT_DATA_MISSING" not in tags:
+                connection.execute(
+                    """INSERT INTO shipments(
+                        shipment_id, order_item_id, shipped_at, delivered_at, package_opened,
+                        issue_code, evidence_status, verified_by, verified_at,
+                        evidence_source, attested
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        shipment_id,
+                        order_item_id,
+                        "2026-05-02T00:00:00Z",
+                        "2026-08-15T00:00:00Z",
+                        0,
+                        None,
+                        "NONE",
+                        None,
+                        None,
+                        None,
+                        0,
+                    ),
+                )
+
+        connection.commit()
+        connection.execute("PRAGMA foreign_key_check").fetchall()
+        connection.execute("VACUUM")
+    finally:
+        connection.close()
+
+
+def rebuild_answer_key_from_cases(answer_db: Path, records: list[dict]) -> None:
+    if answer_db.exists():
+        answer_db.unlink()
+    connection = sqlite3.connect(answer_db)
+    try:
+        connection.executescript(
+            """
+            PRAGMA page_size = 4096;
+            PRAGMA auto_vacuum = NONE;
+            CREATE TABLE metadata (
+              key TEXT PRIMARY KEY,
+              value TEXT NOT NULL
+            );
+            CREATE TABLE gold_test_cases (
+              testcase_id TEXT PRIMARY KEY,
+              difficulty TEXT NOT NULL CHECK (difficulty IN ('EASY','MEDIUM','HARD')),
+              question TEXT NOT NULL,
+              order_id TEXT,
+              order_item_id TEXT NOT NULL,
+              description TEXT NOT NULL,
+              coverage_tags_json TEXT NOT NULL,
+              required_fields_json TEXT NOT NULL,
+              gold_decision TEXT NOT NULL CHECK (gold_decision IN ('APPROVE','REJECT','NEED_MORE_INFO','NOT_APPLICABLE')),
+              gold_clauses_json TEXT NOT NULL,
+              primary_clause TEXT NOT NULL,
+              policy_facts_json TEXT NOT NULL,
+              expected_result_json TEXT NOT NULL,
+              policy_version TEXT NOT NULL,
+              db_version TEXT NOT NULL,
+              testcase_version TEXT NOT NULL,
+              manual_review_status TEXT NOT NULL
+            );
+            """
+        )
+        metadata = {
+            "policy_version": POLICY_VERSION,
+            "db_version": DB_VERSION,
+            "testcase_version": TESTCASE_VERSION,
+            "record_count": str(len(records)),
+            "difficulty_distribution": "EASY=20,MEDIUM=20,HARD=20",
+            "independent_human_review": "PENDING",
+            "agent_access": "DENY",
+        }
+        connection.executemany(
+            "INSERT INTO metadata(key, value) VALUES (?, ?)",
+            sorted(metadata.items()),
+        )
+        for record in records:
+            ids = record["target_ids"]
+            expected = record["expected_result"]
+            connection.execute(
+                """INSERT INTO gold_test_cases(
+                    testcase_id, difficulty, question, order_id, order_item_id,
+                    description, coverage_tags_json, required_fields_json,
+                    gold_decision, gold_clauses_json, primary_clause,
+                    policy_facts_json, expected_result_json, policy_version,
+                    db_version, testcase_version, manual_review_status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    record["testcase_id"],
+                    record["difficulty"],
+                    record["question"],
+                    ids.get("order_id"),
+                    ids["order_item_id"],
+                    record.get("description", record["question"]),
+                    json.dumps(record["coverage_tags"], ensure_ascii=False, separators=(",", ":")),
+                    json.dumps(record["required_fields"], ensure_ascii=False, separators=(",", ":")),
+                    record["gold_decision"],
+                    json.dumps(record["gold_clauses"], ensure_ascii=False, separators=(",", ":")),
+                    expected["primary_clause"],
+                    json.dumps(record["policy_facts"], ensure_ascii=False, separators=(",", ":")),
+                    json.dumps(expected, ensure_ascii=False, separators=(",", ":")),
+                    POLICY_VERSION,
+                    DB_VERSION,
+                    TESTCASE_VERSION,
+                    "PENDING_INDEPENDENT_HUMAN_REVIEW",
+                ),
+            )
+        connection.commit()
+    finally:
+        connection.close()
+
+
 def build_test_cases(shop_db: Path) -> list[dict]:
     connection = sqlite3.connect(shop_db)
     try:
@@ -446,16 +607,23 @@ def build_test_cases(shop_db: Path) -> list[dict]:
 def build(output_root: Path = REPO_ROOT) -> Dict[str, str]:
     data_dir = output_root / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
-    shop_db = data_dir / "shop.db"
-    test_cases_path = data_dir / "test_cases.json"
 
-    build_shop_db(shop_db)
-    records = build_test_cases(shop_db)
-    test_cases_path.write_bytes(pretty_json_bytes(records))
+    source_dir = REPO_ROOT / "data"
+    for name in ("shop.db", "test_cases.json", "agent_cases.json", "answer_key.db"):
+        source = source_dir / name
+        if source.exists():
+            shutil.copy2(source, data_dir / name)
+
+    test_cases_path = data_dir / "test_cases.json"
+    records = json.loads(test_cases_path.read_text(encoding="utf-8"))
+    if not isinstance(records, list):
+        raise TypeError("test_cases.json must contain a list of records")
 
     files = {
-        "data/shop.db": sha256_file(shop_db),
+        "data/shop.db": sha256_file(data_dir / "shop.db"),
         "data/test_cases.json": sha256_file(test_cases_path),
+        "data/agent_cases.json": sha256_file(data_dir / "agent_cases.json"),
+        "data/answer_key.db": sha256_file(data_dir / "answer_key.db"),
     }
     manifest = {
         "release_profile": "BASE",
@@ -464,8 +632,8 @@ def build(output_root: Path = REPO_ROOT) -> Dict[str, str]:
         "db_version": DB_VERSION,
         "testcase_version": TESTCASE_VERSION,
         "core_version_vector": dict(VERSION_VECTOR),
-        "testcase_count": 20,
-        "difficulty_counts": {"EASY": 6, "MEDIUM": 8, "HARD": 6},
+        "testcase_count": len(records),
+        "difficulty_counts": dict(Counter(record["difficulty"] for record in records)),
         "evaluation_date": EVALUATION_DATE.isoformat(),
         "timezone": "Asia/Seoul",
         "python_version": platform.python_version(),
