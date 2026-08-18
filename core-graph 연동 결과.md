@@ -2,7 +2,7 @@
 
 > 작성일: 2026-08-18 (Asia/Seoul)
 >
-> Core 기준: `feat/core-graph` 기존 커밋 `cc10906` + 현재 로컬 변경
+> Core 연동 코드 커밋: `feat/core-graph`의 `f6652c7`
 >
 > Scaffold 기준: `origin/feat/repair-loop` 커밋 `13d3928`
 
@@ -152,7 +152,7 @@ reasoning_verifier = ReasoningVerifierAdapter(verify_once, verifier_llm)
 2. 실제 `verify_once`의 status 문자열이 `PASS`/`FAIL`인지 최종 확인한다. 다른 문자열이어도 어댑터 정규화 표에 추가하면 된다.
 3. 두 feature 브랜치를 함께 둔 상태에서 SQL Repair + Verifier 전체 통합 테스트를 실행해야 한다.
 4. `tester` 최신 코드, 실제 DB·정책·모델 API를 연결한 환경 통합 테스트가 남아 있다.
-5. 이번 변경은 아직 commit·push·PR하지 않았다.
+5. 연동 코드는 커밋 `f6652c7`로 `feat/core-graph`에 push했다. PR은 만들지 않았다.
 
 ## 최종 판정
 
