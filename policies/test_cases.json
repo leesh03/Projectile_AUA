@@ -3393,10 +3393,6 @@
       "primary_clause": "POL-40.04",
       "reason_code": "INCONSISTENT_FAULT_EVIDENCE",
       "required_fields": [
-        "/shipment/evidence/evidence_source",
-        "/shipment/evidence/provenance_attested",
-        "/shipment/evidence/verified_at",
-        "/shipment/evidence/verified_by",
         "/shipment/issue_code"
       ],
       "versions": {
@@ -3483,10 +3479,6 @@
     "policy_version": "policy-v0.5",
     "question": "주문 상품 G-019의 전액 환불 가능 여부를 판단해 주세요.",
     "required_fields": [
-      "/shipment/evidence/evidence_source",
-      "/shipment/evidence/provenance_attested",
-      "/shipment/evidence/verified_at",
-      "/shipment/evidence/verified_by",
       "/shipment/issue_code"
     ],
     "target_ids": {
