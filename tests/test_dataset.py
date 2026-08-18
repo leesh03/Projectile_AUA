@@ -20,6 +20,7 @@ except ModuleNotFoundError:
 
 ROOT = Path(__file__).parents[1]
 DATA = ROOT / "data"
+ARTIFACTS = ROOT / "artifacts"
 
 
 def sha256(path: Path) -> str:
@@ -69,6 +70,47 @@ class DatasetTests(unittest.TestCase):
         finally:
             connection.close()
 
+    def test_answer_key_is_separate_and_complete(self) -> None:
+        connection = sqlite3.connect(DATA / "answer_key.db")
+        try:
+            tables = {
+                row[0]
+                for row in connection.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                )
+            }
+            self.assertEqual({"metadata", "gold_test_cases"}, tables)
+            self.assertEqual(
+                20,
+                connection.execute("SELECT COUNT(*) FROM gold_test_cases").fetchone()[0],
+            )
+            metadata = dict(connection.execute("SELECT key, value FROM metadata"))
+            self.assertEqual("20", metadata["record_count"])
+            self.assertEqual("DENY", metadata["agent_access"])
+            self.assertEqual("PENDING", metadata["independent_human_review"])
+            answer_rows = {
+                row[0]: row[1:]
+                for row in connection.execute(
+                    """SELECT
+                        testcase_id, coverage_tags_json, required_fields_json,
+                        gold_decision, gold_clauses_json, primary_clause,
+                        policy_facts_json, expected_result_json
+                    FROM gold_test_cases"""
+                )
+            }
+            for source in self.cases:
+                row = answer_rows[source["testcase_id"]]
+                self.assertEqual(source["coverage_tags"], json.loads(row[0]))
+                self.assertEqual(source["required_fields"], json.loads(row[1]))
+                self.assertEqual(source["gold_decision"], row[2])
+                self.assertEqual(source["gold_clauses"], json.loads(row[3]))
+                self.assertEqual(source["expected_result"]["primary_clause"], row[4])
+                self.assertEqual(source["policy_facts"], json.loads(row[5]))
+                self.assertEqual(source["expected_result"], json.loads(row[6]))
+            self.assertEqual("ok", connection.execute("PRAGMA integrity_check").fetchone()[0])
+        finally:
+            connection.close()
+
     def test_ids_exist_except_explicit_empty_result_cases(self) -> None:
         connection = sqlite3.connect(DATA / "shop.db")
         try:
@@ -89,6 +131,33 @@ class DatasetTests(unittest.TestCase):
                     self.assertEqual((1, 1), (order_count, shipment_count))
         finally:
             connection.close()
+
+    def test_agent_cases_match_suite_without_gold_fields(self) -> None:
+        agent_cases = json.loads(
+            (DATA / "agent_cases.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            [case["testcase_id"] for case in self.cases],
+            [case["testcase_id"] for case in agent_cases],
+        )
+        allowed = {
+            "testcase_id",
+            "difficulty",
+            "question",
+            "target_ids",
+            "request",
+            "trusted_context",
+        }
+        for source, agent_case in zip(self.cases, agent_cases):
+            self.assertEqual(allowed, set(agent_case))
+            self.assertEqual(source["difficulty"], agent_case["difficulty"])
+            self.assertEqual(source["question"], agent_case["question"])
+            self.assertEqual(source["target_ids"], agent_case["target_ids"])
+            self.assertEqual(source["policy_facts"]["request"], agent_case["request"])
+            self.assertEqual(
+                source["policy_facts"]["trusted_context"],
+                agent_case["trusted_context"],
+            )
 
     def test_every_gold_record_matches_latest_oracle(self) -> None:
         for case in self.cases:
@@ -114,6 +183,13 @@ class DatasetTests(unittest.TestCase):
     def test_manifest_hashes_and_rebuild_are_reproducible(self) -> None:
         manifest = json.loads((DATA / "version_manifest.json").read_text(encoding="utf-8"))
         for relative, expected in manifest["artifact_sha256"].items():
+            self.assertEqual(expected, sha256(ROOT / relative))
+
+        release_manifest = json.loads(
+            (ARTIFACTS / "version_manifest.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(20, release_manifest["testcase_count"])
+        for relative, expected in release_manifest["artifact_sha256"].items():
             self.assertEqual(expected, sha256(ROOT / relative))
 
         committed = {

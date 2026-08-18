@@ -1,7 +1,7 @@
 {
   "artifact_sha256": {
     "data/shop.db": "a2f44ec02c3eac40dd25cb105521970b9d7649d67c1d3eb2fa93ba99145b39db",
-    "data/test_cases.json": "312610aef58b417b6f95b43516d718c3b305b05163b6d54c72cb21a50741429d"
+    "data/test_cases.json": "9994ae8e0082d558a980d5066e7dbe64dbc9586668e93bd07e24a2dc7bd8b76e"
   },
   "baseline_status": "CANDIDATE_PENDING_INDEPENDENT_HUMAN_REVIEW",
   "core_version_vector": {
@@ -26,7 +26,7 @@
   "policy_version": "policy-v0.5",
   "python_version": "3.12.13",
   "release_profile": "BASE",
-  "source_policy_spec": "refund_policy_spec_v0.5.md",
+  "source_policy_spec": "policies/refund_policy_spec_v0.5.md",
   "sqlite_version": "3.53.1",
   "testcase_count": 20,
   "testcase_version": "testcase-v0.5",

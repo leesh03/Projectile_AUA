@@ -542,15 +542,18 @@ def build(output_root: Path = REPO_ROOT) -> Dict[str, str]:
     agent_cases_path.write_bytes(pretty_json_bytes(agent_records))
     build_answer_db(answer_db, records)
 
-    files = {
+    base_files = {
         "data/shop.db": sha256_file(shop_db),
         "data/test_cases.json": sha256_file(test_cases_path),
+    }
+    files = {
+        **base_files,
         "data/agent_cases.json": sha256_file(agent_cases_path),
         "data/answer_key.db": sha256_file(answer_db),
         "policies/policy_text.json": sha256_file(REPO_ROOT / "policies" / "policy_text.json"),
         "policies/policy_oracle.py": sha256_file(REPO_ROOT / "policies" / "policy_oracle.py"),
     }
-    manifest = {
+    common_manifest = {
         "release_profile": "BASE",
         "baseline_status": "CANDIDATE_PENDING_INDEPENDENT_HUMAN_REVIEW",
         "policy_version": POLICY_VERSION,
@@ -563,10 +566,14 @@ def build(output_root: Path = REPO_ROOT) -> Dict[str, str]:
         "timezone": "Asia/Seoul",
         "python_version": platform.python_version(),
         "sqlite_version": sqlite3.sqlite_version,
-        "artifact_sha256": files,
-        "source_notion_url": "https://app.notion.com/p/3bc4a1a82b5180259902f5edc778f2eb",
+        "source_policy_spec": "policies/refund_policy_spec_v0.5.md",
     }
-    (artifacts_dir / "version_manifest.json").write_bytes(pretty_json_bytes(manifest))
+    base_manifest = {**common_manifest, "artifact_sha256": base_files}
+    release_manifest = {**common_manifest, "artifact_sha256": files}
+    (data_dir / "version_manifest.json").write_bytes(pretty_json_bytes(base_manifest))
+    (artifacts_dir / "version_manifest.json").write_bytes(
+        pretty_json_bytes(release_manifest)
+    )
     return files
 
 

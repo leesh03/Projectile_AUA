@@ -471,7 +471,7 @@ def build(output_root: Path = REPO_ROOT) -> Dict[str, str]:
         "python_version": platform.python_version(),
         "sqlite_version": sqlite3.sqlite_version,
         "artifact_sha256": files,
-        "source_policy_spec": "refund_policy_spec_v0.5.md",
+        "source_policy_spec": "policies/refund_policy_spec_v0.5.md",
     }
     (data_dir / "version_manifest.json").write_bytes(pretty_json_bytes(manifest))
     return files
