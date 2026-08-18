@@ -6,7 +6,7 @@
     "data/shop.db": "a2f44ec02c3eac40dd25cb105521970b9d7649d67c1d3eb2fa93ba99145b39db",
     "data/test_cases.json": "9994ae8e0082d558a980d5066e7dbe64dbc9586668e93bd07e24a2dc7bd8b76e",
     "policies/policy_oracle.py": "e80db1a524fee0f59a989ee570b6fae8e6e83d4f2b318519550e5092b375db0d",
-    "policies/policy_text.json": "a27dbcb271eb6919eca93f89cd6eeef545aee67fe49452a8cff8255044091bb5"
+    "policies/policy_text.json": "90a75780a5cf13a22066fb3626a14da49fe7f5e4f4082dd00a9296aac20f36b1"
   },
   "baseline_status": "CANDIDATE_PENDING_INDEPENDENT_HUMAN_REVIEW",
   "core_version_vector": {
