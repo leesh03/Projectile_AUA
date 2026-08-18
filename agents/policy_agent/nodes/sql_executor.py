@@ -148,9 +148,23 @@ class SQLExecutor:
             connection = sqlite3.connect(uri, uri=True)
             connection.row_factory = sqlite3.Row
             connection.execute("PRAGMA query_only = ON")
-            return connection
         except sqlite3.Error as exc:
             raise SQLExecutionError(f"failed to open database: {exc}") from exc
+        return connection
+
+    @staticmethod
+    def _sqlite_error_code(error: sqlite3.Error) -> str:
+        """Return stable repair categories compatible with scaffold stop rules."""
+
+        message = str(error).lower()
+        if "no such table" in message:
+            return "NO_SUCH_TABLE"
+        if "no such column" in message:
+            return "NO_SUCH_COLUMN"
+        if "syntax error" in message:
+            return "SQL_SYNTAX_ERROR"
+        sqlite_name = getattr(error, "sqlite_errorname", None)
+        return sqlite_name if isinstance(sqlite_name, str) else "DB_RUNTIME_ERROR"
 
     def execute(self, sql: str, parameters: Sequence[Any] = ()) -> QueryResult:
         safe_sql = self.guard.validate(sql)
@@ -209,7 +223,10 @@ class SQLExecutor:
                     "SQL execution exceeded the configured resource limit",
                     code="QUERY_RESOURCE_LIMIT",
                 ) from exc
-            raise SQLExecutionError(f"SQL execution failed: {exc}") from exc
+            raise SQLExecutionError(
+                f"SQL execution failed: {exc}",
+                code=self._sqlite_error_code(exc),
+            ) from exc
 
         truncated = len(fetched) > self.max_rows
         rows = tuple(dict(row) for row in fetched[: self.max_rows])

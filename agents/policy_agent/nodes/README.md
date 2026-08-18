@@ -11,6 +11,7 @@ AgentRequest
   → sql_executor (SQL Guard 포함)
   → evidence_check
   → policy_reasoner
+  → 선택적 reasoning_verifier / policy_reasoner 반영 반복
   → response_writer
   → AgentRun / TrialResult / TraceStep
 ```
@@ -24,6 +25,7 @@ AgentRequest
 | `__init__.py` | 외부에서 사용할 Core 객체를 한곳에 공개합니다. |
 | `graph.py` | 각 단계를 순서대로 실행하고 오류·중단 사유·Trace를 기록합니다. |
 | `state.py` | 입력, 실행 설정, 상태, 모델 사용량, `TrialResult`·`TraceStep` 변환과 결과 파일 저장을 담당합니다. |
+| `scaffold_adapters.py` | 채린님의 dict 기반 `repair_once`·`verify_once`를 Core 상태와 `SQLQuery`/Verifier 결과로 변환합니다. |
 | `context_provider.py` | SQLite 스키마와 정책 파일을 읽기 전용으로 불러오고 파일 해시·정책 버전을 기록합니다. |
 | `sql_generator.py` | 모델의 구조화 출력을 검증해 이름이 지정된 SELECT 조회 계획으로 변환합니다. |
 | `sql_executor.py` | SELECT-only, 단일 문장, 금지 명령, 허용 테이블을 검사한 뒤 SQLite를 읽기 전용으로 실행합니다. |
@@ -48,9 +50,18 @@ AgentRequest
 - SQLite DB 경로와 읽기를 허용할 테이블 목록
 - 비어 있지 않은 정책 파일 경로
 - SQL 생성 모델 어댑터와 정책 판정 모델 어댑터
-- 선택 사항: 채린님의 SQL Repair 및 Reasoning Verifier 어댑터
+- 선택 사항: 채린님의 SQL Repair 및 Reasoning Verifier 단일 실행 함수와 LLM
 
 특정 API SDK나 모델 ID는 Core에 고정하지 않았습니다. 실제 API 어댑터는 모델의 구조화 결과와 함께 응답 메타데이터에서 얻은 토큰 사용량을 `ProviderResult`로 전달해야 합니다.
+
+### 채린 Scaffold 연결 규칙
+
+- `SQLRepairAdapter(repair_once, llm)`는 채린님의 dict 상태를 만들고, 수정 SQL을 기존 query 이름·parameter와 함께 `SQLQuery`로 되돌립니다.
+- `ReasoningVerifierAdapter(verify_once, llm)`는 `verifier_status`와 `verifier_issues`를 Core 상태에 연결합니다.
+- `agent_config_from_scaffold(AGENT_CONFIG)`는 `use_sql_repair`, `max_sql_retries`, `stop_on_repeated_error`, `use_reasoning_verifier`, `max_reflections`, `max_total_steps`를 Core 설정으로 변환합니다.
+- Repair와 Verifier 함수는 한 번의 LLM 호출만 담당합니다. 반복, 중단 조건, `iteration`, `llm_call_count`, Trace는 `graph.py`가 소유합니다.
+- Verifier가 `FAIL`이면 `PolicyReasoner`가 이슈를 받아 다시 판정하며, `AgentConfig.max_reflections` 횟수만큼 반복합니다.
+- `scaffold_config.verifier`에는 활성화된 최대 반영 횟수를 정수로 기록합니다.
 
 ## 안전 장치
 
@@ -68,7 +79,7 @@ AgentRequest
 uv run python -m unittest tests.testbed.test_core_graph -v
 ```
 
-정상 실행뿐 아니라 위험 SQL 차단, 허용되지 않은 테이블 접근, 근거 부족, 잘못된 모델 출력, 토큰 집계, Repair 설정과 실행 기록 저장을 검증합니다.
+정상 실행뿐 아니라 위험 SQL 차단, 허용되지 않은 테이블 접근, 근거 부족, 잘못된 모델 출력, 토큰 집계, Repair 어댑터, Verifier 반영 0/1/2회와 실행 기록 저장을 검증합니다.
 
 ## 팀 규칙
 

@@ -14,6 +14,11 @@ from agents.policy_agent.nodes.evidence_check import EvidenceAssemblyError, Evid
 from agents.policy_agent.nodes.graph import PolicyAgentGraph
 from agents.policy_agent.nodes.policy_reasoner import PolicyReasoner
 from agents.policy_agent.nodes.response_writer import ResponseWriter
+from agents.policy_agent.nodes.scaffold_adapters import (
+    ReasoningVerifierAdapter,
+    SQLRepairAdapter,
+    agent_config_from_scaffold,
+)
 from agents.policy_agent.nodes.sql_executor import (
     SQLExecutionError,
     SQLExecutor,
@@ -102,6 +107,24 @@ class FakeReasoningModel:
             finish_reason="stop",
             latency_ms=4,
             provider_request_id=f"reason-{self.calls}",
+        )
+
+
+class ScriptedVerifier:
+    def __init__(self, results: list[Mapping[str, Any]]) -> None:
+        self.results = results
+        self.calls = 0
+
+    def __call__(self, state: Any) -> ProviderResult:
+        del state
+        result = self.results[min(self.calls, len(self.results) - 1)]
+        self.calls += 1
+        return ProviderResult(
+            output=result,
+            usage=ProviderUsage(input_tokens=4, output_tokens=2),
+            provider="fake-provider",
+            model_id="fake-verifier-model",
+            provider_request_id=f"verify-{self.calls}",
         )
 
 
@@ -286,6 +309,7 @@ class CoreGraphTests(unittest.TestCase):
         sql_model: FakeSQLModel | None = None,
         config: AgentConfig | None = None,
         sql_repair: Any = None,
+        reasoning_verifier: Any = None,
         max_query_steps: int = 100_000,
     ) -> tuple[PolicyAgentGraph, FakeSQLModel, FakeReasoningModel]:
         sql_model = sql_model or FakeSQLModel(sql_result)
@@ -309,6 +333,7 @@ class CoreGraphTests(unittest.TestCase):
             response_writer=ResponseWriter(),
             config=config,
             sql_repair=sql_repair,
+            reasoning_verifier=reasoning_verifier,
         )
         return graph, sql_model, policy_model
 
@@ -395,6 +420,322 @@ class CoreGraphTests(unittest.TestCase):
             },
         )
         self.assertEqual(trial_result["difficulty"], "EASY")
+
+    def test_verifier_reflects_once_and_records_each_iteration(self) -> None:
+        verifier = ScriptedVerifier(
+            [
+                {
+                    "verifier_status": "FAIL",
+                    "verifier_issues": ["배송일 근거를 다시 확인하세요."],
+                },
+                {"verifier_status": "PASS", "verifier_issues": []},
+            ]
+        )
+        config = AgentConfig(
+            enable_verifier=True,
+            max_reflections=2,
+        )
+        graph, _, reasoning_model = self.build_graph(
+            self.canonical_query_plan(),
+            config=config,
+            reasoning_verifier=verifier,
+        )
+
+        run = graph.run(self.agent_request)
+
+        self.assertTrue(run.state.task_success)
+        self.assertEqual(run.state.verifier_status, "PASS")
+        self.assertEqual(run.state.verifier_issues, [])
+        self.assertEqual(run.state.reflection_count, 1)
+        self.assertEqual(verifier.calls, 2)
+        self.assertEqual(reasoning_model.calls, 2)
+        self.assertEqual(run.state.llm_call_count, 5)
+        self.assertEqual(run.state.total_tokens, 92)
+        self.assertEqual(run.state.config.as_scaffold_config()["verifier"], 2)
+        self.assertEqual(
+            reasoning_model.last_payload["verifier_feedback"]["issues"],
+            ["배송일 근거를 다시 확인하세요."],
+        )
+        verifier_traces = [
+            trace for trace in run.traces if trace["node_role"] == "VERIFY_REASONING"
+        ]
+        self.assertEqual([trace["iteration"] for trace in verifier_traces], [0, 1])
+        self.assertEqual(
+            [(trace["input_tokens"], trace["output_tokens"]) for trace in verifier_traces],
+            [(4, 2), (4, 2)],
+        )
+        decide_traces = [
+            trace for trace in run.traces if trace["node_role"] == "DECIDE"
+        ]
+        self.assertEqual([trace["iteration"] for trace in decide_traces], [None, 1])
+
+    def test_verifier_exhaustion_stops_at_configured_limit(self) -> None:
+        verifier = ScriptedVerifier(
+            [
+                {"status": "REJECTED", "issues": ["첫 번째 오류"]},
+                {"status": "REJECTED", "issues": ["두 번째 오류"]},
+            ]
+        )
+        graph, _, reasoning_model = self.build_graph(
+            self.canonical_query_plan(),
+            config=AgentConfig(enable_verifier=True, max_reflections=1),
+            reasoning_verifier=verifier,
+        )
+
+        run = graph.run(self.agent_request)
+
+        self.assertFalse(run.state.task_success)
+        self.assertEqual(run.state.stop_reason, "MAX_REFLECTION")
+        self.assertEqual(run.state.error_type, "VERIFIER_REJECTED")
+        self.assertEqual(run.state.reflection_count, 1)
+        self.assertEqual(run.state.verifier_issues, ["두 번째 오류"])
+        self.assertEqual(verifier.calls, 2)
+        self.assertEqual(reasoning_model.calls, 2)
+
+    def test_dict_verifier_adapter_preserves_usage_and_state_fields(self) -> None:
+        class LLMResult:
+            text = "PASS"
+            input_tokens = 3
+            output_tokens = 2
+
+        def verify_once(scaffold_state: dict[str, Any], llm: Any) -> dict[str, Any]:
+            result = llm("verify")
+            self.assertEqual(scaffold_state["policy_decision"], "APPROVE")
+            scaffold_state["verifier_status"] = result.text
+            scaffold_state["verifier_issues"] = []
+            scaffold_state["trace"].append(
+                {
+                    "node_role": "VERIFY_REASONING",
+                    "input_tokens": result.input_tokens,
+                    "output_tokens": result.output_tokens,
+                }
+            )
+            return scaffold_state
+
+        adapter = ReasoningVerifierAdapter(verify_once, lambda prompt: LLMResult())
+        graph, _, _ = self.build_graph(
+            self.canonical_query_plan(),
+            config=AgentConfig(enable_verifier=True, max_reflections=2),
+            reasoning_verifier=adapter,
+        )
+
+        run = graph.run(self.agent_request)
+
+        self.assertTrue(run.state.task_success)
+        self.assertEqual(run.state.verifier_status, "PASS")
+        verify_trace = next(
+            trace for trace in run.traces if trace["node_role"] == "VERIFY_REASONING"
+        )
+        self.assertEqual(
+            (verify_trace["input_tokens"], verify_trace["output_tokens"]),
+            (3, 2),
+        )
+
+    def test_dict_repair_adapter_preserves_query_name_history_and_usage(self) -> None:
+        self.policy_path.write_text(
+            json.dumps({"policy_version": "test-no-required-paths"}),
+            encoding="utf-8",
+        )
+        safe_order = self.canonical_query_plan()["queries"][0]
+        failed_sql = "SELECT missing_column FROM orders WHERE order_item_id = ?"
+
+        class LLMResult:
+            text = safe_order["sql"]
+            input_tokens = 5
+            output_tokens = 3
+
+        def repair_once(scaffold_state: dict[str, Any], llm: Any) -> dict[str, Any]:
+            result = llm("repair")
+            scaffold_state["sql_history"].append(scaffold_state["sql"])
+            scaffold_state["sql"] = result.text
+            scaffold_state["trace"].append(
+                {
+                    "node_role": "REPAIR_QUERY",
+                    "input_tokens": result.input_tokens,
+                    "output_tokens": result.output_tokens,
+                }
+            )
+            return scaffold_state
+
+        adapter = SQLRepairAdapter(repair_once, lambda prompt: LLMResult())
+        graph, _, _ = self.build_graph(
+            {
+                "queries": [
+                    {
+                        "name": "order",
+                        "sql": failed_sql,
+                        "parameters": ["OI-G-001"],
+                    }
+                ]
+            },
+            config=AgentConfig(enable_repair=True, max_retries=1),
+            sql_repair=adapter,
+        )
+
+        run = graph.run(self.agent_request)
+
+        self.assertTrue(run.state.task_success)
+        self.assertEqual(run.state.retry_count, 1)
+        self.assertEqual(run.state.sql_history, [failed_sql])
+        self.assertEqual(run.state.query_plan.queries[0].name, "order")
+        repair_trace = next(
+            trace for trace in run.traces if trace["node_role"] == "REPAIR_QUERY"
+        )
+        self.assertEqual(
+            (repair_trace["input_tokens"], repair_trace["output_tokens"]),
+            (5, 3),
+        )
+
+    def test_negative_max_reflections_is_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "max_reflections"):
+            AgentConfig(max_reflections=-1)
+
+    def test_scaffold_config_keys_map_to_core_loop_controls(self) -> None:
+        config = agent_config_from_scaffold(
+            {
+                "use_sql_repair": True,
+                "max_sql_retries": 2,
+                "stop_on_repeated_error": False,
+                "use_reasoning_verifier": True,
+                "max_reflections": 2,
+                "max_total_steps": 20,
+                "max_total_tokens": None,
+                "max_total_latency_ms": None,
+            }
+        )
+
+        self.assertTrue(config.enable_repair)
+        self.assertEqual(config.max_retries, 2)
+        self.assertFalse(config.stop_on_repeated_error)
+        self.assertTrue(config.enable_verifier)
+        self.assertEqual(config.max_reflections, 2)
+        self.assertEqual(config.max_total_steps, 20)
+
+    def test_repeated_sql_error_stops_before_using_remaining_retries(self) -> None:
+        failed_sql = "SELECT first_missing FROM orders WHERE order_item_id = ?"
+
+        class Repair:
+            calls = 0
+
+            def __call__(
+                self, state: Any, query: SQLQuery, error: Exception
+            ) -> SQLQuery:
+                del state, error
+                self.calls += 1
+                return SQLQuery(
+                    name=query.name,
+                    sql="SELECT second_missing FROM orders WHERE order_item_id = ?",
+                    parameters=query.parameters,
+                )
+
+        repair = Repair()
+        graph, _, _ = self.build_graph(
+            {
+                "queries": [
+                    {
+                        "name": "order",
+                        "sql": failed_sql,
+                        "parameters": ["OI-G-001"],
+                    }
+                ]
+            },
+            config=AgentConfig(
+                enable_repair=True,
+                max_retries=2,
+                stop_on_repeated_error=True,
+            ),
+            sql_repair=repair,
+        )
+
+        run = graph.run(self.agent_request)
+
+        self.assertEqual(run.state.stop_reason, "MAX_RETRY")
+        self.assertEqual(run.state.error_type, "NO_SUCH_COLUMN")
+        self.assertEqual(run.state.retry_count, 1)
+        self.assertEqual(run.state.tool_error_count, 2)
+        self.assertEqual(repair.calls, 1)
+
+    def test_changed_sql_error_continues_to_the_next_retry(self) -> None:
+        self.policy_path.write_text(
+            json.dumps({"policy_version": "test-no-required-paths"}),
+            encoding="utf-8",
+        )
+        safe_order = self.canonical_query_plan()["queries"][0]
+        initial_sql = "SELECT * FROM missing_table WHERE order_item_id = ?"
+        second_sql = "SELECT missing_column FROM orders WHERE order_item_id = ?"
+
+        class Repair:
+            calls = 0
+
+            def __call__(
+                self, state: Any, query: SQLQuery, error: Exception
+            ) -> SQLQuery:
+                del state, error
+                outputs = (second_sql, safe_order["sql"])
+                repaired_sql = outputs[min(self.calls, len(outputs) - 1)]
+                self.calls += 1
+                return SQLQuery(
+                    name=query.name,
+                    sql=repaired_sql,
+                    parameters=query.parameters,
+                )
+
+        repair = Repair()
+        graph, _, _ = self.build_graph(
+            {
+                "queries": [
+                    {
+                        "name": "order",
+                        "sql": initial_sql,
+                        "parameters": ["OI-G-001"],
+                    }
+                ]
+            },
+            config=AgentConfig(enable_repair=True, max_retries=2),
+            sql_repair=repair,
+        )
+
+        run = graph.run(self.agent_request)
+
+        self.assertTrue(run.state.task_success)
+        self.assertEqual(run.state.retry_count, 2)
+        self.assertEqual(repair.calls, 2)
+        self.assertEqual(run.state.sql_history, [initial_sql, second_sql])
+
+    def test_repair_stops_at_global_step_limit(self) -> None:
+        class Repair:
+            calls = 0
+
+            def __call__(
+                self, state: Any, query: SQLQuery, error: Exception
+            ) -> SQLQuery:
+                del state, query, error
+                self.calls += 1
+                raise AssertionError("repair must not run after the step limit")
+
+        repair = Repair()
+        graph, _, _ = self.build_graph(
+            {
+                "queries": [
+                    {
+                        "name": "order",
+                        "sql": "SELECT missing_column FROM orders",
+                    }
+                ]
+            },
+            config=AgentConfig(
+                enable_repair=True,
+                max_retries=2,
+                max_total_steps=4,
+            ),
+            sql_repair=repair,
+        )
+
+        run = graph.run(self.agent_request)
+
+        self.assertEqual(run.state.stop_reason, "MAX_RETRY")
+        self.assertEqual(run.state.retry_count, 0)
+        self.assertEqual(repair.calls, 0)
 
     def test_non_select_sql_is_blocked_before_database_execution(self) -> None:
         graph, _, reasoning_model = self.build_graph(

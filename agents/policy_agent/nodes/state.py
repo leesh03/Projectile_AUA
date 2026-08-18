@@ -282,12 +282,19 @@ class AgentConfig:
     enable_repair: bool = False
     max_retries: int = 0
     repair_safety_violations: bool = False
+    stop_on_repeated_error: bool = True
+    max_total_steps: int | None = None
     enable_verifier: bool = False
+    max_reflections: int = 0
     max_queries: int = 5
 
     def __post_init__(self) -> None:
         if self.max_retries < 0:
             raise ValueError("max_retries must be non-negative")
+        if self.max_reflections < 0:
+            raise ValueError("max_reflections must be non-negative")
+        if self.max_total_steps is not None and self.max_total_steps <= 0:
+            raise ValueError("max_total_steps must be positive or None")
         if not 1 <= self.max_queries <= 10:
             raise ValueError("max_queries must be between 1 and 10")
 
@@ -295,13 +302,15 @@ class AgentConfig:
         return {
             "planner": False,
             "repair": self.max_retries if self.enable_repair else 0,
-            "verifier": 1 if self.enable_verifier else 0,
+            "verifier": self.max_reflections if self.enable_verifier else 0,
         }
 
     def as_core_config(self) -> dict[str, Any]:
         return {
             "max_queries": self.max_queries,
             "repair_safety_violations": self.repair_safety_violations,
+            "stop_on_repeated_error": self.stop_on_repeated_error,
+            "max_total_steps": self.max_total_steps,
         }
 
 
@@ -356,6 +365,7 @@ class PolicyAgentState:
     context: dict[str, Any] = field(default_factory=dict)
     runtime_config: dict[str, Any] = field(default_factory=dict)
     query_plan: SQLPlan | None = None
+    sql_history: list[str] = field(default_factory=list)
     query_results: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
     facts: dict[str, Any] = field(default_factory=dict)
     rows_truncated: bool = False
@@ -365,6 +375,9 @@ class PolicyAgentState:
     policy_clauses: list[str] = field(default_factory=list)
     rationale: str | None = None
     confidence: float | None = None
+    verifier_status: str | None = None
+    verifier_issues: list[str] = field(default_factory=list)
+    reflection_count: int = 0
     response: str | None = None
 
     task_success: bool = False

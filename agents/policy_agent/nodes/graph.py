@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from time import perf_counter_ns
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 
 from agents.policy_agent.nodes.context_provider import ContextProvider, ContextProviderError
 from agents.policy_agent.nodes.evidence_check import EvidenceAssemblyError, EvidenceChecker
@@ -24,6 +25,7 @@ from agents.policy_agent.nodes.state import (
     AgentRequest,
     NodeRole,
     PolicyAgentState,
+    ProviderResult,
     StepType,
 )
 
@@ -39,10 +41,39 @@ class SQLRepair(Protocol):
     ) -> SQLQuery: ...
 
 
-class ReasoningVerifier(Protocol):
-    """Existing team-facing Verifier interface; changes require agreement."""
+class VerifierContractError(RuntimeError):
+    """Raised when a Verifier adapter violates the one-check contract."""
 
-    def __call__(self, state: PolicyAgentState) -> bool: ...
+    code = "VERIFIER_CONTRACT_ERROR"
+
+
+class RepairLoopExhaustedError(RuntimeError):
+    """Raised when a Core-owned repair loop hits a non-count stop rule."""
+
+    def __init__(self, error: Exception, reason: str) -> None:
+        super().__init__(reason)
+        self.code = getattr(error, "code", type(error).__name__)
+
+
+@dataclass(frozen=True, slots=True)
+class VerifierDecision:
+    """Normalized result of one reasoning verification call."""
+
+    status: Literal["PASS", "FAIL"]
+    issues: tuple[str, ...] = ()
+
+    @property
+    def accepted(self) -> bool:
+        return self.status == "PASS"
+
+
+VerifierOutput = VerifierDecision | ProviderResult | Mapping[str, Any] | bool
+
+
+class ReasoningVerifier(Protocol):
+    """Run exactly one check; the Core graph owns the reflection loop."""
+
+    def __call__(self, state: PolicyAgentState) -> VerifierOutput: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -70,7 +101,9 @@ class PolicyAgentGraph:
         sql_repair: SQLRepair
         | Callable[[PolicyAgentState, SQLQuery, Exception], SQLQuery]
         | None = None,
-        reasoning_verifier: ReasoningVerifier | Callable[[PolicyAgentState], bool] | None = None,
+        reasoning_verifier: ReasoningVerifier
+        | Callable[[PolicyAgentState], VerifierOutput]
+        | None = None,
     ) -> None:
         self.context_provider = context_provider
         self.sql_generator = sql_generator
@@ -100,6 +133,104 @@ class PolicyAgentGraph:
         if call.node_role != node_role:
             return None, None
         return call.usage.input_tokens, call.usage.output_tokens
+
+    def _invoke_sql_repair(
+        self,
+        state: PolicyAgentState,
+        query: SQLQuery,
+        error: Exception,
+    ) -> SQLQuery:
+        """Call one repair adapter without double-counting adapter metadata."""
+
+        if self.sql_repair is None:
+            raise SQLGenerationError("SQL repair adapter is not configured")
+        llm_calls_before = state.llm_call_count
+        provider_calls_before = len(state.provider_calls)
+        history_before = len(state.sql_history)
+        repaired = self.sql_repair(state, query, error)
+
+        llm_call_delta = state.llm_call_count - llm_calls_before
+        provider_call_delta = len(state.provider_calls) - provider_calls_before
+        if llm_call_delta > 1 or provider_call_delta > 1:
+            raise SQLGenerationError("repair adapter must perform exactly one repair call")
+        if llm_call_delta == 0:
+            state.llm_call_count += 1
+        if len(state.sql_history) == history_before:
+            state.sql_history.append(query.sql)
+        return repaired
+
+    @staticmethod
+    def _normalize_verifier_output(raw: Any) -> VerifierDecision:
+        if isinstance(raw, VerifierDecision):
+            return raw
+        if isinstance(raw, bool):
+            return VerifierDecision("PASS" if raw else "FAIL")
+        if isinstance(raw, str):
+            try:
+                raw = json.loads(raw)
+            except json.JSONDecodeError as exc:
+                raise VerifierContractError(
+                    "verifier output must be an object or structured JSON"
+                ) from exc
+        if not isinstance(raw, Mapping):
+            raise VerifierContractError(
+                "verifier must return bool, mapping, VerifierDecision, or ProviderResult"
+            )
+
+        status = raw.get("verifier_status", raw.get("status"))
+        if isinstance(status, bool):
+            normalized_status = "PASS" if status else "FAIL"
+        elif isinstance(status, str):
+            status_key = status.strip().upper()
+            if status_key in {"PASS", "OK", "ACCEPTED", "VALID"}:
+                normalized_status = "PASS"
+            elif status_key in {"FAIL", "REJECTED", "INVALID", "NEEDS_REFLECTION"}:
+                normalized_status = "FAIL"
+            else:
+                raise VerifierContractError(f"unsupported verifier status: {status!r}")
+        else:
+            raise VerifierContractError("verifier output is missing verifier_status")
+
+        raw_issues = raw.get("verifier_issues", raw.get("issues", []))
+        if raw_issues is None:
+            issues: tuple[str, ...] = ()
+        elif isinstance(raw_issues, str):
+            issues = (raw_issues.strip(),) if raw_issues.strip() else ()
+        elif isinstance(raw_issues, (list, tuple)) and all(
+            isinstance(issue, str) and issue.strip() for issue in raw_issues
+        ):
+            issues = tuple(issue.strip() for issue in raw_issues)
+        else:
+            raise VerifierContractError("verifier_issues must be an array of strings")
+        return VerifierDecision(normalized_status, issues)
+
+    def _invoke_reasoning_verifier(self, state: PolicyAgentState) -> VerifierDecision:
+        """Run one verifier call and normalize Chae-rin's dict-style output."""
+
+        if self.reasoning_verifier is None:
+            raise VerifierContractError("reasoning verifier is not configured")
+        llm_calls_before = state.llm_call_count
+        provider_calls_before = len(state.provider_calls)
+        raw = self.reasoning_verifier(state)
+
+        if isinstance(raw, ProviderResult):
+            if len(state.provider_calls) == provider_calls_before:
+                state.record_provider_result("VERIFY_REASONING", raw)
+            raw = raw.output
+
+        llm_call_delta = state.llm_call_count - llm_calls_before
+        provider_call_delta = len(state.provider_calls) - provider_calls_before
+        if llm_call_delta > 1 or provider_call_delta > 1:
+            raise VerifierContractError(
+                "verifier adapter must perform exactly one check; graph owns the loop"
+            )
+        if llm_call_delta == 0:
+            state.llm_call_count += 1
+
+        decision = self._normalize_verifier_output(raw)
+        state.verifier_status = decision.status
+        state.verifier_issues = list(decision.issues)
+        return decision
 
     def _run_step(
         self,
@@ -155,6 +286,7 @@ class PolicyAgentGraph:
         for original_query in plan.queries:
             query = original_query
             attempt = 0
+            previous_error_code: str | None = None
             while True:
                 try:
                     self._run_step(
@@ -190,22 +322,44 @@ class PolicyAgentGraph:
                     safety_repair_allowed = (
                         not is_safety_violation or self.config.repair_safety_violations
                     )
-                    can_repair = (
+                    error_code = getattr(exc, "code", type(exc).__name__)
+                    if (
+                        self.config.stop_on_repeated_error
+                        and previous_error_code is not None
+                        and error_code == previous_error_code
+                    ):
+                        raise RepairLoopExhaustedError(
+                            exc,
+                            f"repair stopped after repeated error: {error_code}",
+                        ) from exc
+                    base_can_repair = (
                         safety_repair_allowed
                         and self.config.enable_repair
                         and self.sql_repair is not None
                         and state.retry_count < self.config.max_retries
                     )
+                    step_limit_hit = (
+                        self.config.max_total_steps is not None
+                        and len(state.traces) >= self.config.max_total_steps
+                    )
+                    if base_can_repair and step_limit_hit:
+                        raise RepairLoopExhaustedError(
+                            exc,
+                            "repair stopped at the configured global step limit",
+                        ) from exc
+                    can_repair = base_can_repair and not step_limit_hit
                     if not can_repair:
                         raise
+                    previous_error_code = error_code
                     state.retry_count += 1
                     attempt += 1
-                    state.llm_call_count += 1
                     repaired = self._run_step(
                         state,
                         node_role="REPAIR_QUERY",
                         step_type="llm_call",
-                        operation=lambda q=query, e=exc: self.sql_repair(state, q, e),
+                        operation=lambda q=query, e=exc: self._invoke_sql_repair(
+                            state, q, e
+                        ),
                         tool_name=f"sql_repair:{query.name}",
                         iteration=attempt,
                     )
@@ -220,6 +374,61 @@ class PolicyAgentGraph:
             input_tokens=plan.input_tokens,
             output_tokens=plan.output_tokens,
         )
+
+    def _run_reasoning_verifier(self, state: PolicyAgentState) -> bool:
+        """Verify, reflect through DECIDE, and re-check up to the configured limit."""
+
+        for verification_iteration in range(self.config.max_reflections + 1):
+            decision = self._run_step(
+                state,
+                node_role="VERIFY_REASONING",
+                step_type="llm_call",
+                operation=lambda: self._invoke_reasoning_verifier(state),
+                iteration=verification_iteration,
+            )
+            if decision.accepted:
+                return True
+            if state.reflection_count >= self.config.max_reflections:
+                issue_text = "; ".join(state.verifier_issues) or "no issue details"
+                state.fail(
+                    "MAX_REFLECTION",
+                    error_type="VERIFIER_REJECTED",
+                    message=f"reasoning verifier rejected the decision: {issue_text}",
+                )
+                return False
+
+            state.reflection_count += 1
+            self._run_step(
+                state,
+                node_role="DECIDE",
+                step_type="llm_call",
+                operation=lambda: self.policy_reasoner(state),
+                iteration=state.reflection_count,
+            )
+            policy_evidence = self._run_step(
+                state,
+                node_role="CHECK_EVIDENCE",
+                step_type="code",
+                operation=lambda: self.evidence_checker.evaluate_policy_requirements(
+                    state
+                ),
+                tool_name="policy_clause_evidence",
+                iteration=state.reflection_count,
+            )
+            if not policy_evidence.sufficient:
+                self._run_step(
+                    state,
+                    node_role="GENERATE_RESPONSE",
+                    step_type="code",
+                    operation=lambda: self.response_writer.write_policy_evidence_missing(
+                        state
+                    ),
+                    iteration=state.reflection_count,
+                )
+                state.error_type = policy_evidence.reason
+                state.finish("INSUFFICIENT_EVIDENCE", success=False)
+                return False
+        raise AssertionError("verifier loop exceeded its configured bound")
 
     def run(
         self,
@@ -300,21 +509,12 @@ class PolicyAgentGraph:
                 state.finish("INSUFFICIENT_EVIDENCE", success=False)
                 return AgentRun(state)
 
-            if self.config.enable_verifier and self.reasoning_verifier is not None:
-                state.llm_call_count += 1
-                accepted = self._run_step(
-                    state,
-                    node_role="VERIFY_REASONING",
-                    step_type="llm_call",
-                    operation=lambda: self.reasoning_verifier(state),
-                )
-                if accepted is not True:
-                    state.fail(
-                        "MAX_REFLECTION",
-                        error_type="VERIFIER_REJECTED",
-                        message="reasoning verifier rejected the decision",
-                    )
-                    return AgentRun(state)
+            if (
+                self.config.enable_verifier
+                and self.reasoning_verifier is not None
+                and not self._run_reasoning_verifier(state)
+            ):
+                return AgentRun(state)
 
             self._run_step(
                 state,
@@ -339,6 +539,8 @@ class PolicyAgentGraph:
             exhausted = self.config.enable_repair and state.retry_count >= self.config.max_retries
             stop_reason = "MAX_RETRY" if exhausted else "SQL_FAILURE"
             state.fail(stop_reason, error_type=exc.code, message=str(exc))
+        except RepairLoopExhaustedError as exc:
+            state.fail("MAX_RETRY", error_type=exc.code, message=str(exc))
         except EvidenceAssemblyError as exc:
             state.tool_schema_valid = False
             state.tool_error_count += 1
@@ -349,7 +551,7 @@ class PolicyAgentGraph:
                 error_type=f"CONTEXT:{type(exc).__name__}",
                 message=str(exc),
             )
-        except (SQLGenerationError, PolicyReasoningError) as exc:
+        except (SQLGenerationError, PolicyReasoningError, VerifierContractError) as exc:
             state.fail(
                 "PROVIDER_ERROR",
                 error_type=f"PROVIDER:{type(exc).__name__}",
