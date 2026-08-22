@@ -1,0 +1,14 @@
+{
+  "schema": "local-test-assets-v1",
+  "source_commit": "07b81245038607f7db0621f080e226da7c4ed0f9",
+  "case_count": 60,
+  "adapter_fixture_count": 9,
+  "database_source": "rebuilt from PolicyFacts inputs; no Gold outputs",
+  "files": {
+    "data/shop.db": "f967811a996aacf541a7d6657fdb9fcba102a7c2b770f0bbd6a87b7e3cfb103f",
+    "data/agent_cases.json": "d291fb3422309bf29097205b9c0c78f71f469c04db4ab56adb5d7f8b654ea673",
+    "data/adapter_fixtures.json": "7978811e340ed5ab492f472263492fcac3b0d313f98141798dc215f00d88fb70",
+    "data/source_version_manifest.json": "425ef60ee993ae3342e716b1f2edea537eb2fac576c4cc6765392f3c8672ca6d",
+    "evaluation/private/expected_cases.json": "3f42a3dec915f1aa46725ba25516dc6dfc38fc3dc2e0903930cec895436569d6"
+  }
+}
