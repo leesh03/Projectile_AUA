@@ -1,0 +1,55 @@
+{
+  "trial_result": {
+    "testcase_id": "E-001",
+    "agent_label": "V0",
+    "trial": 1,
+    "task_success": true,
+    "policy_correct": true,
+    "tool_error_count": 0,
+    "retry_count": 0,
+    "total_tokens": 0,
+    "latency_ms": 52,
+    "safety_violation": false,
+    "stop_reason": "OK",
+    "error_type": null,
+    "tool_schema_valid": true,
+    "llm_call_count": 3,
+    "scaffold_config": {
+      "planner": false,
+      "repair": 0,
+      "verifier": 2
+    },
+    "difficulty": "EASY"
+  },
+  "agent_output": {
+    "decision": "APPROVE",
+    "clauses": [
+      "POL-00.08",
+      "POL-20.01",
+      "POL-50.07"
+    ],
+    "rationale": "다른 종결 조항이 없는 전액 환불 승인",
+    "response": "요청을 승인할 수 있습니다.\n근거: 다른 종결 조항이 없는 전액 환불 승인\n적용 정책: POL-00.08, POL-20.01, POL-50.07",
+    "verifier_status": "PASS",
+    "verifier_issues": []
+  },
+  "traces": [
+    {
+      "testcase_id": "E-001",
+      "agent_label": "V0",
+      "run_id": "example_run",
+      "trial": 1,
+      "step_index": 0,
+      "node_role": "RETRIEVE_SCHEMA",
+      "type": "code",
+      "outcome": "ok",
+      "tool_name": null,
+      "arguments_valid": null,
+      "error_type": null,
+      "iteration": null,
+      "input_tokens": null,
+      "output_tokens": null,
+      "latency_ms": 7
+    }
+  ]
+}

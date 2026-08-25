@@ -1,0 +1,303 @@
+{
+  "schema": "compact-policy-agent-package-v1",
+  "generated_at": "2026-08-22T07:44:05Z",
+  "python": ">=3.11",
+  "file_count": 59,
+  "files": [
+    {
+      "path": ".env.example",
+      "bytes": 309,
+      "sha256": "29fdbbead3bdc94c0b4ed1e1aaf8a5351b0feb9597883ef8a7d59efd85286e66"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 80,
+      "sha256": "c20062a3d6e257ccb6a211602d29f985bac4785e72b6f51a2359d9c6e70c23da"
+    },
+    {
+      "path": "agents/__init__.py",
+      "bytes": 27,
+      "sha256": "ce5142b4971e8d7945fb3c202bacbc28011b033de0ddcb612d5d29106d6985ec"
+    },
+    {
+      "path": "agents/policy_agent/__init__.py",
+      "bytes": 37,
+      "sha256": "2b3517f0007fef93ba03b47248f98c70d5cbcaccc83aa62654f231a61b1f40f9"
+    },
+    {
+      "path": "agents/policy_agent/nodes/__init__.py",
+      "bytes": 1353,
+      "sha256": "d6ba0fbbce42442c857914b385b730fa4ac50611f25ce49a3a5169c209e10614"
+    },
+    {
+      "path": "agents/policy_agent/nodes/context_provider.py",
+      "bytes": 8885,
+      "sha256": "bfa291417c1674236af29c7d6c68a871bc91250c1cfe525004b1f8a437d5a5ec"
+    },
+    {
+      "path": "agents/policy_agent/nodes/evidence_check.py",
+      "bytes": 9459,
+      "sha256": "cb58571234a64c3423faed497ba8e504afb8da43798e217eeb2bcb6b2292c31a"
+    },
+    {
+      "path": "agents/policy_agent/nodes/graph.py",
+      "bytes": 23761,
+      "sha256": "040891873e058d456cbb170312790b8b66686a2004a1f4c5576a56cae1c0e866"
+    },
+    {
+      "path": "agents/policy_agent/nodes/policy_reasoner.py",
+      "bytes": 6603,
+      "sha256": "60806960be4893a80071d733df6fea037872cdba32a82dfdb20eacf0e7c3d4bd"
+    },
+    {
+      "path": "agents/policy_agent/nodes/response_writer.py",
+      "bytes": 2097,
+      "sha256": "a0db08567c3edf7ad1fbfd1956965905de6160cf0f4ae91ab9a25415da368a7b"
+    },
+    {
+      "path": "agents/policy_agent/nodes/scaffold_adapters.py",
+      "bytes": 7600,
+      "sha256": "3913f7753d8de7453d56d05c653bc4a0df6dca8055755cfe00fea475ee8ae568"
+    },
+    {
+      "path": "agents/policy_agent/nodes/sql_executor.py",
+      "bytes": 9812,
+      "sha256": "ab01d988893ff1a2f2a8e3edbd9f27d2263cea320194362c81a067d5e23a6515"
+    },
+    {
+      "path": "agents/policy_agent/nodes/sql_generator.py",
+      "bytes": 7915,
+      "sha256": "1c6900c4c3113a87fe416fecc5c9c0434960b4c5d2e33a3341e64e9f18346d37"
+    },
+    {
+      "path": "agents/policy_agent/nodes/state.py",
+      "bytes": 24613,
+      "sha256": "5183fcbd786fc6a1715b9a163421fa25a15950407370f39be38ee5d87a01ef7e"
+    },
+    {
+      "path": "agents/policy_agent/scaffolds/__init__.py",
+      "bytes": 187,
+      "sha256": "c0dcf5b53732414ba6a89b600852a5d08eb25d44ab3ba56b75795792a8047843"
+    },
+    {
+      "path": "agents/policy_agent/scaffolds/config.py",
+      "bytes": 1395,
+      "sha256": "923bcf7a6dc1678e3b387bca8f956541dc86db149c4b32b8dc5b1b74faca8998"
+    },
+    {
+      "path": "agents/policy_agent/scaffolds/llm.py",
+      "bytes": 1667,
+      "sha256": "051edd42fb7e1b7eebc346c418defe6a21d1bfc826480407c883dce0707ac0c9"
+    },
+    {
+      "path": "agents/policy_agent/scaffolds/reasoning_verifier.py",
+      "bytes": 8400,
+      "sha256": "a8741e16cb545e68c1310bf3a6ecb1cc2469431ee17a6266fac391d2c185bc82"
+    },
+    {
+      "path": "agents/policy_agent/scaffolds/sql_repair.py",
+      "bytes": 5883,
+      "sha256": "2b8e5e826da6d761447bb15bde3aae764dc0f5f9e0b087bcda8194afef947544"
+    },
+    {
+      "path": "agents/policy_agent/scaffolds/trace.py",
+      "bytes": 2150,
+      "sha256": "352296628f274fcf9e27c5ab0f1a28a538b3e552f2ffd21002a1f590b410d752"
+    },
+    {
+      "path": "core/__init__.py",
+      "bytes": 64,
+      "sha256": "2a8679aa6feb949b5405dfe6006b14b74dc9107468daad83391377c472a7120c"
+    },
+    {
+      "path": "core/schemas/__init__.py",
+      "bytes": 265,
+      "sha256": "c061a0840abc8774fd82153360045dbff48171e3ce6c2aa934b46fb17b235ce0"
+    },
+    {
+      "path": "core/schemas/enums.py",
+      "bytes": 2339,
+      "sha256": "8fcb138d108a644ef5e29829a3bd0562344f9650a12fea69717a76aaa159e928"
+    },
+    {
+      "path": "core/schemas/trace.py",
+      "bytes": 2346,
+      "sha256": "c60006fc77cd9022ee35cae869e9ef1248dd4d781ebf15e509e7203740f99e18"
+    },
+    {
+      "path": "data/adapter_fixtures.json",
+      "bytes": 14335,
+      "sha256": "7978811e340ed5ab492f472263492fcac3b0d313f98141798dc215f00d88fb70"
+    },
+    {
+      "path": "data/agent_cases.json",
+      "bytes": 37212,
+      "sha256": "d291fb3422309bf29097205b9c0c78f71f469c04db4ab56adb5d7f8b654ea673"
+    },
+    {
+      "path": "data/asset_manifest.json",
+      "bytes": 766,
+      "sha256": "40b38686593cd2851895d2f35fbaca3173e63aa8ac947e594c959b5eb3143afb"
+    },
+    {
+      "path": "data/shop.db",
+      "bytes": 32768,
+      "sha256": "f967811a996aacf541a7d6657fdb9fcba102a7c2b770f0bbd6a87b7e3cfb103f"
+    },
+    {
+      "path": "data/source_version_manifest.json",
+      "bytes": 1388,
+      "sha256": "425ef60ee993ae3342e716b1f2edea537eb2fac576c4cc6765392f3c8672ca6d"
+    },
+    {
+      "path": "docs/ARCHITECTURE_AND_IO.md",
+      "bytes": 6154,
+      "sha256": "cb6d0545be509fa108405bf102473fbeea08b7b9e46719193426cbc39ad0e657"
+    },
+    {
+      "path": "docs/INTEGRATION_REPORT.md",
+      "bytes": 5604,
+      "sha256": "270a5ee500482197a4aa9f1e3a65985a238190b621966573681a4eb5ffe46869"
+    },
+    {
+      "path": "docs/ORIGINAL_PROJECT_README.md",
+      "bytes": 4117,
+      "sha256": "5985f8373be7945d6c69c030336d93ba20fd4cfbd87777f2cc679a9c527cdcb0"
+    },
+    {
+      "path": "evaluation/private/expected_cases.json",
+      "bytes": 275132,
+      "sha256": "3f42a3dec915f1aa46725ba25516dc6dfc38fc3dc2e0903930cec895436569d6"
+    },
+    {
+      "path": "examples/agent_output.json",
+      "bytes": 386,
+      "sha256": "205571974ffbee1290135aa0d72656bc8c5a60ba448e0b48eabcfae5c2008965"
+    },
+    {
+      "path": "examples/agent_request.json",
+      "bytes": 544,
+      "sha256": "4e7ed934f9479827c8ec63fae43b4c15d97e648383a17f8d163562e064d5bbaa"
+    },
+    {
+      "path": "examples/trial_artifact.json",
+      "bytes": 1357,
+      "sha256": "ec74dcdd0948285c24ec017077cf9b0585eff35e0b6399ab34bf41ce580b163d"
+    },
+    {
+      "path": "policies/policy_rules.json",
+      "bytes": 21024,
+      "sha256": "1ba055fb0f44081bb452ece30780e1cbf6f60b5420ba830225e6b53314677d60"
+    },
+    {
+      "path": "policies/source/refund_policy_spec_v0.5.md",
+      "bytes": 37114,
+      "sha256": "9410c4077a5b481f7a22d91319b674b0737666c1b9c536bd8c772f2e28843d3e"
+    },
+    {
+      "path": "policy_runtime/__init__.py",
+      "bytes": 261,
+      "sha256": "b81e7019d7c07eca3b705cf64ad8ae58f995244d73e9ba097542858a19ae5006"
+    },
+    {
+      "path": "policy_runtime/access_guard.py",
+      "bytes": 3431,
+      "sha256": "0c42e601794c954937fc33952547dafcb6f170ddb2d6a1c0e62ab5185dcdcb26"
+    },
+    {
+      "path": "policy_runtime/deterministic.py",
+      "bytes": 6521,
+      "sha256": "5f7570c12982d547579976c3140762000eba180ae3dcc27492e755cefe4e0bad"
+    },
+    {
+      "path": "policy_runtime/engine.py",
+      "bytes": 28319,
+      "sha256": "730715816af70cf606ab0cb2aa1bfda6d1ad2f4bcd58be0c32017fa513d87a92"
+    },
+    {
+      "path": "policy_runtime/env.py",
+      "bytes": 1047,
+      "sha256": "679cff58f755dc133d015332430c2ff53f1bceecba130437c9d133011c6e4e2b"
+    },
+    {
+      "path": "policy_runtime/factory.py",
+      "bytes": 5566,
+      "sha256": "0a83aeaf2851557681368b0c064fd3916f4de72873aa143ceaf0d7d5f6526d07"
+    },
+    {
+      "path": "policy_runtime/fixtures.py",
+      "bytes": 1945,
+      "sha256": "077f1f1a2278204b2aa23963acd845475e598cffb1564ac29a813cb4b6efa4e0"
+    },
+    {
+      "path": "policy_runtime/isolated_worker.py",
+      "bytes": 3969,
+      "sha256": "a07f341da2e021ccd83e2ed35585bf48f5201f69fcef7225a74e78b42f74c106"
+    },
+    {
+      "path": "policy_runtime/loader.py",
+      "bytes": 6581,
+      "sha256": "66dcd7660d043798c1ede893971d13d5d732cccbd30a994236b1b090cecb4d44"
+    },
+    {
+      "path": "policy_runtime/multi_provider.py",
+      "bytes": 19347,
+      "sha256": "c986b818e74a1ef3475a718a9936a2c48647ab8fc92d288d49ae3e23f17cc0d5"
+    },
+    {
+      "path": "policy_runtime/openai_provider.py",
+      "bytes": 12634,
+      "sha256": "7bf72a7df906dd8011e3d0ea6db6883e1964ce96b146fff125f0c72ef48fef87"
+    },
+    {
+      "path": "policy_runtime/runner.py",
+      "bytes": 10498,
+      "sha256": "fe5ea205ffdcab5e7613183bcdb518e3a0732fb2dac1c9526ae830e0adbc7047"
+    },
+    {
+      "path": "README.md",
+      "bytes": 6109,
+      "sha256": "4ec8126689525bc3952c3f3baea89ceab9d2009b8af9b3f23298a80923acf322"
+    },
+    {
+      "path": "run_agent.py",
+      "bytes": 2172,
+      "sha256": "d9e8edc423698d2f7936377c346fab2050bb63bb77c7ebba832dbd6af3880efb"
+    },
+    {
+      "path": "scripts/sync_test_assets.py",
+      "bytes": 11042,
+      "sha256": "d9d1dcae3752c1326740cc2ecb597df61e0c61395dfb792727a87852b1298761"
+    },
+    {
+      "path": "tests/__init__.py",
+      "bytes": 46,
+      "sha256": "6b9d9b2823a4c8b28a215dfc621a26335086ec7cae9c0c847d528bdcf17fa446"
+    },
+    {
+      "path": "tests/test_access_isolation.py",
+      "bytes": 2067,
+      "sha256": "e8b7ffcfa52b6e0ddea3ff5e95872a295aec7c5ed65a17447a8a64d296242e83"
+    },
+    {
+      "path": "tests/test_integration.py",
+      "bytes": 3684,
+      "sha256": "f6ca07c586960fe47fb7c51a99b57282250d37e822527db37f35410a94e39f6a"
+    },
+    {
+      "path": "tests/test_multi_provider.py",
+      "bytes": 4678,
+      "sha256": "c8d8a04030d36da3282b868a1fdae1155223a5cfbf28667d9b1b976a1ffa6ca7"
+    },
+    {
+      "path": "tests/test_openai_provider.py",
+      "bytes": 2200,
+      "sha256": "01ea5b014917eaa57634fd33d147f6dc02b43f9702bc3a167762bbc0469aa172"
+    },
+    {
+      "path": "tests/test_policy_engine.py",
+      "bytes": 1783,
+      "sha256": "0cf98d2beb39144d474ec4794f03077f17b00e1cdf7563b4585ed2d366e5e6d2"
+    }
+  ]
+}
