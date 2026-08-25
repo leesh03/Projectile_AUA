@@ -16,6 +16,7 @@ reports/*
 # DB — 단, 시험용 DB는 재현성을 위해 커밋한다
 *.db
 !data/shop.db
+!data/answer_key.db
 
 # OS / IDE
 .DS_Store

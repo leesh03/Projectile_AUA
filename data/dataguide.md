@@ -77,12 +77,14 @@ python data/build_dataset.py
 python -m unittest tests/test_dataset.py -v
 ```
 
-정상이라면 6개 테스트가 모두 통과하고 마지막에 `OK`가 표시됩니다. 검증 항목은 다음과 같습니다.
+정상이라면 8개 테스트가 모두 통과하고 마지막에 `OK`가 표시됩니다. 검증 항목은 다음과 같습니다.
 
 - TestCase 정확히 20개
 - Easy 6개, Medium 8개, Hard 6개
 - 필수 출력 필드 존재
 - SQLite 테이블과 외래키 무결성
+- 보호 정답 DB의 20개 레코드와 접근 차단 메타데이터
+- Agent 공개 케이스의 Gold 필드 누수 방지
 - 명시된 조회 결과 없음 사례를 제외한 참조 ID 존재
 - 최신 Oracle 결과와 모든 Gold 정답 일치
 - 경계값·정책 예외·중복 환불·값 누락·충돌 우선순위 확인
