@@ -21,7 +21,9 @@ class SuiteRunSummary:
     total_trials: int
     task_successes: int
     policy_correct: int
+    engine_consistency: int
     gold_agreements: int | None
+    oracle_agreements: int | None
     output_path: Path
 
 
@@ -87,6 +89,7 @@ class SuiteRunner:
             "mode": self.bundle.mode,
             "provider": self.bundle.provider,
             "model": self.bundle.model,
+            "db_path": str(self.bundle.db_path) if self.bundle.db_path else None,
             "jobs": jobs,
         }
         worker_environment = os.environ.copy()
@@ -176,6 +179,20 @@ class SuiteRunner:
         )
         return all(actual.get(key) == expected.get(key) for key in keys)
 
+    @staticmethod
+    def _gold_agent_answer(expected: Mapping[str, Any]) -> dict[str, Any] | None:
+        decision_by_eligibility = {
+            "ELIGIBLE": "APPROVE",
+            "INELIGIBLE": "REJECT",
+            "UNDETERMINED": "NEED_MORE_INFO",
+            "NOT_APPLICABLE": "NOT_APPLICABLE",
+        }
+        decision = decision_by_eligibility.get(expected.get("eligibility"))
+        clauses = expected.get("matched_clauses")
+        if decision is None or not isinstance(clauses, list):
+            return None
+        return {"decision": decision, "clauses": clauses}
+
     def run(
         self,
         *,
@@ -210,35 +227,62 @@ class SuiteRunner:
                     "decision": expected.decision,
                     "clauses": expected.value["matched_clauses"],
                 }
-                policy_correct = _same_decision_values(
+                engine_consistency = _same_decision_values(
                     isolated.get("decision"),
                     isolated.get("clauses"),
                     expected_agent,
                 )
             except (InputContractError, KeyError, TypeError, ValueError):
                 expected = None
-                policy_correct = False
+                engine_consistency = False
 
-            artifact = isolated.get("artifact")
-            if not isinstance(artifact, str) or not artifact:
-                raise RuntimeError("isolated Agent worker did not return an artifact path")
-            self._patch_policy_correct(run_id, artifact, policy_correct)
             expected_gold = (
                 gold.get(testcase, {}).get("expected_result")
                 if isinstance(testcase, str)
                 else None
             )
+            expected_gold_answer = (
+                self._gold_agent_answer(expected_gold)
+                if isinstance(expected_gold, Mapping)
+                else None
+            )
             gold_agreement = (
+                None
+                if expected_gold_answer is None
+                else _same_decision_values(
+                    isolated.get("decision"),
+                    isolated.get("clauses"),
+                    expected_gold_answer,
+                )
+            )
+            oracle_agreement = (
                 None
                 if expected is None or not isinstance(expected_gold, Mapping)
                 else self._gold_equal(expected_gold, expected.value)
             )
+            # TrialResult keeps its stable boolean contract.  When private Gold
+            # is available this is a genuinely independent Agent-vs-Gold score;
+            # otherwise it falls back to the explicitly named engine check.
+            policy_correct = (
+                gold_agreement if gold_agreement is not None else engine_consistency
+            )
+            artifact = isolated.get("artifact")
+            if not isinstance(artifact, str) or not artifact:
+                raise RuntimeError("isolated Agent worker did not return an artifact path")
+            self._patch_policy_correct(run_id, artifact, policy_correct)
             isolated.pop("facts", None)
             isolated["policy_correct"] = policy_correct
+            isolated["engine_consistency"] = engine_consistency
             isolated["gold_agreement"] = gold_agreement
+            isolated["oracle_agreement"] = oracle_agreement
             records.append(isolated)
 
         gold_values = [item["gold_agreement"] for item in records if item["gold_agreement"] is not None]
+        oracle_values = [
+            item["oracle_agreement"]
+            for item in records
+            if item["oracle_agreement"] is not None
+        ]
         payload = {
             "schema": "suite-run-summary-v1",
             "run_id": run_id,
@@ -250,9 +294,20 @@ class SuiteRunner:
             "trial_count": len(records),
             "task_successes": sum(bool(item["task_success"]) for item in records),
             "policy_correct": sum(bool(item["policy_correct"]) for item in records),
+            "engine_consistency": sum(bool(item["engine_consistency"]) for item in records),
             "gold_agreements": (
                 sum(bool(value) for value in gold_values) if gold_values else None
             ),
+            "oracle_agreements": (
+                sum(bool(value) for value in oracle_values) if oracle_values else None
+            ),
+            "metric_definitions": {
+                "task_successes": "trials that completed and produced a valid artifact",
+                "engine_consistency": "Agent decision/clauses equal the local policy engine",
+                "gold_agreements": "Agent decision/clauses equal private Gold",
+                "oracle_agreements": "local policy engine detailed result equals private Gold",
+                "policy_correct": "Gold agreement when Gold exists; otherwise engine consistency",
+            },
             "records": records,
         }
         summary_path = self.output_root / run_id / "suite_summary.json"
@@ -265,6 +320,8 @@ class SuiteRunner:
             total_trials=len(records),
             task_successes=payload["task_successes"],
             policy_correct=payload["policy_correct"],
+            engine_consistency=payload["engine_consistency"],
             gold_agreements=payload["gold_agreements"],
+            oracle_agreements=payload["oracle_agreements"],
             output_path=summary_path,
         )

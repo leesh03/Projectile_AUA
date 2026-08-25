@@ -26,15 +26,17 @@ python -m unittest discover -s tests -v
 
 산출물은 `reports/runs/<run_id>/` 아래에 저장된다. `suite_summary.json`, 실행 manifest, 사례별 `trial_1.json`이 생성된다.
 
+공유본은 `python scripts/build_submission.py`로 만든다. 이 ZIP에는 `evaluation/private/`, `reports/`, `.env`가 들어가지 않는다.
+
 ## Gold·Oracle 격리
 
 `SuiteRunner`는 평가 자료를 읽는 부모 프로세스와 Agent를 실행하는 자식 프로세스를 분리한다. Agent 자식 프로세스에는 Python audit 기반 deny policy가 적용된다.
 
-- 허용: `data/shop.db`, `data/agent_cases.json`, `data/adapter_fixtures.json`, `policies/policy_rules.json`
+- 허용: `data/shop.db`, `data/agent_cases.json`, `policies/policy_rules.json`
 - 차단: `evaluation/private/`, `expected_cases.json`, `answer_key.db`, `test_cases.json`, `policy_oracle.py`, 정책 비교 원본 폴더
 - 우회 차단: Agent 실행 중 `subprocess`·`os.system` 등 하위 프로세스 실행
 
-Agent가 실행을 끝낸 뒤 부모 Runner만 반환된 facts를 정책 엔진·Gold와 비교해 `policy_correct`와 `gold_agreement`를 기록한다. Manifest와 summary에는 `isolation=subprocess-audit-v1`이 남는다. 네이티브 플러그인처럼 신뢰하지 않는 임의 실행 코드를 추가할 경우에는 이 경계에 더해 별도 OS 계정이나 컨테이너 ACL을 사용해야 한다.
+Agent가 실행을 끝낸 뒤 부모 Runner만 반환된 facts를 정책 엔진·Gold와 비교한다. `engine_consistency`는 Agent-엔진, `gold_agreement`는 Agent-Gold, `oracle_agreement`는 엔진-Gold 일치다. Manifest와 summary에는 `isolation=subprocess-audit-v1`이 남는다. 네이티브 플러그인처럼 신뢰하지 않는 임의 실행 코드를 추가할 경우에는 이 경계에 더해 별도 OS 계정이나 컨테이너 ACL을 사용해야 한다.
 
 ## API 키를 받은 뒤
 

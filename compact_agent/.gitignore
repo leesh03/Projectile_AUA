@@ -1,6 +1,7 @@
 .env
 __pycache__/
 *.py[cod]
-reports/runs/
-reports/test-temp/
-reports/test-runs/
+reports/
+tmp*/
+*.zip
+~$*

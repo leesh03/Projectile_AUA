@@ -15,11 +15,11 @@ SuiteRunner(부모 평가 경계)
           └─ 하위 프로세스를 통한 우회 차단
 ```
 
-Agent가 종료되면 Runner가 반환된 결과를 정책 엔진 및 Gold와 비교하고 `policy_correct`, `gold_agreement`를 기록한다. 따라서 평가 정답은 모델 프롬프트, Agent 상태, trace에 들어가지 않는다.
+Agent가 종료되면 Runner가 반환된 결과를 정책 엔진 및 Gold와 비교한다. `engine_consistency`는 Agent와 로컬 정책 엔진, `gold_agreement`는 Agent와 비공개 Gold, `oracle_agreement`는 정책 엔진과 Gold의 일치를 뜻한다. 따라서 평가 정답은 모델 프롬프트, Agent 상태, trace에 들어가지 않는다.
 
 ## 조립 지점
 
-`policy_runtime/factory.py`의 `build_agent(root, mode, provider, model)`이 모든 구성 요소를 조립한다.
+`policy_runtime/factory.py`의 `build_agent(root, mode, provider, model, db_path)`가 모든 구성 요소를 조립한다. `db_path`를 생략하면 개발용 `data/shop.db`를 사용하며, 공식 DB는 인자 또는 `POLICY_AGENT_DB_PATH`로 교체한다.
 
 | 구성 요소 | 구현 파일 | 입력 | 출력 |
 |---|---|---|---|
@@ -87,8 +87,10 @@ Agent가 종료되면 Runner가 반환된 결과를 정책 엔진 및 Gold와 �
 테스트 Runner는 업무 결과 외에 평가용 실행 기록을 남긴다.
 
 - `task_success`: Agent가 정상 종료했는지
-- `policy_correct`: Agent 판정이 공개 정책 엔진의 판정과 같은지
-- `gold_agreement`: 정책 엔진 결과가 비공개 Gold와 같은지; suite summary에 기록
+- `engine_consistency`: Agent 판정·조항이 공개 정책 엔진과 같은지
+- `gold_agreement`: Agent 판정·조항이 비공개 Gold와 같은지
+- `oracle_agreement`: 정책 엔진의 상세 결과가 비공개 Gold와 같은지
+- `policy_correct`: Gold가 있으면 `gold_agreement`, 없으면 `engine_consistency`
 - `tool_error_count`, `retry_count`, `llm_call_count`
 - `total_tokens`, `latency_ms`
 - `stop_reason`, `error_type`, `safety_violation`
@@ -118,7 +120,13 @@ Agent가 종료되면 Runner가 반환된 결과를 정책 엔진 및 Gold와 �
 5. `NEED_MORE_INFO`이면 누락된 주문 또는 증빙 정보를 사용자에게 요청한다.
 6. `APPROVE`라도 실제 환불 API 호출 전에는 메인 Agent의 권한·확인 절차를 거친다.
 7. 메인 Agent 테스트도 Agent 프로세스와 평가 Runner를 분리하고 Gold를 프롬프트에 넣지 않는다.
-8. 변경할 때마다 결정론 60건 전체와 API 1건 smoke test를 먼저 통과시킨다.
+8. 변경할 때마다 결정론 60건 전체를 통과시키고, 실제 API는 smoke test 외에 대표 HARD 사례도 따로 확인한다.
+
+## 개발 평가본과 공유본
+
+개발 폴더의 `data/shop.db`는 60개 입력 사실을 SQL로 재현하는 회귀 DB다. 결측·중복·식별자 불일치도 DB 행으로 나타내며, Agent는 `testcase_id`를 DB 조회나 정책 판단에 사용하지 않는다. 이 60/60은 로컬 회귀 검증이지 새로운 입력에 대한 LLM 정확도 100%가 아니다.
+
+공유·제출할 때는 `python -B scripts/build_submission.py`를 실행한다. 생성된 ZIP은 `evaluation/private/`, `reports/`, `.env`를 제외하고 공개 파일 해시 manifest를 새로 만든다.
 
 ## 현재 범위 밖
 

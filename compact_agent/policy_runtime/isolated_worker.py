@@ -39,13 +39,15 @@ def main() -> int:
     provider = _require_string(payload, "provider")
     model_raw = payload.get("model")
     model = model_raw if isinstance(model_raw, str) and model_raw else None
+    db_path_raw = payload.get("db_path")
+    db_path = Path(db_path_raw).resolve() if isinstance(db_path_raw, str) else None
     jobs = payload.get("jobs")
     if not isinstance(jobs, list) or not jobs:
         raise ValueError("isolated worker jobs must be a non-empty array")
 
     records: list[dict[str, Any]] = []
     with agent_execution_guard(root):
-        bundle = build_agent(root, mode=mode, provider=provider, model=model)
+        bundle = build_agent(root, mode=mode, provider=provider, model=model, db_path=db_path)
         for job in jobs:
             if not isinstance(job, Mapping):
                 raise ValueError("isolated worker job must be an object")

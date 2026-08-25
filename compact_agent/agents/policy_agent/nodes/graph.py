@@ -104,7 +104,6 @@ class PolicyAgentGraph:
         reasoning_verifier: ReasoningVerifier
         | Callable[[PolicyAgentState], VerifierOutput]
         | None = None,
-        facts_adapter: Callable[[PolicyAgentState], Mapping[str, Any] | None] | None = None,
     ) -> None:
         self.context_provider = context_provider
         self.sql_generator = sql_generator
@@ -115,7 +114,6 @@ class PolicyAgentGraph:
         self.config = config or AgentConfig()
         self.sql_repair = sql_repair
         self.reasoning_verifier = reasoning_verifier
-        self.facts_adapter = facts_adapter
         if self.config.enable_repair and self.sql_repair is None:
             raise ValueError("enable_repair requires a sql_repair adapter")
         if self.config.enable_verifier and self.reasoning_verifier is None:
@@ -485,26 +483,6 @@ class PolicyAgentGraph:
                 state.error_type = structural_evidence.reason
                 state.finish("INSUFFICIENT_EVIDENCE", success=False)
                 return AgentRun(state)
-
-            # A trusted adapter may supply facts that the public five-table
-            # shop database cannot represent (for example duplicate lookup
-            # cardinality cases).  The adapter is local infrastructure: Gold
-            # answers are never exposed to the Agent or the reasoner.
-            if self.facts_adapter is not None:
-                adapted_facts = self._run_step(
-                    state,
-                    node_role="SELECT_POLICY",
-                    step_type="code",
-                    operation=lambda: self.facts_adapter(state),
-                    tool_name="policy_facts_adapter",
-                )
-                if adapted_facts is not None:
-                    if not isinstance(adapted_facts, Mapping):
-                        raise EvidenceAssemblyError(
-                            "INVALID_FACTS_ADAPTER",
-                            "facts adapter must return a mapping or None",
-                        )
-                    state.facts = dict(adapted_facts)
 
             self._run_step(
                 state,

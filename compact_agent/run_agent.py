@@ -27,6 +27,12 @@ def main() -> int:
     parser.add_argument("--trials", type=int, default=1)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--case", dest="testcase_id", default=None)
+    parser.add_argument(
+        "--db-path",
+        type=Path,
+        default=None,
+        help="official or custom shop DB (also configurable with POLICY_AGENT_DB_PATH)",
+    )
     args = parser.parse_args()
     if args.command == "run-one" and not args.testcase_id:
         parser.error("run-one requires --case")
@@ -36,6 +42,7 @@ def main() -> int:
         mode=args.mode,
         provider=args.provider,
         model=args.model,
+        db_path=args.db_path,
     )
     runner = SuiteRunner(root, bundle)
     summary = runner.run(
@@ -50,7 +57,9 @@ def main() -> int:
                 "total_trials": summary.total_trials,
                 "task_successes": summary.task_successes,
                 "policy_correct": summary.policy_correct,
+                "engine_consistency": summary.engine_consistency,
                 "gold_agreements": summary.gold_agreements,
+                "oracle_agreements": summary.oracle_agreements,
                 "provider": bundle.provider,
                 "summary": str(summary.output_path),
             },
@@ -58,7 +67,12 @@ def main() -> int:
             indent=2,
         )
     )
-    return 0 if summary.task_successes == summary.total_trials else 1
+    return (
+        0
+        if summary.task_successes == summary.total_trials
+        and summary.policy_correct == summary.total_trials
+        else 1
+    )
 
 
 if __name__ == "__main__":

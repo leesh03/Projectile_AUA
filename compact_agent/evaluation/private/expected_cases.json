@@ -72,22 +72,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-001",
-          "order_item_id": "OI-E-001",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-001",
           "order_item_id": "OI-E-001",
@@ -98,19 +82,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-E-001",
-          "order_snapshot_id": "SNAP-E-001",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-E-001",
-          "order_snapshot_id": "SNAP-E-001",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-001",
@@ -126,20 +97,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-001",
+          "order_snapshot_id": "SNAP-E-001",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-001",
+          "order_item_id": "OI-E-001",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-001",
+          "order_snapshot_id": "SNAP-E-001",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "f03972fdede752d5bafc082b3a831f4e7c8fce3ba71ec216cd35f49db3dbc04c",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -212,22 +212,6 @@
         "/customer_snapshot"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-002",
-          "order_item_id": "OI-E-002",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 0,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-002",
           "order_item_id": "OI-E-002",
@@ -238,14 +222,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": null,
-        "product": {
-          "product_id": "P-E-002",
-          "order_snapshot_id": "SNAP-E-002",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-002",
@@ -261,20 +237,44 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-002",
+          "order_snapshot_id": "SNAP-E-002",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-002",
+          "order_item_id": "OI-E-002",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": null,
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 0,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "7dac75aa3e4d81328a7495ea46d9d1ebeae3c3138a5ff481f14d1dce7c30dbf1",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -351,22 +351,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-003",
-          "order_item_id": "OI-E-003",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-003",
           "order_item_id": "OI-E-003",
@@ -377,19 +361,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-E-003",
-          "order_snapshot_id": "SNAP-E-003",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-E-003",
-          "order_snapshot_id": "SNAP-E-003",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-003",
@@ -405,20 +376,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-003",
+          "order_snapshot_id": "SNAP-E-003",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-003",
+          "order_item_id": "OI-E-003",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-003",
+          "order_snapshot_id": "SNAP-E-003",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "3c0db2341925834a671c04feff5942346124738fb72b376c7896a682ba0eec62",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -491,22 +491,6 @@
         "/product"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-004",
-          "order_item_id": "OI-E-004",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 0,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-004",
           "order_item_id": "OI-E-004",
@@ -518,13 +502,6 @@
           "paid_item_amount": 10000,
           "currency": "KRW"
         },
-        "customer_snapshot": {
-          "customer_id": "C-E-004",
-          "order_snapshot_id": "SNAP-E-004",
-          "customer_tier_at_order": "PREMIUM",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": null,
         "shipment": {
           "shipment_id": "SH-E-004",
           "order_item_id": "OI-E-004",
@@ -539,20 +516,43 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": null,
+        "request": {
+          "refund_request_id": "RR-E-004",
+          "order_item_id": "OI-E-004",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-004",
+          "order_snapshot_id": "SNAP-E-004",
+          "customer_tier_at_order": "PREMIUM",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 0,
+          "shipment": 1
+        }
       },
       "facts_hash": "21054060c77493c173f0209d6bbb2c36c29ea8d8a2b987fd3b7fd67fceb4a0be",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -620,36 +620,7 @@
         "/order"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-005",
-          "order_item_id": "OI-E-005",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 2,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": null,
-        "customer_snapshot": {
-          "customer_id": "C-E-005",
-          "order_snapshot_id": "SNAP-E-005",
-          "customer_tier_at_order": "PREMIUM",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-E-005",
-          "order_snapshot_id": "SNAP-E-005",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
         "shipment": {
           "shipment_id": "SH-E-005",
           "order_item_id": "OI-E-005",
@@ -664,20 +635,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-005",
+          "order_snapshot_id": "SNAP-E-005",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-005",
+          "order_item_id": "OI-E-005",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-005",
+          "order_snapshot_id": "SNAP-E-005",
+          "customer_tier_at_order": "PREMIUM",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 2,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "b39d86e520343e233b7e50440e1ef54d485673a3720aa1e2e9c704a351124aad",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -754,22 +754,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-006",
-          "order_item_id": "OI-E-006",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-006",
           "order_item_id": "OI-E-006",
@@ -780,19 +764,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-E-006",
-          "order_snapshot_id": "SNAP-E-006",
-          "customer_tier_at_order": "PREMIUM",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-E-006",
-          "order_snapshot_id": "SNAP-E-006",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-006",
@@ -808,20 +779,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-006",
+          "order_snapshot_id": "SNAP-E-006",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-006",
+          "order_item_id": "OI-E-006",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-006",
+          "order_snapshot_id": "SNAP-E-006",
+          "customer_tier_at_order": "PREMIUM",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "7be61756345be2f7398e2af1dd7f602fa17969291e5e60373fb6bbb4174701e0",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -898,22 +898,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-007",
-          "order_item_id": "OI-E-007",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-007",
           "order_item_id": "OI-E-007",
@@ -924,19 +908,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-E-007",
-          "order_snapshot_id": "SNAP-E-007",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-E-007",
-          "order_snapshot_id": "SNAP-E-007",
-          "category": "ELECTRONICS",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-007",
@@ -952,20 +923,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-007",
+          "order_snapshot_id": "SNAP-E-007",
+          "category": "ELECTRONICS",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-007",
+          "order_item_id": "OI-E-007",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-007",
+          "order_snapshot_id": "SNAP-E-007",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "f3cfbffe1955fa8175962e2e3daf913cf0a421cba6e97e4a3add274fae19b27c",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -1038,22 +1038,6 @@
         "/customer_snapshot"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-008",
-          "order_item_id": "OI-E-008",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 2,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-008",
           "order_item_id": "OI-E-008",
@@ -1064,14 +1048,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": null,
-        "product": {
-          "product_id": "P-E-008",
-          "order_snapshot_id": "SNAP-E-008",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-008",
@@ -1087,20 +1063,44 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-008",
+          "order_snapshot_id": "SNAP-E-008",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-008",
+          "order_item_id": "OI-E-008",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": null,
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 2,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "ab4116dfb6e85cc1a2af70a840e6d61cbfbac09aa7199ce5ed3413573e229fee",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -1173,22 +1173,6 @@
         "/product"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-009",
-          "order_item_id": "OI-E-009",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 2,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-009",
           "order_item_id": "OI-E-009",
@@ -1200,13 +1184,6 @@
           "paid_item_amount": 10000,
           "currency": "KRW"
         },
-        "customer_snapshot": {
-          "customer_id": "C-E-009",
-          "order_snapshot_id": "SNAP-E-009",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": null,
         "shipment": {
           "shipment_id": "SH-E-009",
           "order_item_id": "OI-E-009",
@@ -1221,20 +1198,43 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": null,
+        "request": {
+          "refund_request_id": "RR-E-009",
+          "order_item_id": "OI-E-009",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-009",
+          "order_snapshot_id": "SNAP-E-009",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 2,
+          "shipment": 1
+        }
       },
       "facts_hash": "de8670677a72c57342f8391f8f98c038ef2e12d8890054aebc5b38f5f6572cb7",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -1308,22 +1308,6 @@
         "/lookup_counts/customer_snapshot"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-010",
-          "order_item_id": "OI-E-010",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-010",
           "order_item_id": "OI-E-010",
@@ -1334,14 +1318,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": null,
-        "product": {
-          "product_id": "P-E-010",
-          "order_snapshot_id": "SNAP-E-010",
-          "category": "BEAUTY",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-010",
@@ -1357,20 +1333,44 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-010",
+          "order_snapshot_id": "SNAP-E-010",
+          "category": "BEAUTY",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-010",
+          "order_item_id": "OI-E-010",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": null,
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "e459982769186f1cf56ffc6c298e209ffce5c56e8dd7fcf90751f358fd4c091a",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -1450,22 +1450,6 @@
         "/order/customer_id"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-011",
-          "order_item_id": "OI-E-011",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-011",
           "order_item_id": "OI-E-011",
@@ -1476,19 +1460,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-ADAPTER-MISMATCH",
-          "order_snapshot_id": "SNAP-E-011",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-E-011",
-          "order_snapshot_id": "SNAP-E-011",
-          "category": "OTHER",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-011",
@@ -1504,20 +1475,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-011",
+          "order_snapshot_id": "SNAP-E-011",
+          "category": "OTHER",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-011",
+          "order_item_id": "OI-E-011",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-ADAPTER-MISMATCH",
+          "order_snapshot_id": "SNAP-E-011",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "b6cffe7b324d236ebf828cef83423fe3afb5d50a88fc2734822f601b00d1719c",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -1594,22 +1594,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-012",
-          "order_item_id": "OI-E-012",
-          "requested_amount": null,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-012",
           "order_item_id": "OI-E-012",
@@ -1620,19 +1604,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 25000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-E-012",
-          "order_snapshot_id": "SNAP-E-012",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-E-012",
-          "order_snapshot_id": "SNAP-E-012",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-012",
@@ -1648,20 +1619,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-012",
+          "order_snapshot_id": "SNAP-E-012",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-012",
+          "order_item_id": "OI-E-012",
+          "requested_amount": null,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-012",
+          "order_snapshot_id": "SNAP-E-012",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "17ab1429ac8c5c5d5fe3de17bfdae15df3b9fc63bea07cc97fc88cbfdbf29a72",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -1746,22 +1746,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-013",
-          "order_item_id": "OI-E-013",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-013",
           "order_item_id": "OI-E-013",
@@ -1772,19 +1756,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-E-013",
-          "order_snapshot_id": "SNAP-E-013",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-E-013",
-          "order_snapshot_id": "SNAP-E-013",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-013",
@@ -1800,6 +1771,29 @@
             "provenance_attested": false
           }
         },
+        "product": {
+          "product_id": "P-E-013",
+          "order_snapshot_id": "SNAP-E-013",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-013",
+          "order_item_id": "OI-E-013",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-013",
+          "order_snapshot_id": "SNAP-E-013",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
         "refund_history": [
           {
             "refund_id": "RF-E-013-01",
@@ -1808,20 +1802,26 @@
             "amount": 10000,
             "currency": "KRW"
           }
-        ]
+        ],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "a0959da321410847a97b640ca1679485946782f48bea7fb30d9fff9be43b69f1",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -1900,22 +1900,6 @@
         "/request/requested_amount"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-014",
-          "order_item_id": "OI-E-014",
-          "requested_amount": 0,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-014",
           "order_item_id": "OI-E-014",
@@ -1926,19 +1910,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 0,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-E-014",
-          "order_snapshot_id": "SNAP-E-014",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-E-014",
-          "order_snapshot_id": "SNAP-E-014",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-014",
@@ -1954,20 +1925,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-014",
+          "order_snapshot_id": "SNAP-E-014",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-014",
+          "order_item_id": "OI-E-014",
+          "requested_amount": 0,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-014",
+          "order_snapshot_id": "SNAP-E-014",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "0446fac9627595037e0acfcc6a34f6b485ac7ab9478ceead7e4d1150a9f9e9df",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -2044,22 +2044,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-015",
-          "order_item_id": "OI-E-015",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-015",
           "order_item_id": "OI-E-015",
@@ -2070,19 +2054,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-E-015",
-          "order_snapshot_id": "SNAP-E-015",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-E-015",
-          "order_snapshot_id": "SNAP-E-015",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-015",
@@ -2098,20 +2069,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-015",
+          "order_snapshot_id": "SNAP-E-015",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-015",
+          "order_item_id": "OI-E-015",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-015",
+          "order_snapshot_id": "SNAP-E-015",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "745266dc5551aadf47966d2393f0ef3cc7d0c69b39f5f99b7e7e242af61790c1",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -2188,22 +2188,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-016",
-          "order_item_id": "OI-E-016",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-016",
           "order_item_id": "OI-E-016",
@@ -2214,19 +2198,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-E-016",
-          "order_snapshot_id": "SNAP-E-016",
-          "customer_tier_at_order": "PREMIUM",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-E-016",
-          "order_snapshot_id": "SNAP-E-016",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-016",
@@ -2242,20 +2213,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-016",
+          "order_snapshot_id": "SNAP-E-016",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-016",
+          "order_item_id": "OI-E-016",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-016",
+          "order_snapshot_id": "SNAP-E-016",
+          "customer_tier_at_order": "PREMIUM",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "3d921b6a1b141d11ee3b0e6e79a1c0e381c18c03389938641b048f1c754241dc",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -2342,22 +2342,6 @@
         "/refund_history/0/status"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-017",
-          "order_item_id": "OI-E-017",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-017",
           "order_item_id": "OI-E-017",
@@ -2368,19 +2352,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-E-017",
-          "order_snapshot_id": "SNAP-E-017",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-E-017",
-          "order_snapshot_id": "SNAP-E-017",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-017",
@@ -2396,6 +2367,29 @@
             "provenance_attested": false
           }
         },
+        "product": {
+          "product_id": "P-E-017",
+          "order_snapshot_id": "SNAP-E-017",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-017",
+          "order_item_id": "OI-E-017",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-017",
+          "order_snapshot_id": "SNAP-E-017",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
         "refund_history": [
           {
             "refund_id": "RF-E-017-01",
@@ -2404,20 +2398,26 @@
             "amount": 10000,
             "currency": "KRW"
           }
-        ]
+        ],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "976a28bc5588e691740ff2bc0a6c3515a9c2ac9a2af0ea150d29a0a5028e6e46",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -2498,22 +2498,6 @@
         "/product/order_snapshot_id"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-018",
-          "order_item_id": "OI-E-018",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-018",
           "order_item_id": "OI-E-018",
@@ -2524,19 +2508,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-E-018",
-          "order_snapshot_id": "SNAP-E-018",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-E-018",
-          "order_snapshot_id": "SNAP-ADAPTER-MISMATCH",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-018",
@@ -2552,20 +2523,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-018",
+          "order_snapshot_id": "SNAP-ADAPTER-MISMATCH",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-018",
+          "order_item_id": "OI-E-018",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-018",
+          "order_snapshot_id": "SNAP-E-018",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "d44412ec95c0021edfca0b338e1c27e35ab8317f144b9f15cb0a56a67e1bcbe8",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -2643,22 +2643,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-019",
-          "order_item_id": "OI-E-019",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-019",
           "order_item_id": "OI-E-019",
@@ -2669,19 +2653,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-E-019",
-          "order_snapshot_id": "SNAP-E-019",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-E-019",
-          "order_snapshot_id": "SNAP-E-019",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-019",
@@ -2697,20 +2668,49 @@
             "provenance_attested": true
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-019",
+          "order_snapshot_id": "SNAP-E-019",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-019",
+          "order_item_id": "OI-E-019",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-019",
+          "order_snapshot_id": "SNAP-E-019",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "bed367df05a81db5fc7fc6d710c448d8d38446d7b938e3cea152edc833ab3ca7",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -2789,22 +2789,6 @@
         "/product/final_sale"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-E-020",
-          "order_item_id": "OI-E-020",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-E-020",
           "order_item_id": "OI-E-020",
@@ -2815,19 +2799,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-E-020",
-          "order_snapshot_id": "SNAP-E-020",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-E-020",
-          "order_snapshot_id": "SNAP-E-020",
-          "category": "HOME",
-          "final_sale": null,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-E-020",
@@ -2843,20 +2814,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-E-020",
+          "order_snapshot_id": "SNAP-E-020",
+          "category": "HOME",
+          "final_sale": null,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-E-020",
+          "order_item_id": "OI-E-020",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-E-020",
+          "order_snapshot_id": "SNAP-E-020",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "3520c1a7d96c3e89fe6fcb7116c1f47fe29bd57549d9cc8a714fb5369a93551c",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -2933,22 +2933,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-001",
-          "order_item_id": "OI-M-001",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-001",
           "order_item_id": "OI-M-001",
@@ -2959,19 +2943,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-001",
-          "order_snapshot_id": "SNAP-M-001",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-001",
-          "order_snapshot_id": "SNAP-M-001",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-001",
@@ -2987,20 +2958,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-M-001",
+          "order_snapshot_id": "SNAP-M-001",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-001",
+          "order_item_id": "OI-M-001",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-001",
+          "order_snapshot_id": "SNAP-M-001",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "d724d911f3b5450dec0df35e34902a1ff05770f9960595a157b13381833ca0cc",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -3077,22 +3077,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-002",
-          "order_item_id": "OI-M-002",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-002",
           "order_item_id": "OI-M-002",
@@ -3103,19 +3087,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-002",
-          "order_snapshot_id": "SNAP-M-002",
-          "customer_tier_at_order": "PREMIUM",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-002",
-          "order_snapshot_id": "SNAP-M-002",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-002",
@@ -3131,20 +3102,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-M-002",
+          "order_snapshot_id": "SNAP-M-002",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-002",
+          "order_item_id": "OI-M-002",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-002",
+          "order_snapshot_id": "SNAP-M-002",
+          "customer_tier_at_order": "PREMIUM",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "04e759c29ea009c00ef8053aedf597a6b119e1f0cb214bf6e035f1f4fbd3accb",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -3221,22 +3221,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-003",
-          "order_item_id": "OI-M-003",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-003",
           "order_item_id": "OI-M-003",
@@ -3247,19 +3231,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-003",
-          "order_snapshot_id": "SNAP-M-003",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-003",
-          "order_snapshot_id": "SNAP-M-003",
-          "category": "FASHION",
-          "final_sale": true,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-003",
@@ -3275,20 +3246,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-M-003",
+          "order_snapshot_id": "SNAP-M-003",
+          "category": "FASHION",
+          "final_sale": true,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-003",
+          "order_item_id": "OI-M-003",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-003",
+          "order_snapshot_id": "SNAP-M-003",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "48efe3c3b340b86cd0ad5a6f7e81d4f2e71593fd7bc9ffce579bf3a7d171f7d0",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -3365,22 +3365,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-004",
-          "order_item_id": "OI-M-004",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-004",
           "order_item_id": "OI-M-004",
@@ -3391,19 +3375,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-004",
-          "order_snapshot_id": "SNAP-M-004",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-004",
-          "order_snapshot_id": "SNAP-M-004",
-          "category": "ELECTRONICS",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-004",
@@ -3419,20 +3390,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-M-004",
+          "order_snapshot_id": "SNAP-M-004",
+          "category": "ELECTRONICS",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-004",
+          "order_item_id": "OI-M-004",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-004",
+          "order_snapshot_id": "SNAP-M-004",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "8ee08dbac56c28f20d624a8f85a950b92bb8ed2e70eeee711a4153b9254da487",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -3517,22 +3517,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-005",
-          "order_item_id": "OI-M-005",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-005",
           "order_item_id": "OI-M-005",
@@ -3543,19 +3527,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-005",
-          "order_snapshot_id": "SNAP-M-005",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-005",
-          "order_snapshot_id": "SNAP-M-005",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-005",
@@ -3571,6 +3542,29 @@
             "provenance_attested": false
           }
         },
+        "product": {
+          "product_id": "P-M-005",
+          "order_snapshot_id": "SNAP-M-005",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-005",
+          "order_item_id": "OI-M-005",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-005",
+          "order_snapshot_id": "SNAP-M-005",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
         "refund_history": [
           {
             "refund_id": "RF-M-005-01",
@@ -3579,20 +3573,26 @@
             "amount": 10000,
             "currency": "KRW"
           }
-        ]
+        ],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "fcfc27fdf22808b31a2f7200dc68b7dc26ef1b0a5622ef0e36c37d9c772eaa8a",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -3680,22 +3680,6 @@
         "/order/order_status"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-006",
-          "order_item_id": "OI-M-006",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-006",
           "order_item_id": "OI-M-006",
@@ -3706,19 +3690,6 @@
           "order_status": "UNKNOWN",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-006",
-          "order_snapshot_id": "SNAP-M-006",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-006",
-          "order_snapshot_id": "SNAP-M-006",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-006",
@@ -3734,6 +3705,29 @@
             "provenance_attested": false
           }
         },
+        "product": {
+          "product_id": "P-M-006",
+          "order_snapshot_id": "SNAP-M-006",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-006",
+          "order_item_id": "OI-M-006",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-006",
+          "order_snapshot_id": "SNAP-M-006",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
         "refund_history": [
           {
             "refund_id": "RF-M-006-01",
@@ -3742,20 +3736,26 @@
             "amount": 10000,
             "currency": "KRW"
           }
-        ]
+        ],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "981135c3671eae30d4b7d083644332100fc286a4ef26c438d6b1f1fd0259e413",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -3840,22 +3840,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-007",
-          "order_item_id": "OI-M-007",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-007",
           "order_item_id": "OI-M-007",
@@ -3866,19 +3850,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-007",
-          "order_snapshot_id": "SNAP-M-007",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-007",
-          "order_snapshot_id": "SNAP-M-007",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-007",
@@ -3894,6 +3865,29 @@
             "provenance_attested": false
           }
         },
+        "product": {
+          "product_id": "P-M-007",
+          "order_snapshot_id": "SNAP-M-007",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-007",
+          "order_item_id": "OI-M-007",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-007",
+          "order_snapshot_id": "SNAP-M-007",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
         "refund_history": [
           {
             "refund_id": "RF-M-007-01",
@@ -3902,20 +3896,26 @@
             "amount": 10000,
             "currency": "KRW"
           }
-        ]
+        ],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "4cfd0d71547e68cf40ffd57630944ceaddc52133b53c3f518c138b6072b359c2",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -3994,22 +3994,6 @@
         "/shipment/evidence/evidence_status"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-008",
-          "order_item_id": "OI-M-008",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-008",
           "order_item_id": "OI-M-008",
@@ -4020,19 +4004,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-008",
-          "order_snapshot_id": "SNAP-M-008",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-008",
-          "order_snapshot_id": "SNAP-M-008",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-008",
@@ -4048,20 +4019,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-M-008",
+          "order_snapshot_id": "SNAP-M-008",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-008",
+          "order_item_id": "OI-M-008",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-008",
+          "order_snapshot_id": "SNAP-M-008",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "3d1b96ab66e936393c54d30a678335231e94b6ea2be1b70e4d4bf7ce67e87868",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -4140,22 +4140,6 @@
         "/shipment/package_opened"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-009",
-          "order_item_id": "OI-M-009",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-009",
           "order_item_id": "OI-M-009",
@@ -4166,19 +4150,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-009",
-          "order_snapshot_id": "SNAP-M-009",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-009",
-          "order_snapshot_id": "SNAP-M-009",
-          "category": "ELECTRONICS",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-009",
@@ -4194,20 +4165,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-M-009",
+          "order_snapshot_id": "SNAP-M-009",
+          "category": "ELECTRONICS",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-009",
+          "order_item_id": "OI-M-009",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-009",
+          "order_snapshot_id": "SNAP-M-009",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "f9b52cc9e07936344e12ead57b7aabe8d7675532c3a3a403e456de34e3898605",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -4286,22 +4286,6 @@
         "/shipment/delivered_at"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-010",
-          "order_item_id": "OI-M-010",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-010",
           "order_item_id": "OI-M-010",
@@ -4312,19 +4296,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-010",
-          "order_snapshot_id": "SNAP-M-010",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-010",
-          "order_snapshot_id": "SNAP-M-010",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-010",
@@ -4340,20 +4311,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-M-010",
+          "order_snapshot_id": "SNAP-M-010",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-010",
+          "order_item_id": "OI-M-010",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-010",
+          "order_snapshot_id": "SNAP-M-010",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "4aab4d43ddffa4327c223cac4bead1172c377f804d67e23b406db2e3a8fd79d4",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -4402,40 +4402,40 @@
         "/shipment"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
+        "order": null,
+        "shipment": null,
+        "product": null,
         "request": {
           "refund_request_id": "RR-M-011",
           "order_item_id": "OI-M-011",
           "requested_amount": 10000,
           "currency": "KRW"
         },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": null,
+        "refund_history": [],
         "lookup_counts": {
           "order_item_order": 0,
           "customer_snapshot": 0,
           "product": 0,
           "shipment": 0
-        },
-        "order": null,
-        "customer_snapshot": null,
-        "product": null,
-        "shipment": null,
-        "refund_history": []
+        }
       },
       "facts_hash": "109425f717dabcaf545775d0ad68fdff94466e4131fa88005a43095f580be309",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -4501,22 +4501,6 @@
         "/shipment"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-012",
-          "order_item_id": "OI-M-012",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 0
-        },
         "order": {
           "order_id": "O-M-012",
           "order_item_id": "OI-M-012",
@@ -4528,12 +4512,7 @@
           "paid_item_amount": 10000,
           "currency": "KRW"
         },
-        "customer_snapshot": {
-          "customer_id": "C-M-012",
-          "order_snapshot_id": "SNAP-M-012",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
+        "shipment": null,
         "product": {
           "product_id": "P-M-012",
           "order_snapshot_id": "SNAP-M-012",
@@ -4541,21 +4520,42 @@
           "final_sale": false,
           "snapshotted_at": "2026-05-01T00:00:00Z"
         },
-        "shipment": null,
-        "refund_history": []
+        "request": {
+          "refund_request_id": "RR-M-012",
+          "order_item_id": "OI-M-012",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-012",
+          "order_snapshot_id": "SNAP-M-012",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 0
+        }
       },
       "facts_hash": "e516fd08932f2b6367e8a337063ac00dde27481de0154c53d55c66d4bd8ce6f6",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -4632,22 +4632,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-013",
-          "order_item_id": "OI-M-013",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-013",
           "order_item_id": "OI-M-013",
@@ -4658,19 +4642,6 @@
           "order_status": "CANCELLED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-013",
-          "order_snapshot_id": "SNAP-M-013",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-013",
-          "order_snapshot_id": "SNAP-M-013",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-013",
@@ -4686,20 +4657,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-M-013",
+          "order_snapshot_id": "SNAP-M-013",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-013",
+          "order_item_id": "OI-M-013",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-013",
+          "order_snapshot_id": "SNAP-M-013",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "f59aabcc3c4df7b2bada8cd16f7c344952dbd28f590f00f3657c761b014717a2",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -4776,22 +4776,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-014",
-          "order_item_id": "OI-M-014",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-014",
           "order_item_id": "OI-M-014",
@@ -4802,19 +4786,6 @@
           "order_status": "PAID",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-014",
-          "order_snapshot_id": "SNAP-M-014",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-014",
-          "order_snapshot_id": "SNAP-M-014",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-014",
@@ -4830,20 +4801,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-M-014",
+          "order_snapshot_id": "SNAP-M-014",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-014",
+          "order_item_id": "OI-M-014",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-014",
+          "order_snapshot_id": "SNAP-M-014",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "bbcae36135ee8530499e42204317e04e038db4a05e86a67f5e78a3e8f67c99f8",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -4924,22 +4924,6 @@
         "/shipment/delivered_at"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-015",
-          "order_item_id": "OI-M-015",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-015",
           "order_item_id": "OI-M-015",
@@ -4950,19 +4934,6 @@
           "order_status": "SHIPPED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-015",
-          "order_snapshot_id": "SNAP-M-015",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-015",
-          "order_snapshot_id": "SNAP-M-015",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-015",
@@ -4978,20 +4949,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-M-015",
+          "order_snapshot_id": "SNAP-M-015",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-015",
+          "order_item_id": "OI-M-015",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-015",
+          "order_snapshot_id": "SNAP-M-015",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "f0dfa44e32bf2a30864b82e7054636484b0b856a3a1953b7b5bc17390f98f574",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -5071,22 +5071,6 @@
         "/request/currency"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-016",
-          "order_item_id": "OI-M-016",
-          "requested_amount": 10000,
-          "currency": "USD"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-016",
           "order_item_id": "OI-M-016",
@@ -5097,19 +5081,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "USD"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-016",
-          "order_snapshot_id": "SNAP-M-016",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-016",
-          "order_snapshot_id": "SNAP-M-016",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-016",
@@ -5125,20 +5096,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-M-016",
+          "order_snapshot_id": "SNAP-M-016",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-016",
+          "order_item_id": "OI-M-016",
+          "requested_amount": 10000,
+          "currency": "USD"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-016",
+          "order_snapshot_id": "SNAP-M-016",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "fb317dc68affd2f44008eed1bb402e650a2cd8cb58cb26dda825e8b965720eee",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -5214,22 +5214,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-017",
-          "order_item_id": "OI-M-017",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-017",
           "order_item_id": "OI-M-017",
@@ -5240,19 +5224,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 20000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-017",
-          "order_snapshot_id": "SNAP-M-017",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-017",
-          "order_snapshot_id": "SNAP-M-017",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-017",
@@ -5268,20 +5239,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-M-017",
+          "order_snapshot_id": "SNAP-M-017",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-017",
+          "order_item_id": "OI-M-017",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-017",
+          "order_snapshot_id": "SNAP-M-017",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "4392b68b8a588c42438e116c7d13f215c1ca4a83110ab8f57e1baf86980249cf",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -5357,22 +5357,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-018",
-          "order_item_id": "OI-M-018",
-          "requested_amount": 15000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-018",
           "order_item_id": "OI-M-018",
@@ -5383,19 +5367,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-018",
-          "order_snapshot_id": "SNAP-M-018",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-018",
-          "order_snapshot_id": "SNAP-M-018",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-018",
@@ -5411,20 +5382,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-M-018",
+          "order_snapshot_id": "SNAP-M-018",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-018",
+          "order_item_id": "OI-M-018",
+          "requested_amount": 15000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-018",
+          "order_snapshot_id": "SNAP-M-018",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "2e230bfe7480598040b48ad90cbf915e19b2b1ed0577684f667bf2e07dea0771",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -5502,22 +5502,6 @@
         "/customer_snapshot/customer_tier_at_order"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-019",
-          "order_item_id": "OI-M-019",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-019",
           "order_item_id": "OI-M-019",
@@ -5528,19 +5512,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-019",
-          "order_snapshot_id": "SNAP-M-019",
-          "customer_tier_at_order": "GOLD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-019",
-          "order_snapshot_id": "SNAP-M-019",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-019",
@@ -5556,20 +5527,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-M-019",
+          "order_snapshot_id": "SNAP-M-019",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-019",
+          "order_item_id": "OI-M-019",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-019",
+          "order_snapshot_id": "SNAP-M-019",
+          "customer_tier_at_order": "GOLD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "5614f473c06a7008cd5fd193b9ef99cb43262603a2085545ada3a75f6a98d195",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -5648,22 +5648,6 @@
         "/product/category"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-M-020",
-          "order_item_id": "OI-M-020",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-M-020",
           "order_item_id": "OI-M-020",
@@ -5674,19 +5658,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-M-020",
-          "order_snapshot_id": "SNAP-M-020",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-M-020",
-          "order_snapshot_id": "SNAP-M-020",
-          "category": "UNKNOWN",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-M-020",
@@ -5702,20 +5673,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-M-020",
+          "order_snapshot_id": "SNAP-M-020",
+          "category": "UNKNOWN",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-M-020",
+          "order_item_id": "OI-M-020",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-M-020",
+          "order_snapshot_id": "SNAP-M-020",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "ef50d46331aecccd548a16b9af79b13c7d8f592f3ff4167c8674e83d4789f5ae",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -5795,22 +5795,6 @@
       ],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-001",
-          "order_item_id": "OI-H-001",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-001",
           "order_item_id": "OI-H-001",
@@ -5821,19 +5805,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-001",
-          "order_snapshot_id": "SNAP-H-001",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-001",
-          "order_snapshot_id": "SNAP-H-001",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-001",
@@ -5849,20 +5820,49 @@
             "provenance_attested": true
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-H-001",
+          "order_snapshot_id": "SNAP-H-001",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-001",
+          "order_item_id": "OI-H-001",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-001",
+          "order_snapshot_id": "SNAP-H-001",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "fa37dd6788b438b4d5d09d9e35ab3b843123780db5e44d1216d9c80d30ce6324",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -5942,22 +5942,6 @@
       ],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-002",
-          "order_item_id": "OI-H-002",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-002",
           "order_item_id": "OI-H-002",
@@ -5968,19 +5952,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-002",
-          "order_snapshot_id": "SNAP-H-002",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-002",
-          "order_snapshot_id": "SNAP-H-002",
-          "category": "FASHION",
-          "final_sale": true,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-002",
@@ -5996,20 +5967,49 @@
             "provenance_attested": true
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-H-002",
+          "order_snapshot_id": "SNAP-H-002",
+          "category": "FASHION",
+          "final_sale": true,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-002",
+          "order_item_id": "OI-H-002",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-002",
+          "order_snapshot_id": "SNAP-H-002",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "b0cb5c6ec2b664c8f62cd34f22e94d410c8e8d2199376298b9844f281e220d30",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -6089,22 +6089,6 @@
       ],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-003",
-          "order_item_id": "OI-H-003",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-003",
           "order_item_id": "OI-H-003",
@@ -6115,19 +6099,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-003",
-          "order_snapshot_id": "SNAP-H-003",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-003",
-          "order_snapshot_id": "SNAP-H-003",
-          "category": "ELECTRONICS",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-003",
@@ -6143,20 +6114,49 @@
             "provenance_attested": true
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-H-003",
+          "order_snapshot_id": "SNAP-H-003",
+          "category": "ELECTRONICS",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-003",
+          "order_item_id": "OI-H-003",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-003",
+          "order_snapshot_id": "SNAP-H-003",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "e8b18b5460fa62c60fdad93aa34ca00b9b85f5d93b2659995852bc54689ef197",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -6240,22 +6240,6 @@
       ],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-004",
-          "order_item_id": "OI-H-004",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-004",
           "order_item_id": "OI-H-004",
@@ -6266,19 +6250,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-004",
-          "order_snapshot_id": "SNAP-H-004",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-004",
-          "order_snapshot_id": "SNAP-H-004",
-          "category": "ELECTRONICS",
-          "final_sale": true,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-004",
@@ -6294,20 +6265,49 @@
             "provenance_attested": true
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-H-004",
+          "order_snapshot_id": "SNAP-H-004",
+          "category": "ELECTRONICS",
+          "final_sale": true,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-004",
+          "order_item_id": "OI-H-004",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-004",
+          "order_snapshot_id": "SNAP-H-004",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "94d923883472df285000dc8aa168738372981fd5dec409957042ba5e389d8b9b",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -6394,22 +6394,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-005",
-          "order_item_id": "OI-H-005",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-005",
           "order_item_id": "OI-H-005",
@@ -6420,19 +6404,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-005",
-          "order_snapshot_id": "SNAP-H-005",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-005",
-          "order_snapshot_id": "SNAP-H-005",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-005",
@@ -6448,6 +6419,29 @@
             "provenance_attested": true
           }
         },
+        "product": {
+          "product_id": "P-H-005",
+          "order_snapshot_id": "SNAP-H-005",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-005",
+          "order_item_id": "OI-H-005",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-005",
+          "order_snapshot_id": "SNAP-H-005",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
         "refund_history": [
           {
             "refund_id": "RF-H-005-01",
@@ -6456,20 +6450,26 @@
             "amount": 10000,
             "currency": "KRW"
           }
-        ]
+        ],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "94458b7eca8d24f02060d82e661e7b97baca00dac5e6a4415a1745bb9b734d5b",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -6556,22 +6556,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-006",
-          "order_item_id": "OI-H-006",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-006",
           "order_item_id": "OI-H-006",
@@ -6582,19 +6566,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-006",
-          "order_snapshot_id": "SNAP-H-006",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-006",
-          "order_snapshot_id": "SNAP-H-006",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-006",
@@ -6610,6 +6581,29 @@
             "provenance_attested": true
           }
         },
+        "product": {
+          "product_id": "P-H-006",
+          "order_snapshot_id": "SNAP-H-006",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-006",
+          "order_item_id": "OI-H-006",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-006",
+          "order_snapshot_id": "SNAP-H-006",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
         "refund_history": [
           {
             "refund_id": "RF-H-006-01",
@@ -6618,20 +6612,26 @@
             "amount": 10000,
             "currency": "KRW"
           }
-        ]
+        ],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "d8b1267bafe3b7cf7ef5980c88784f15b5e677ec7deace10071a7eadd6981335",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -6709,22 +6709,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-007",
-          "order_item_id": "OI-H-007",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-007",
           "order_item_id": "OI-H-007",
@@ -6735,19 +6719,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 20000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-007",
-          "order_snapshot_id": "SNAP-H-007",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-007",
-          "order_snapshot_id": "SNAP-H-007",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-007",
@@ -6763,20 +6734,49 @@
             "provenance_attested": true
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-H-007",
+          "order_snapshot_id": "SNAP-H-007",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-007",
+          "order_item_id": "OI-H-007",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-007",
+          "order_snapshot_id": "SNAP-H-007",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "fccd25a36fe737bf4353d271d12ccaf7f7e7c648ad65c085ba966c71999c5a2d",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -6857,22 +6857,6 @@
         "/request/currency"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-008",
-          "order_item_id": "OI-H-008",
-          "requested_amount": 10000,
-          "currency": "USD"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-008",
           "order_item_id": "OI-H-008",
@@ -6883,19 +6867,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-008",
-          "order_snapshot_id": "SNAP-H-008",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-008",
-          "order_snapshot_id": "SNAP-H-008",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-008",
@@ -6911,20 +6882,49 @@
             "provenance_attested": true
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-H-008",
+          "order_snapshot_id": "SNAP-H-008",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-008",
+          "order_item_id": "OI-H-008",
+          "requested_amount": 10000,
+          "currency": "USD"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-008",
+          "order_snapshot_id": "SNAP-H-008",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "9591b6481d5b9f47773d8fa7e2f089789f671db61f6575e7ff3a6a96cb6a6681",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -7003,22 +7003,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-009",
-          "order_item_id": "OI-H-009",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-009",
           "order_item_id": "OI-H-009",
@@ -7029,19 +7013,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-009",
-          "order_snapshot_id": "SNAP-H-009",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-009",
-          "order_snapshot_id": "SNAP-H-009",
-          "category": "ELECTRONICS",
-          "final_sale": true,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-009",
@@ -7057,20 +7028,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-H-009",
+          "order_snapshot_id": "SNAP-H-009",
+          "category": "ELECTRONICS",
+          "final_sale": true,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-009",
+          "order_item_id": "OI-H-009",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-009",
+          "order_snapshot_id": "SNAP-H-009",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "a77fe54f9514a3ebc851713bbe9e368a86c1237d4fffc07a109d3b93a5c7770c",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -7149,22 +7149,6 @@
         "/shipment/evidence/verified_by"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-010",
-          "order_item_id": "OI-H-010",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-010",
           "order_item_id": "OI-H-010",
@@ -7175,19 +7159,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-010",
-          "order_snapshot_id": "SNAP-H-010",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-010",
-          "order_snapshot_id": "SNAP-H-010",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-010",
@@ -7203,20 +7174,49 @@
             "provenance_attested": true
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-H-010",
+          "order_snapshot_id": "SNAP-H-010",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-010",
+          "order_item_id": "OI-H-010",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-010",
+          "order_snapshot_id": "SNAP-H-010",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "e7935b775d6f04d9870bda03ff4a9f80754e5cf503c75ae19cf8e25df39c11d0",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -7295,22 +7295,6 @@
         "/shipment/evidence/provenance_attested"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-011",
-          "order_item_id": "OI-H-011",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-011",
           "order_item_id": "OI-H-011",
@@ -7321,19 +7305,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-011",
-          "order_snapshot_id": "SNAP-H-011",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-011",
-          "order_snapshot_id": "SNAP-H-011",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-011",
@@ -7349,20 +7320,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-H-011",
+          "order_snapshot_id": "SNAP-H-011",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-011",
+          "order_item_id": "OI-H-011",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-011",
+          "order_snapshot_id": "SNAP-H-011",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "154984ae8a91b4adff160d304097e94c308edcd63c442828646cca1d44ca841a",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -7441,22 +7441,6 @@
         "/shipment/evidence/evidence_status"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-012",
-          "order_item_id": "OI-H-012",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-012",
           "order_item_id": "OI-H-012",
@@ -7467,19 +7451,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-012",
-          "order_snapshot_id": "SNAP-H-012",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-012",
-          "order_snapshot_id": "SNAP-H-012",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-012",
@@ -7495,20 +7466,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-H-012",
+          "order_snapshot_id": "SNAP-H-012",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-012",
+          "order_item_id": "OI-H-012",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-012",
+          "order_snapshot_id": "SNAP-H-012",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "871ef12a4347e6926804cba44673b814a01ce8ccd4b52285cb398b50699d4ca6",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -7587,22 +7587,6 @@
         "/shipment/issue_code"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-013",
-          "order_item_id": "OI-H-013",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-013",
           "order_item_id": "OI-H-013",
@@ -7613,19 +7597,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-013",
-          "order_snapshot_id": "SNAP-H-013",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-013",
-          "order_snapshot_id": "SNAP-H-013",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-013",
@@ -7641,20 +7612,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-H-013",
+          "order_snapshot_id": "SNAP-H-013",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-013",
+          "order_item_id": "OI-H-013",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-013",
+          "order_snapshot_id": "SNAP-H-013",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "998d582f172276864edf2fdf8307e702d97ace1c7cbe8f52e01e06b0f6848615",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -7733,22 +7733,6 @@
         "/shipment/issue_code"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-014",
-          "order_item_id": "OI-H-014",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-014",
           "order_item_id": "OI-H-014",
@@ -7759,19 +7743,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-014",
-          "order_snapshot_id": "SNAP-H-014",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-014",
-          "order_snapshot_id": "SNAP-H-014",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-014",
@@ -7787,20 +7758,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-H-014",
+          "order_snapshot_id": "SNAP-H-014",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-014",
+          "order_item_id": "OI-H-014",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-014",
+          "order_snapshot_id": "SNAP-H-014",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "f335708ea9e4857f4772853b118447e67230f7013fefff18816a01bb09b0f22d",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -7878,22 +7878,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-015",
-          "order_item_id": "OI-H-015",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-015",
           "order_item_id": "OI-H-015",
@@ -7904,19 +7888,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-015",
-          "order_snapshot_id": "SNAP-H-015",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-015",
-          "order_snapshot_id": "SNAP-H-015",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-015",
@@ -7932,20 +7903,49 @@
             "provenance_attested": true
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-H-015",
+          "order_snapshot_id": "SNAP-H-015",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-015",
+          "order_item_id": "OI-H-015",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-015",
+          "order_snapshot_id": "SNAP-H-015",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "d50b9a88a423f967e2d3b7007c91d792f4b7613b622f14a2b5e19ff671c83926",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -8011,22 +8011,6 @@
         "/shipment"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-016",
-          "order_item_id": "OI-H-016",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 2
-        },
         "order": {
           "order_id": "O-H-016",
           "order_item_id": "OI-H-016",
@@ -8038,12 +8022,7 @@
           "paid_item_amount": 10000,
           "currency": "KRW"
         },
-        "customer_snapshot": {
-          "customer_id": "C-H-016",
-          "order_snapshot_id": "SNAP-H-016",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
+        "shipment": null,
         "product": {
           "product_id": "P-H-016",
           "order_snapshot_id": "SNAP-H-016",
@@ -8051,21 +8030,42 @@
           "final_sale": false,
           "snapshotted_at": "2026-05-01T00:00:00Z"
         },
-        "shipment": null,
-        "refund_history": []
+        "request": {
+          "refund_request_id": "RR-H-016",
+          "order_item_id": "OI-H-016",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-016",
+          "order_snapshot_id": "SNAP-H-016",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 2
+        }
       },
       "facts_hash": "39ae50351d07cc37feb7dc7888d8842a28d45689ca1c221ca1b9fb0093235f13",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -8150,22 +8150,6 @@
       "overridden_clauses": [],
       "required_fields": [],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RF-H-017-01",
-          "order_item_id": "OI-H-017",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-017",
           "order_item_id": "OI-H-017",
@@ -8176,19 +8160,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-017",
-          "order_snapshot_id": "SNAP-H-017",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-017",
-          "order_snapshot_id": "SNAP-H-017",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-017",
@@ -8204,6 +8175,29 @@
             "provenance_attested": false
           }
         },
+        "product": {
+          "product_id": "P-H-017",
+          "order_snapshot_id": "SNAP-H-017",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RF-H-017-01",
+          "order_item_id": "OI-H-017",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-017",
+          "order_snapshot_id": "SNAP-H-017",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
         "refund_history": [
           {
             "refund_id": "RF-H-017-01",
@@ -8212,20 +8206,26 @@
             "amount": 10000,
             "currency": "KRW"
           }
-        ]
+        ],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "1e9448b9973dfbeffafd5187f681c7f1d965068c23d1aeda6497b7a696d73ff2",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -8321,22 +8321,6 @@
         "/refund_history"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-018",
-          "order_item_id": "OI-H-018",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-018",
           "order_item_id": "OI-H-018",
@@ -8347,19 +8331,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-018",
-          "order_snapshot_id": "SNAP-H-018",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-05-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-018",
-          "order_snapshot_id": "SNAP-H-018",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-018",
@@ -8374,6 +8345,29 @@
             "evidence_source": null,
             "provenance_attested": false
           }
+        },
+        "product": {
+          "product_id": "P-H-018",
+          "order_snapshot_id": "SNAP-H-018",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-05-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-018",
+          "order_item_id": "OI-H-018",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-018",
+          "order_snapshot_id": "SNAP-H-018",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-05-01T00:00:00Z"
         },
         "refund_history": [
           {
@@ -8390,20 +8384,26 @@
             "amount": 10000,
             "currency": "KRW"
           }
-        ]
+        ],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "ab3162e6f97bb31f3732969f8317eecf6f9ec5bbdd4d671181e9f92315f6c466",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -8483,22 +8483,6 @@
         "/shipment/delivered_at"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-019",
-          "order_item_id": "OI-H-019",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-019",
           "order_item_id": "OI-H-019",
@@ -8509,19 +8493,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-019",
-          "order_snapshot_id": "SNAP-H-019",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-08-10T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-019",
-          "order_snapshot_id": "SNAP-H-019",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-08-10T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-019",
@@ -8537,20 +8508,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-H-019",
+          "order_snapshot_id": "SNAP-H-019",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-08-10T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-019",
+          "order_item_id": "OI-H-019",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-019",
+          "order_snapshot_id": "SNAP-H-019",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-08-10T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "8d039ef731206d97215abc10c642870cd9be85cd73c74cad634afa2336ee78ac",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   },
@@ -8629,22 +8629,6 @@
         "/shipment/delivered_at"
       ],
       "facts": {
-        "trusted_context": {
-          "evaluation_date": "2026-08-15",
-          "timezone": "Asia/Seoul"
-        },
-        "request": {
-          "refund_request_id": "RR-H-020",
-          "order_item_id": "OI-H-020",
-          "requested_amount": 10000,
-          "currency": "KRW"
-        },
-        "lookup_counts": {
-          "order_item_order": 1,
-          "customer_snapshot": 1,
-          "product": 1,
-          "shipment": 1
-        },
         "order": {
           "order_id": "O-H-020",
           "order_item_id": "OI-H-020",
@@ -8655,19 +8639,6 @@
           "order_status": "DELIVERED",
           "paid_item_amount": 10000,
           "currency": "KRW"
-        },
-        "customer_snapshot": {
-          "customer_id": "C-H-020",
-          "order_snapshot_id": "SNAP-H-020",
-          "customer_tier_at_order": "STANDARD",
-          "snapshotted_at": "2026-08-01T00:00:00Z"
-        },
-        "product": {
-          "product_id": "P-H-020",
-          "order_snapshot_id": "SNAP-H-020",
-          "category": "FASHION",
-          "final_sale": false,
-          "snapshotted_at": "2026-08-01T00:00:00Z"
         },
         "shipment": {
           "shipment_id": "SH-H-020",
@@ -8683,20 +8654,49 @@
             "provenance_attested": false
           }
         },
-        "refund_history": []
+        "product": {
+          "product_id": "P-H-020",
+          "order_snapshot_id": "SNAP-H-020",
+          "category": "FASHION",
+          "final_sale": false,
+          "snapshotted_at": "2026-08-01T00:00:00Z"
+        },
+        "request": {
+          "refund_request_id": "RR-H-020",
+          "order_item_id": "OI-H-020",
+          "requested_amount": 10000,
+          "currency": "KRW"
+        },
+        "trusted_context": {
+          "evaluation_date": "2026-08-15",
+          "timezone": "Asia/Seoul"
+        },
+        "customer_snapshot": {
+          "customer_id": "C-H-020",
+          "order_snapshot_id": "SNAP-H-020",
+          "customer_tier_at_order": "STANDARD",
+          "snapshotted_at": "2026-08-01T00:00:00Z"
+        },
+        "refund_history": [],
+        "lookup_counts": {
+          "order_item_order": 1,
+          "customer_snapshot": 1,
+          "product": 1,
+          "shipment": 1
+        }
       },
       "facts_hash": "490fb07927ee15ea6c837fe1f85a42f00322d7f42cf21058cdc573e1a329c08f",
       "versions": {
         "policy_version": "policy-v0.5",
         "input_schema_version": "input-schema-v0.5",
         "output_schema_version": "output-schema-v0.5",
-        "rule_registry_version": "registry-v0.5",
-        "adapter_version": "adapter-v0.5",
-        "evidence_validator_version": "evidence-validator-v2",
-        "oracle_version": "oracle-v0.5",
-        "gold_version": "gold-v0.5",
-        "suite_version": "suite-v0.5",
-        "evaluator_version": "evaluator-v0.5"
+        "rule_registry_version": "registry-v0.5-local-md",
+        "adapter_version": "adapter-v0.5-local",
+        "evidence_validator_version": "evidence-validator-v2-contract",
+        "oracle_version": "not-agent-visible",
+        "gold_version": "external",
+        "suite_version": "external",
+        "evaluator_version": "local-policy-engine-v1"
       }
     }
   }

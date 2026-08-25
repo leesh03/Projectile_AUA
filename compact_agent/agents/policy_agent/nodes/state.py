@@ -11,11 +11,12 @@ import json
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from time import perf_counter_ns
 from typing import TYPE_CHECKING, Any, Literal
 from uuid import uuid4
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 if TYPE_CHECKING:
     from agents.policy_agent.nodes.sql_generator import SQLPlan
@@ -241,16 +242,48 @@ class AgentRequest:
         )
 
     @classmethod
-    def interactive(cls, question: str, *, order_item_id: str) -> AgentRequest:
+    def interactive(
+        cls,
+        question: str,
+        *,
+        order_item_id: str,
+        evaluation_date: str | date | None = None,
+        timezone_name: str = "Asia/Seoul",
+        requested_amount: int | None = None,
+        currency: str = "KRW",
+    ) -> AgentRequest:
+        """Create a real-user request with a valid, trusted evaluation date.
+
+        A caller may pin the date for reproducible tests.  If omitted, Core
+        supplies today's date in the trusted timezone instead of the former
+        invalid ``UNSET`` placeholder.
+        """
+
+        if timezone_name != "Asia/Seoul":
+            raise ValueError("interactive timezone_name must be Asia/Seoul")
+        try:
+            timezone = ZoneInfo(timezone_name)
+        except ZoneInfoNotFoundError as exc:
+            raise ValueError(f"unknown interactive timezone: {timezone_name}") from exc
+        if evaluation_date is None:
+            normalized_date = datetime.now(timezone).date().isoformat()
+        elif isinstance(evaluation_date, datetime):
+            normalized_date = evaluation_date.date().isoformat()
+        elif isinstance(evaluation_date, date):
+            normalized_date = evaluation_date.isoformat()
+        elif isinstance(evaluation_date, str) and evaluation_date.strip():
+            normalized_date = evaluation_date.strip()
+        else:
+            raise TypeError("evaluation_date must be a non-empty string, date, or None")
         return cls(
             testcase_id="interactive",
             difficulty="INTERACTIVE",
             question=question,
             request={
-                "currency": "KRW",
+                "currency": currency,
                 "order_item_id": order_item_id,
                 "refund_request_id": "interactive",
-                "requested_amount": None,
+                "requested_amount": requested_amount,
             },
             target_ids={
                 "customer_id": None,
@@ -260,8 +293,8 @@ class AgentRequest:
                 "shipment_id": None,
             },
             trusted_context={
-                "evaluation_date": "UNSET",
-                "timezone": "Asia/Seoul",
+                "evaluation_date": normalized_date,
+                "timezone": timezone_name,
             },
         )
 

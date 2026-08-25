@@ -50,7 +50,8 @@ class AgentAccessIsolationTests(unittest.TestCase):
         with agent_execution_guard(ROOT):
             with self.assertRaises(AgentAccessViolation):
                 gold.read_text(encoding="utf-8")
-        self.assertTrue(gold.read_text(encoding="utf-8"))
+        if gold.exists():
+            self.assertTrue(gold.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":
