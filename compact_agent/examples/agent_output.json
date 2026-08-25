@@ -1,0 +1,12 @@
+{
+  "decision": "APPROVE",
+  "clauses": [
+    "POL-00.08",
+    "POL-20.01",
+    "POL-50.07"
+  ],
+  "rationale": "다른 종결 조항이 없는 전액 환불 승인",
+  "response": "요청을 승인할 수 있습니다.\n근거: 다른 종결 조항이 없는 전액 환불 승인\n적용 정책: POL-00.08, POL-20.01, POL-50.07",
+  "verifier_status": "PASS",
+  "verifier_issues": []
+}

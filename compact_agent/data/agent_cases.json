@@ -1,0 +1,1322 @@
+[
+  {
+    "testcase_id": "E-001",
+    "difficulty": "EASY",
+    "question": "OI-E-001 주문 상품은 지금 전액 환불할 수 있나요?",
+    "target_ids": {
+      "customer_id": "C-E-001",
+      "order_id": "O-E-001",
+      "order_item_id": "OI-E-001",
+      "product_id": "P-E-001",
+      "shipment_id": "SH-E-001"
+    },
+    "request": {
+      "refund_request_id": "RR-E-001",
+      "order_item_id": "OI-E-001",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-002",
+    "difficulty": "EASY",
+    "question": "OI-E-002 상품의 고객 스냅샷을 포함해 환불 가능 여부를 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-E-002",
+      "order_id": "O-E-002",
+      "order_item_id": "OI-E-002",
+      "product_id": "P-E-002",
+      "shipment_id": "SH-E-002"
+    },
+    "request": {
+      "refund_request_id": "RR-E-002",
+      "order_item_id": "OI-E-002",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-003",
+    "difficulty": "EASY",
+    "question": "OI-E-003 주문 상품 환불 가능한지 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-E-003",
+      "order_id": "O-E-003",
+      "order_item_id": "OI-E-003",
+      "product_id": "P-E-003",
+      "shipment_id": "SH-E-003"
+    },
+    "request": {
+      "refund_request_id": "RR-E-003",
+      "order_item_id": "OI-E-003",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-004",
+    "difficulty": "EASY",
+    "question": "OI-E-004 상품의 상품 스냅샷을 포함해 환불 가능 여부를 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-E-004",
+      "order_id": "O-E-004",
+      "order_item_id": "OI-E-004",
+      "product_id": "P-E-004",
+      "shipment_id": "SH-E-004"
+    },
+    "request": {
+      "refund_request_id": "RR-E-004",
+      "order_item_id": "OI-E-004",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-005",
+    "difficulty": "EASY",
+    "question": "OI-E-005 주문 상품 조회 결과가 하나인지 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-E-005",
+      "order_id": "O-E-005",
+      "order_item_id": "OI-E-005",
+      "product_id": "P-E-005",
+      "shipment_id": "SH-E-005"
+    },
+    "request": {
+      "refund_request_id": "RR-E-005",
+      "order_item_id": "OI-E-005",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-006",
+    "difficulty": "EASY",
+    "question": "OI-E-006 상품은 아직 전액 환불 가능한가요?",
+    "target_ids": {
+      "customer_id": "C-E-006",
+      "order_id": "O-E-006",
+      "order_item_id": "OI-E-006",
+      "product_id": "P-E-006",
+      "shipment_id": "SH-E-006"
+    },
+    "request": {
+      "refund_request_id": "RR-E-006",
+      "order_item_id": "OI-E-006",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-007",
+    "difficulty": "EASY",
+    "question": "OI-E-007 전자제품을 전액 환불할 수 있는지 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-E-007",
+      "order_id": "O-E-007",
+      "order_item_id": "OI-E-007",
+      "product_id": "P-E-007",
+      "shipment_id": "SH-E-007"
+    },
+    "request": {
+      "refund_request_id": "RR-E-007",
+      "order_item_id": "OI-E-007",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-008",
+    "difficulty": "EASY",
+    "question": "OI-E-008 주문 당시 고객 정보가 유일한지 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-E-008",
+      "order_id": "O-E-008",
+      "order_item_id": "OI-E-008",
+      "product_id": "P-E-008",
+      "shipment_id": "SH-E-008"
+    },
+    "request": {
+      "refund_request_id": "RR-E-008",
+      "order_item_id": "OI-E-008",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-009",
+    "difficulty": "EASY",
+    "question": "OI-E-009 주문 당시 상품 정보가 유일한지 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-E-009",
+      "order_id": "O-E-009",
+      "order_item_id": "OI-E-009",
+      "product_id": "P-E-009",
+      "shipment_id": "SH-E-009"
+    },
+    "request": {
+      "refund_request_id": "RR-E-009",
+      "order_item_id": "OI-E-009",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-010",
+    "difficulty": "EASY",
+    "question": "OI-E-010 조회 건수와 객체가 일치하는지 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-E-010",
+      "order_id": "O-E-010",
+      "order_item_id": "OI-E-010",
+      "product_id": "P-E-010",
+      "shipment_id": "SH-E-010"
+    },
+    "request": {
+      "refund_request_id": "RR-E-010",
+      "order_item_id": "OI-E-010",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-011",
+    "difficulty": "EASY",
+    "question": "OI-E-011 주문의 고객 참조가 서로 같은지 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-E-011",
+      "order_id": "O-E-011",
+      "order_item_id": "OI-E-011",
+      "product_id": "P-E-011",
+      "shipment_id": "SH-E-011"
+    },
+    "request": {
+      "refund_request_id": "RR-E-011",
+      "order_item_id": "OI-E-011",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-012",
+    "difficulty": "EASY",
+    "question": "OI-E-012 주문 상품 전체를 환불하고 싶습니다. 가능할까요?",
+    "target_ids": {
+      "customer_id": "C-E-012",
+      "order_id": "O-E-012",
+      "order_item_id": "OI-E-012",
+      "product_id": "P-E-012",
+      "shipment_id": "SH-E-012"
+    },
+    "request": {
+      "refund_request_id": "RR-E-012",
+      "order_item_id": "OI-E-012",
+      "requested_amount": null,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-013",
+    "difficulty": "EASY",
+    "question": "OI-E-013 상품에 새 환불 요청을 넣을 수 있나요?",
+    "target_ids": {
+      "customer_id": "C-E-013",
+      "order_id": "O-E-013",
+      "order_item_id": "OI-E-013",
+      "product_id": "P-E-013",
+      "shipment_id": "SH-E-013"
+    },
+    "request": {
+      "refund_request_id": "RR-E-013",
+      "order_item_id": "OI-E-013",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-014",
+    "difficulty": "EASY",
+    "question": "OI-E-014 상품의 환불 금액 데이터가 유효한지 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-E-014",
+      "order_id": "O-E-014",
+      "order_item_id": "OI-E-014",
+      "product_id": "P-E-014",
+      "shipment_id": "SH-E-014"
+    },
+    "request": {
+      "refund_request_id": "RR-E-014",
+      "order_item_id": "OI-E-014",
+      "requested_amount": 0,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-015",
+    "difficulty": "EASY",
+    "question": "지금은 Premium 회원인데 OI-E-015 주문 상품도 환불 가능한가요?",
+    "target_ids": {
+      "customer_id": "C-E-015",
+      "order_id": "O-E-015",
+      "order_item_id": "OI-E-015",
+      "product_id": "P-E-015",
+      "shipment_id": "SH-E-015"
+    },
+    "request": {
+      "refund_request_id": "RR-E-015",
+      "order_item_id": "OI-E-015",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-016",
+    "difficulty": "EASY",
+    "question": "현재 회원 등급과 상관없이 OI-E-016 주문 당시 기준으로 환불 가능한지 봐줘.",
+    "target_ids": {
+      "customer_id": "C-E-016",
+      "order_id": "O-E-016",
+      "order_item_id": "OI-E-016",
+      "product_id": "P-E-016",
+      "shipment_id": "SH-E-016"
+    },
+    "request": {
+      "refund_request_id": "RR-E-016",
+      "order_item_id": "OI-E-016",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-017",
+    "difficulty": "EASY",
+    "question": "OI-E-017 상품의 기존 환불 상태를 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-E-017",
+      "order_id": "O-E-017",
+      "order_item_id": "OI-E-017",
+      "product_id": "P-E-017",
+      "shipment_id": "SH-E-017"
+    },
+    "request": {
+      "refund_request_id": "RR-E-017",
+      "order_item_id": "OI-E-017",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-018",
+    "difficulty": "EASY",
+    "question": "OI-E-018 주문의 snapshot 참조가 서로 일치하는지 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-E-018",
+      "order_id": "O-E-018",
+      "order_item_id": "OI-E-018",
+      "product_id": "P-E-018",
+      "shipment_id": "SH-E-018"
+    },
+    "request": {
+      "refund_request_id": "RR-E-018",
+      "order_item_id": "OI-E-018",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-019",
+    "difficulty": "EASY",
+    "question": "파손 신고가 있었던 OI-E-019 상품은 환불 가능한가요?",
+    "target_ids": {
+      "customer_id": "C-E-019",
+      "order_id": "O-E-019",
+      "order_item_id": "OI-E-019",
+      "product_id": "P-E-019",
+      "shipment_id": "SH-E-019"
+    },
+    "request": {
+      "refund_request_id": "RR-E-019",
+      "order_item_id": "OI-E-019",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "E-020",
+    "difficulty": "EASY",
+    "question": "OI-E-020 상품의 Final Sale 상태가 확인됐는지 검증해줘.",
+    "target_ids": {
+      "customer_id": "C-E-020",
+      "order_id": "O-E-020",
+      "order_item_id": "OI-E-020",
+      "product_id": "P-E-020",
+      "shipment_id": "SH-E-020"
+    },
+    "request": {
+      "refund_request_id": "RR-E-020",
+      "order_item_id": "OI-E-020",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-001",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-001 주문 상품을 지금 전액 환불할 수 있나요?",
+    "target_ids": {
+      "customer_id": "C-M-001",
+      "order_id": "O-M-001",
+      "order_item_id": "OI-M-001",
+      "product_id": "P-M-001",
+      "shipment_id": "SH-M-001"
+    },
+    "request": {
+      "refund_request_id": "RR-M-001",
+      "order_item_id": "OI-M-001",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-002",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-002 상품은 Premium 기준으로 아직 환불 가능한가요?",
+    "target_ids": {
+      "customer_id": "C-M-002",
+      "order_id": "O-M-002",
+      "order_item_id": "OI-M-002",
+      "product_id": "P-M-002",
+      "shipment_id": "SH-M-002"
+    },
+    "request": {
+      "refund_request_id": "RR-M-002",
+      "order_item_id": "OI-M-002",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-003",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-003 상품의 전액 환불 가능 여부를 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-M-003",
+      "order_id": "O-M-003",
+      "order_item_id": "OI-M-003",
+      "product_id": "P-M-003",
+      "shipment_id": "SH-M-003"
+    },
+    "request": {
+      "refund_request_id": "RR-M-003",
+      "order_item_id": "OI-M-003",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-004",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-004 전자제품은 환불 가능한가요?",
+    "target_ids": {
+      "customer_id": "C-M-004",
+      "order_id": "O-M-004",
+      "order_item_id": "OI-M-004",
+      "product_id": "P-M-004",
+      "shipment_id": "SH-M-004"
+    },
+    "request": {
+      "refund_request_id": "RR-M-004",
+      "order_item_id": "OI-M-004",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-005",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-005 상품에 다시 전액 환불을 요청할 수 있나요?",
+    "target_ids": {
+      "customer_id": "C-M-005",
+      "order_id": "O-M-005",
+      "order_item_id": "OI-M-005",
+      "product_id": "P-M-005",
+      "shipment_id": "SH-M-005"
+    },
+    "request": {
+      "refund_request_id": "RR-M-005",
+      "order_item_id": "OI-M-005",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-006",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-006 주문 상태가 환불 정책에서 허용되는 값인지 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-M-006",
+      "order_id": "O-M-006",
+      "order_item_id": "OI-M-006",
+      "product_id": "P-M-006",
+      "shipment_id": "SH-M-006"
+    },
+    "request": {
+      "refund_request_id": "RR-M-006",
+      "order_item_id": "OI-M-006",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-007",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-007 상품 환불 요청을 새로 만들 수 있나요?",
+    "target_ids": {
+      "customer_id": "C-M-007",
+      "order_id": "O-M-007",
+      "order_item_id": "OI-M-007",
+      "product_id": "P-M-007",
+      "shipment_id": "SH-M-007"
+    },
+    "request": {
+      "refund_request_id": "RR-M-007",
+      "order_item_id": "OI-M-007",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-008",
+    "difficulty": "MEDIUM",
+    "question": "오배송 신고된 OI-M-008 상품은 지금 환불 가능한가요?",
+    "target_ids": {
+      "customer_id": "C-M-008",
+      "order_id": "O-M-008",
+      "order_item_id": "OI-M-008",
+      "product_id": "P-M-008",
+      "shipment_id": "SH-M-008"
+    },
+    "request": {
+      "refund_request_id": "RR-M-008",
+      "order_item_id": "OI-M-008",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-009",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-009 전자제품의 개봉 여부를 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-M-009",
+      "order_id": "O-M-009",
+      "order_item_id": "OI-M-009",
+      "product_id": "P-M-009",
+      "shipment_id": "SH-M-009"
+    },
+    "request": {
+      "refund_request_id": "RR-M-009",
+      "order_item_id": "OI-M-009",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-010",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-010 상품의 전액 환불 가능 여부를 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-M-010",
+      "order_id": "O-M-010",
+      "order_item_id": "OI-M-010",
+      "product_id": "P-M-010",
+      "shipment_id": "SH-M-010"
+    },
+    "request": {
+      "refund_request_id": "RR-M-010",
+      "order_item_id": "OI-M-010",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-011",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-011 주문 상품 환불 가능한지 조회해줘.",
+    "target_ids": {
+      "customer_id": "C-M-011",
+      "order_id": "O-M-011",
+      "order_item_id": "OI-M-011",
+      "product_id": "P-M-011",
+      "shipment_id": "SH-M-011"
+    },
+    "request": {
+      "refund_request_id": "RR-M-011",
+      "order_item_id": "OI-M-011",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-012",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-012 상품의 배송 정보를 확인해서 환불 가능 여부를 판단해줘.",
+    "target_ids": {
+      "customer_id": "C-M-012",
+      "order_id": "O-M-012",
+      "order_item_id": "OI-M-012",
+      "product_id": "P-M-012",
+      "shipment_id": "SH-M-012"
+    },
+    "request": {
+      "refund_request_id": "RR-M-012",
+      "order_item_id": "OI-M-012",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-013",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-013 주문은 환불 요청 대상인가요?",
+    "target_ids": {
+      "customer_id": "C-M-013",
+      "order_id": "O-M-013",
+      "order_item_id": "OI-M-013",
+      "product_id": "P-M-013",
+      "shipment_id": "SH-M-013"
+    },
+    "request": {
+      "refund_request_id": "RR-M-013",
+      "order_item_id": "OI-M-013",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-014",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-014 주문 상품에 지금 환불 요청을 해야 하나요?",
+    "target_ids": {
+      "customer_id": "C-M-014",
+      "order_id": "O-M-014",
+      "order_item_id": "OI-M-014",
+      "product_id": "P-M-014",
+      "shipment_id": "SH-M-014"
+    },
+    "request": {
+      "refund_request_id": "RR-M-014",
+      "order_item_id": "OI-M-014",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-015",
+    "difficulty": "MEDIUM",
+    "question": "배송 중 상태로 기록된 OI-M-015 주문의 배송 정보를 함께 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-M-015",
+      "order_id": "O-M-015",
+      "order_item_id": "OI-M-015",
+      "product_id": "P-M-015",
+      "shipment_id": "SH-M-015"
+    },
+    "request": {
+      "refund_request_id": "RR-M-015",
+      "order_item_id": "OI-M-015",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-016",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-016 상품 환불을 처리할 수 있나요?",
+    "target_ids": {
+      "customer_id": "C-M-016",
+      "order_id": "O-M-016",
+      "order_item_id": "OI-M-016",
+      "product_id": "P-M-016",
+      "shipment_id": "SH-M-016"
+    },
+    "request": {
+      "refund_request_id": "RR-M-016",
+      "order_item_id": "OI-M-016",
+      "requested_amount": 10000,
+      "currency": "USD"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-017",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-017 상품 중 10,000원만 환불할 수 있나요?",
+    "target_ids": {
+      "customer_id": "C-M-017",
+      "order_id": "O-M-017",
+      "order_item_id": "OI-M-017",
+      "product_id": "P-M-017",
+      "shipment_id": "SH-M-017"
+    },
+    "request": {
+      "refund_request_id": "RR-M-017",
+      "order_item_id": "OI-M-017",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-018",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-018 상품에 15,000원 환불 요청을 할 수 있나요?",
+    "target_ids": {
+      "customer_id": "C-M-018",
+      "order_id": "O-M-018",
+      "order_item_id": "OI-M-018",
+      "product_id": "P-M-018",
+      "shipment_id": "SH-M-018"
+    },
+    "request": {
+      "refund_request_id": "RR-M-018",
+      "order_item_id": "OI-M-018",
+      "requested_amount": 15000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-019",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-019 주문 상품의 환불 자격을 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-M-019",
+      "order_id": "O-M-019",
+      "order_item_id": "OI-M-019",
+      "product_id": "P-M-019",
+      "shipment_id": "SH-M-019"
+    },
+    "request": {
+      "refund_request_id": "RR-M-019",
+      "order_item_id": "OI-M-019",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "M-020",
+    "difficulty": "MEDIUM",
+    "question": "OI-M-020 상품의 전액 환불 가능 여부를 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-M-020",
+      "order_id": "O-M-020",
+      "order_item_id": "OI-M-020",
+      "product_id": "P-M-020",
+      "shipment_id": "SH-M-020"
+    },
+    "request": {
+      "refund_request_id": "RR-M-020",
+      "order_item_id": "OI-M-020",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-001",
+    "difficulty": "HARD",
+    "question": "배송 파손이 검증된 OI-H-001 상품은 기간이 지났어도 환불 가능한가요?",
+    "target_ids": {
+      "customer_id": "C-H-001",
+      "order_id": "O-H-001",
+      "order_item_id": "OI-H-001",
+      "product_id": "P-H-001",
+      "shipment_id": "SH-H-001"
+    },
+    "request": {
+      "refund_request_id": "RR-H-001",
+      "order_item_id": "OI-H-001",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-002",
+    "difficulty": "HARD",
+    "question": "오배송이 확인된 OI-H-002 Final Sale 상품은 환불 가능한가요?",
+    "target_ids": {
+      "customer_id": "C-H-002",
+      "order_id": "O-H-002",
+      "order_item_id": "OI-H-002",
+      "product_id": "P-H-002",
+      "shipment_id": "SH-H-002"
+    },
+    "request": {
+      "refund_request_id": "RR-H-002",
+      "order_item_id": "OI-H-002",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-003",
+    "difficulty": "HARD",
+    "question": "결함이 확인된 개봉 전자제품 OI-H-003은 전액 환불 가능한가요?",
+    "target_ids": {
+      "customer_id": "C-H-003",
+      "order_id": "O-H-003",
+      "order_item_id": "OI-H-003",
+      "product_id": "P-H-003",
+      "shipment_id": "SH-H-003"
+    },
+    "request": {
+      "refund_request_id": "RR-H-003",
+      "order_item_id": "OI-H-003",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-004",
+    "difficulty": "HARD",
+    "question": "파손이 검증된 OI-H-004 상품의 모든 조건을 확인해서 환불 가능 여부를 판단해줘.",
+    "target_ids": {
+      "customer_id": "C-H-004",
+      "order_id": "O-H-004",
+      "order_item_id": "OI-H-004",
+      "product_id": "P-H-004",
+      "shipment_id": "SH-H-004"
+    },
+    "request": {
+      "refund_request_id": "RR-H-004",
+      "order_item_id": "OI-H-004",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-005",
+    "difficulty": "HARD",
+    "question": "파손이 검증된 OI-H-005 상품은 다시 환불할 수 있나요?",
+    "target_ids": {
+      "customer_id": "C-H-005",
+      "order_id": "O-H-005",
+      "order_item_id": "OI-H-005",
+      "product_id": "P-H-005",
+      "shipment_id": "SH-H-005"
+    },
+    "request": {
+      "refund_request_id": "RR-H-005",
+      "order_item_id": "OI-H-005",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-006",
+    "difficulty": "HARD",
+    "question": "오배송이 확인된 OI-H-006 상품에 새 환불 요청을 만들어도 되나요?",
+    "target_ids": {
+      "customer_id": "C-H-006",
+      "order_id": "O-H-006",
+      "order_item_id": "OI-H-006",
+      "product_id": "P-H-006",
+      "shipment_id": "SH-H-006"
+    },
+    "request": {
+      "refund_request_id": "RR-H-006",
+      "order_item_id": "OI-H-006",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-007",
+    "difficulty": "HARD",
+    "question": "파손이 검증된 OI-H-007 상품 중 10,000원만 환불할 수 있나요?",
+    "target_ids": {
+      "customer_id": "C-H-007",
+      "order_id": "O-H-007",
+      "order_item_id": "OI-H-007",
+      "product_id": "P-H-007",
+      "shipment_id": "SH-H-007"
+    },
+    "request": {
+      "refund_request_id": "RR-H-007",
+      "order_item_id": "OI-H-007",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-008",
+    "difficulty": "HARD",
+    "question": "파손이 검증된 OI-H-008 주문을 USD로 환불 요청할 수 있나요?",
+    "target_ids": {
+      "customer_id": "C-H-008",
+      "order_id": "O-H-008",
+      "order_item_id": "OI-H-008",
+      "product_id": "P-H-008",
+      "shipment_id": "SH-H-008"
+    },
+    "request": {
+      "refund_request_id": "RR-H-008",
+      "order_item_id": "OI-H-008",
+      "requested_amount": 10000,
+      "currency": "USD"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-009",
+    "difficulty": "HARD",
+    "question": "OI-H-009 상품은 여러 제한을 모두 고려하면 환불 가능한가요?",
+    "target_ids": {
+      "customer_id": "C-H-009",
+      "order_id": "O-H-009",
+      "order_item_id": "OI-H-009",
+      "product_id": "P-H-009",
+      "shipment_id": "SH-H-009"
+    },
+    "request": {
+      "refund_request_id": "RR-H-009",
+      "order_item_id": "OI-H-009",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-010",
+    "difficulty": "HARD",
+    "question": "OI-H-010 파손 증빙을 기준으로 환불 가능 여부를 판단해줘.",
+    "target_ids": {
+      "customer_id": "C-H-010",
+      "order_id": "O-H-010",
+      "order_item_id": "OI-H-010",
+      "product_id": "P-H-010",
+      "shipment_id": "SH-H-010"
+    },
+    "request": {
+      "refund_request_id": "RR-H-010",
+      "order_item_id": "OI-H-010",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-011",
+    "difficulty": "HARD",
+    "question": "OI-H-011 파손 증빙이 신뢰 가능한지 포함해서 환불 가능 여부를 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-H-011",
+      "order_id": "O-H-011",
+      "order_item_id": "OI-H-011",
+      "product_id": "P-H-011",
+      "shipment_id": "SH-H-011"
+    },
+    "request": {
+      "refund_request_id": "RR-H-011",
+      "order_item_id": "OI-H-011",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-012",
+    "difficulty": "HARD",
+    "question": "OI-H-012 상품의 증빙 상태를 확인하고 환불 가능 여부를 판단해줘.",
+    "target_ids": {
+      "customer_id": "C-H-012",
+      "order_id": "O-H-012",
+      "order_item_id": "OI-H-012",
+      "product_id": "P-H-012",
+      "shipment_id": "SH-H-012"
+    },
+    "request": {
+      "refund_request_id": "RR-H-012",
+      "order_item_id": "OI-H-012",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-013",
+    "difficulty": "HARD",
+    "question": "OI-H-013 상품의 회사 귀책 증빙을 확인해줘.",
+    "target_ids": {
+      "customer_id": "C-H-013",
+      "order_id": "O-H-013",
+      "order_item_id": "OI-H-013",
+      "product_id": "P-H-013",
+      "shipment_id": "SH-H-013"
+    },
+    "request": {
+      "refund_request_id": "RR-H-013",
+      "order_item_id": "OI-H-013",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-014",
+    "difficulty": "HARD",
+    "question": "OI-H-014 상품은 증빙 정보까지 확인했을 때 환불 가능한가요?",
+    "target_ids": {
+      "customer_id": "C-H-014",
+      "order_id": "O-H-014",
+      "order_item_id": "OI-H-014",
+      "product_id": "P-H-014",
+      "shipment_id": "SH-H-014"
+    },
+    "request": {
+      "refund_request_id": "RR-H-014",
+      "order_item_id": "OI-H-014",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-015",
+    "difficulty": "HARD",
+    "question": "파손 신고가 기각된 OI-H-015 상품은 기간이 지났어도 환불 가능한가요?",
+    "target_ids": {
+      "customer_id": "C-H-015",
+      "order_id": "O-H-015",
+      "order_item_id": "OI-H-015",
+      "product_id": "P-H-015",
+      "shipment_id": "SH-H-015"
+    },
+    "request": {
+      "refund_request_id": "RR-H-015",
+      "order_item_id": "OI-H-015",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-016",
+    "difficulty": "HARD",
+    "question": "OI-H-016 상품 배송 정보가 여러 건일 때 환불 판단이 가능한가요?",
+    "target_ids": {
+      "customer_id": "C-H-016",
+      "order_id": "O-H-016",
+      "order_item_id": "OI-H-016",
+      "product_id": "P-H-016",
+      "shipment_id": "SH-H-016"
+    },
+    "request": {
+      "refund_request_id": "RR-H-016",
+      "order_item_id": "OI-H-016",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-017",
+    "difficulty": "HARD",
+    "question": "OI-H-017 상품에 이전에 거절된 환불 요청 ID를 다시 사용해도 되나요?",
+    "target_ids": {
+      "customer_id": "C-H-017",
+      "order_id": "O-H-017",
+      "order_item_id": "OI-H-017",
+      "product_id": "P-H-017",
+      "shipment_id": "SH-H-017"
+    },
+    "request": {
+      "refund_request_id": "RF-H-017-01",
+      "order_item_id": "OI-H-017",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-018",
+    "difficulty": "HARD",
+    "question": "OI-H-018 상품의 기존 환불 이력을 확인해서 새 환불 가능 여부를 판단해줘.",
+    "target_ids": {
+      "customer_id": "C-H-018",
+      "order_id": "O-H-018",
+      "order_item_id": "OI-H-018",
+      "product_id": "P-H-018",
+      "shipment_id": "SH-H-018"
+    },
+    "request": {
+      "refund_request_id": "RR-H-018",
+      "order_item_id": "OI-H-018",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-019",
+    "difficulty": "HARD",
+    "question": "OI-H-019 상품의 주문·배송 날짜를 확인해서 환불 가능 여부를 판단해줘.",
+    "target_ids": {
+      "customer_id": "C-H-019",
+      "order_id": "O-H-019",
+      "order_item_id": "OI-H-019",
+      "product_id": "P-H-019",
+      "shipment_id": "SH-H-019"
+    },
+    "request": {
+      "refund_request_id": "RR-H-019",
+      "order_item_id": "OI-H-019",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  },
+  {
+    "testcase_id": "H-020",
+    "difficulty": "HARD",
+    "question": "OI-H-020 배송 완료일 문자열이 올바른지 포함해 판단해줘.",
+    "target_ids": {
+      "customer_id": "C-H-020",
+      "order_id": "O-H-020",
+      "order_item_id": "OI-H-020",
+      "product_id": "P-H-020",
+      "shipment_id": "SH-H-020"
+    },
+    "request": {
+      "refund_request_id": "RR-H-020",
+      "order_item_id": "OI-H-020",
+      "requested_amount": 10000,
+      "currency": "KRW"
+    },
+    "trusted_context": {
+      "evaluation_date": "2026-08-15",
+      "timezone": "Asia/Seoul"
+    }
+  }
+]
