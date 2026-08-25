@@ -5,6 +5,10 @@ description = "MABC 2026 — Agent Upgrade Auditor & Policy Testbed"
 requires-python = ">=3.11"
 dependencies = [
     "pydantic>=2.0",
+    # Windows에는 IANA 타임존 DB가 없어 zoneinfo가 "Asia/Seoul"을 못 찾는다.
+    # policies/policy_oracle.py가 import 시점에 ZoneInfo를 부르므로 없으면 수집 단계에서 죽는다.
+    # Linux/macOS는 시스템 DB를 먼저 쓰므로 이 패키지는 폴백으로만 동작한다.
+    "tzdata",
 ]
 
 [project.optional-dependencies]
