@@ -28,12 +28,15 @@ Gold 수동 작성 금지
 ## 3. Agent 실행 파일과 평가 파일
 
 - `test_cases.json`: Agent 입력 + PolicyFacts + Oracle Gold 전체
-- `test_cases_agent_inputs.json`: Agent에게 줄 입력만 포함
-- `test_cases_manifest.json`: 분포, clause coverage, 버전, 해시
-- `test_cases_coverage.md`: 47개 조항별 matched/primary 출현 횟수
-- `shop.db`: 51개 DB 기반 사례의 원천 사실과 기존 DB/TestCase drift 수정본
+- `agent_cases.json`: Agent에게 줄 입력만 포함
+- `version_manifest.json`: 분포, 버전, 핵심 산출물 SHA-256
+- `answer_key.db`: 보호된 60개 Gold 원장
+- `shop.db`: 60개 PolicyFacts를 SQL만으로 재현하는 regression DB
 
 Agent에는 `policy_facts`, `expected_result`, `gold_decision`, `gold_clauses`, `required_fields`를 전달하지 않습니다.
+표의 `SHOP_DB_PLUS_ADAPTER_FIXTURE`는 최초 설계 당시의 출처 분류를 보존한 값입니다.
+현재 런타임에는 testcase-aware Adapter fixture가 없으며, 해당 9개 사례도
+`lookup_order_item_id`와 `record_present`를 사용하는 `shop.db` 행으로 표현됩니다.
 
 ## 4. 난이도별 60개 목록
 
@@ -112,7 +115,7 @@ Agent에는 `policy_facts`, `expected_result`, `gold_decision`, `gold_clauses`, 
 | `H-019` | `SHOP_DB` | `NEED_MORE_INFO` | `POL-20.04` | delivered_at이 ordered_at보다 빠른 시간 순서 오류 |
 | `H-020` | `SHOP_DB` | `NEED_MORE_INFO` | `POL-20.05` | delivered_at이 RFC3339로 파싱할 수 없는 잘못된 날짜 형식 |
 
-## 5. Adapter fixture 사례
+## 5. Regression DB로 이전된 기존 Adapter fixture 사례
 
 | ID | fixture | primary |
 |---|---|---|
@@ -133,9 +136,7 @@ Agent에는 `policy_facts`, `expected_result`, `gold_decision`, `gold_clauses`, 
   ↓
 shop.db 조회
   ↓
-Adapter → PolicyFacts
-  ↓
-필요한 S1 케이스만 trusted Adapter fixture 적용
+SQL lookup count + record_present → PolicyFacts
   ↓
 policy_oracle.decide(PolicyFacts)
   ↓
@@ -144,7 +145,8 @@ expected_result
 gold_decision / gold_clauses / required_fields 자동 파생
 ```
 
-Oracle 결과가 예상과 다르면 Gold를 수정하지 않고 DB fixture, Adapter fixture, 정책 또는 Oracle 구현 중 잘못된 부분을 수정합니다.
+Oracle 결과가 예상과 다르면 Gold를 임의 수정하지 않고 regression DB 생성기,
+정책 규칙 또는 Oracle 구현 중 잘못된 부분을 수정합니다.
 
 ## 7. 한 문장 요약
 

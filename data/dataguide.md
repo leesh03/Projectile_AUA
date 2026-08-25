@@ -1,181 +1,112 @@
-# Order & Refund 정답 데이터 실행 가이드 v0.5
+# Order & Refund 60개 데이터셋 실행 가이드 v0.5
 
-이 문서는 `shop.db`와 `test_cases.json`을 생성·검증·커밋하고, 실제 평가에서 사용하는 순서를 설명합니다.
+이 문서는 pull된 Policy Agent Core와 호환되는 SQL-only regression 데이터셋의
+재생성·검증·평가 절차를 설명합니다.
 
-## 1. 사전 준비
-
-- 저장소 루트에서 명령을 실행합니다.
-- Python 3.12 사용을 권장합니다.
-- `policies/policy_oracle.py`가 먼저 준비되어 있어야 합니다.
-- 원격 저장소에 기준 브랜치 `tester`가 존재해야 합니다.
-
-## 2. 작업 브랜치 생성
-
-원격 정보를 받은 후 `tester`를 최신 상태로 맞추고 `feat/dataset` 브랜치를 만듭니다.
-
-```bash
-git fetch origin
-git checkout tester
-git pull origin tester
-git checkout -b feat/dataset
-```
-
-다음 한 줄도 같은 의미입니다.
-
-```bash
-git checkout -b feat/dataset tester
-```
-
-이 명령에서 `feat/dataset`은 새 브랜치 이름이고 `tester`는 새 브랜치의 기준이 되는 기존 브랜치입니다. `tester`가 없으면 명령이 실패합니다.
-
-## 3. 파일 배치
-
-저장소 구조를 다음과 같이 맞춥니다.
+## 1. 구성
 
 ```text
-policies/
-└── policy_oracle.py
-
 data/
-├── shop.db
-├── test_cases.json
-├── build_dataset.py
-├── version_manifest.json
-├── DATA_CHANGELOG.md
-└── README.md
+├── shop.db                 Agent가 읽는 5-table regression DB
+├── agent_cases.json        Agent 공개 입력 60개
+├── test_cases.json         PolicyFacts + Gold evaluator 원장
+├── answer_key.db           보호된 Gold SQLite 원장
+├── build_shop_db.py        PolicyFacts → shop.db 생성기
+├── build_dataset.py        전체 산출물 동기화·매니페스트 생성
+└── version_manifest.json   버전·분포·SHA-256
 
-tests/
-└── test_dataset.py
+policies/
+├── refund_policy_spec_v0.5.md
+├── policy_rules.json       Agent가 읽는 기계 판독 정책
+└── policy_oracle.py        evaluator 전용 독립 Oracle
 ```
 
-핵심 산출물은 다음 두 파일입니다.
+고정 조건:
 
-- `data/shop.db`: 고객·주문·상품·배송·환불의 시험용 원천 데이터
-- `data/test_cases.json`: 20개 질문과 Gold 정답·적용 조항·난이도
+- TestCase 60개
+- Easy / Medium / Hard 각 20개
+- 평가 기준일 `2026-08-15`, 시간대 `Asia/Seoul`
+- 정책 버전 `policy-v0.5`
+- DB 테이블: `customers`, `orders`, `products`, `shipments`, `refunds`
 
-## 4. 데이터 재생성
+## 2. 재생성
 
-저장소 루트에서 다음 명령을 실행합니다.
+저장소 루트에서 실행합니다.
 
 ```bash
 python data/build_dataset.py
 ```
 
-이 명령은 고정된 seed, 평가 기준일, 정책 버전을 사용하여 다음 파일을 다시 생성합니다.
+이 명령은 다음 순서로 동작합니다.
 
-- `data/shop.db`
-- `data/test_cases.json`
-- `data/version_manifest.json`
+1. `answer_key.db`에서 60개 보호 정답과 PolicyFacts를 동기화합니다.
+2. 같은 PolicyFacts를 사용해 `shop.db`를 새로 만듭니다.
+3. Agent 입력에는 공개 필드 6개만 남깁니다.
+4. `data/version_manifest.json`과 `artifacts/version_manifest.json`의 해시를 갱신합니다.
 
-생성기는 현재 시각, 난수, 네트워크 또는 LLM 결과를 사용하지 않습니다. 같은 실행 환경과 같은 Oracle 버전에서는 같은 파일이 생성되어야 합니다.
-
-## 5. 자동 검증
-
-다음 명령으로 전체 데이터 검증을 실행합니다.
+DB만 다시 만들려면 다음 명령을 사용합니다.
 
 ```bash
-python -m unittest tests/test_dataset.py -v
+python data/build_shop_db.py
 ```
 
-정상이라면 8개 테스트가 모두 통과하고 마지막에 `OK`가 표시됩니다. 검증 항목은 다음과 같습니다.
+생성기는 현재 시각, 난수, 네트워크 또는 LLM을 사용하지 않습니다.
 
-- TestCase 정확히 20개
-- Easy 6개, Medium 8개, Hard 6개
-- 필수 출력 필드 존재
-- SQLite 테이블과 외래키 무결성
-- 보호 정답 DB의 20개 레코드와 접근 차단 메타데이터
-- Agent 공개 케이스의 Gold 필드 누수 방지
-- 명시된 조회 결과 없음 사례를 제외한 참조 ID 존재
-- 최신 Oracle 결과와 모든 Gold 정답 일치
-- 경계값·정책 예외·중복 환불·값 누락·충돌 우선순위 확인
-- 같은 환경에서 재생성한 파일의 SHA-256 일치
+## 3. Regression 조회 계약
 
-## 6. DB 직접 점검
+- `lookup_order_item_id`: Agent 요청의 `request.order_item_id`와 비교하는 조회 키
+- `record_present`: 해당 lookup 행이 실제 PolicyFacts 객체로 materialize되는지 표시
+- 동일 lookup 키의 행 수: `lookup_counts`로 변환
+- 실제 반환 ID가 lookup 대상과 다르면 참조 불일치 정책 사실로 유지
 
-SQLite 명령행 도구가 설치되어 있다면 다음 명령으로 직접 확인합니다.
+이 계약으로 결측·중복·count/object 불일치 사례도 별도 testcase fixture 없이
+SQL 조회만으로 재현합니다. DB에는 testcase ID나 Gold 판정이 저장되지 않습니다.
+
+## 4. 자동 검증
 
 ```bash
-sqlite3 data/shop.db ".tables"
-sqlite3 data/shop.db "PRAGMA integrity_check;"
-sqlite3 data/shop.db "PRAGMA foreign_key_check;"
+python -m pytest tests -q
 ```
 
-예상 결과는 다음과 같습니다.
+필수 검증 항목:
 
-- 테이블: `customers`, `orders`, `products`, `shipments`, `refunds`
-- 무결성 검사: `ok`
-- 외래키 검사: 출력 없음
+- 60개 고유 testcase와 20/20/20 난이도 분포
+- Agent 입력에서 Gold 필드 제거
+- SQLite 무결성과 정확히 5개 테이블
+- DB 참조 ID 및 의도된 누락 사례
+- `answer_key.db`와 JSON Gold 일치
+- 재생성된 DB·JSON의 SHA-256 재현성
+- 정책 Oracle의 판정·조항과 Gold 일치
+- pull된 Core의 DB 사실·판정·조항·Verifier 60/60 일치
 
-## 7. TestCase 수와 난이도 확인
+## 5. 평가 격리
 
-```bash
-python -c "import json, collections; c=json.load(open('data/test_cases.json')); print(len(c), collections.Counter(x['difficulty'] for x in c))"
-```
+Agent에 허용하는 자산:
 
-예상 결과:
+- `data/shop.db` 읽기
+- `data/agent_cases.json`의 개별 입력
+- `policies/policy_rules.json`
 
-```text
-20 Counter({'MEDIUM': 8, 'EASY': 6, 'HARD': 6})
-```
-
-## 8. 변경 내용 확인
-
-재생성 후 의도하지 않은 파일이 바뀌지 않았는지 확인합니다.
-
-```bash
-git status
-git diff --stat
-```
-
-DB나 TestCase를 변경했다면 `data/DATA_CHANGELOG.md`에 다음 내용을 반드시 기록합니다.
-
-- 변경 사유
-- 영향받은 TestCase ID
-- Gold 판정 또는 Gold 조항의 변경 내용
-- Gold가 바뀐 정책적 근거
-- DB 버전 또는 TestCase 버전 변경 여부
-
-## 9. 커밋과 푸시
-
-```bash
-git add data tests/test_dataset.py
-git commit -m "Add reproducible refund test dataset v0.5"
-git push -u origin feat/dataset
-```
-
-푸시 후 `feat/dataset`에서 목표 브랜치로 Pull Request를 생성합니다.
-
-## 10. 실제 평가 실행 순서
-
-1. 평가 Harness가 보호된 `test_cases.json`에서 질문과 대상 ID를 읽습니다.
-2. Harness는 평가받는 Agent에 질문과 읽기 전용 `shop.db` 접근만 제공합니다.
-3. Agent는 `shop.db`를 조회하고 환불 판정과 적용 정책 조항을 제출합니다.
-4. Harness는 Agent 결과를 비공개 `gold_decision`, `gold_clauses`와 비교합니다.
-5. 전체 정확도와 Easy·Medium·Hard별 정확도를 집계합니다.
-6. 동일한 정책·DB·TestCase 버전으로 다시 실행하여 결과 재현 여부를 확인합니다.
-
-## 11. 정답 데이터 접근 제한
-
-`test_cases.json`에는 Gold 정답이 포함되어 있으므로 평가받는 Agent가 직접 읽을 수 없어야 합니다. 다음 항목도 Agent 실행 환경에서 차단합니다.
+Agent에서 차단하는 자산:
 
 - `data/test_cases.json`
+- `data/answer_key.db`
 - `policies/policy_oracle.py`
-- 데이터 생성 및 검증 코드
-- Git 저장소의 정답 이력
+- 생성기, 평가 결과, Git의 Gold 이력
 
-저장소에 파일을 커밋하는 것만으로는 실행 격리가 생기지 않습니다. 평가 Harness 또는 컨테이너 권한에서 접근 제한을 강제해야 합니다.
+저장소에 파일이 존재하는 것만으로 격리가 보장되지는 않습니다. 평가 Harness의
+프로세스·파일 권한에서 접근 차단을 강제해야 합니다.
 
-## 12. 최종 완료 기준
+## 6. 변경 절차
 
-다음 조건을 모두 충족해야 데이터 작업을 완료한 것으로 봅니다.
+데이터 또는 정책을 바꿀 때는 다음 순서를 유지합니다.
 
-- `shop.db`에 정확히 다섯 개 원천 테이블이 존재합니다.
-- `test_cases.json`에 정확히 20개 사례가 존재합니다.
-- 모든 사례에 `question`, `required_fields`, `gold_decision`, `gold_clauses`, `difficulty`가 있습니다.
-- 난이도 분포가 Easy 6 / Medium 8 / Hard 6입니다.
-- 자동 검증이 모두 통과합니다.
-- Oracle 결과와 Gold 정답이 일치합니다.
-- 데이터 변경 이력이 기록되어 있습니다.
-- 독립된 사람이 정책 문장과 DB 사실만 보고 Gold를 별도로 검토합니다.
+1. 정책 명세와 `policy_rules.json` 변경
+2. 독립 Oracle 변경 및 조항 단위 검토
+3. `answer_key.db`와 `test_cases.json` 동기화
+4. `python data/build_dataset.py`
+5. 전체 테스트와 60-case 통합 실행
+6. `git diff --stat`과 매니페스트 해시 확인
 
-독립된 사람의 검토가 끝나기 전에는 baseline 상태를 `CANDIDATE_PENDING_INDEPENDENT_HUMAN_REVIEW`로 유지합니다.
+독립 검토가 끝나기 전에는 baseline 상태를
+`CANDIDATE_PENDING_INDEPENDENT_HUMAN_REVIEW`로 유지합니다.

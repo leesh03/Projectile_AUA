@@ -1,311 +1,283 @@
+"""Build the SQL-only 60-case regression database from PolicyFacts.
+
+The pulled Core queries only public SQLite tables. Missing, duplicate, and
+reference-mismatch cases therefore have to be representable in SQL instead of
+being injected by a testcase-aware adapter. ``lookup_order_item_id`` is the
+trusted lookup key, while ``record_present`` says whether a returned lookup row
+materializes into the canonical PolicyFacts object.
+
+Run from the repository root:
+
+    python data/build_shop_db.py
+"""
+
 from __future__ import annotations
 
+import argparse
+import json
 import sqlite3
+from collections.abc import Mapping
 from pathlib import Path
+from typing import Any
 
-DB_PATH = Path(__file__).resolve().parents[1] / "data" / "shop.db"
-EVAL_DATE = "2026-08-15"
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_CASES_PATH = REPO_ROOT / "data" / "test_cases.json"
+DEFAULT_DB_PATH = REPO_ROOT / "data" / "shop.db"
 
 SCHEMA = """
-PRAGMA foreign_keys = ON;
 PRAGMA user_version = 5;
 
 CREATE TABLE customers (
-    customer_id TEXT PRIMARY KEY,
-    tier TEXT NOT NULL
+    lookup_order_item_id TEXT,
+    record_present INTEGER,
+    customer_id TEXT,
+    order_snapshot_id TEXT,
+    tier TEXT,
+    snapshotted_at TEXT
 );
 
 CREATE TABLE products (
-    product_id TEXT PRIMARY KEY,
-    category TEXT NOT NULL,
-    final_sale INTEGER NOT NULL,
-    unit_price_krw INTEGER NOT NULL
+    lookup_order_item_id TEXT,
+    record_present INTEGER,
+    product_id TEXT,
+    order_snapshot_id TEXT,
+    category TEXT,
+    final_sale INTEGER,
+    snapshotted_at TEXT
 );
 
 CREATE TABLE orders (
-    order_item_id TEXT PRIMARY KEY,
-    order_id TEXT NOT NULL,
-    customer_id TEXT NOT NULL,
-    product_id TEXT NOT NULL,
-    order_snapshot_id TEXT NOT NULL,
-    ordered_at TEXT NOT NULL,
-    status TEXT NOT NULL,
-    customer_tier_at_order TEXT NOT NULL,
-    product_category_at_order TEXT NOT NULL,
-    product_final_sale_at_order INTEGER NOT NULL,
-    paid_item_amount INTEGER NOT NULL,
-    currency TEXT NOT NULL
+    lookup_order_item_id TEXT,
+    record_present INTEGER,
+    order_item_id TEXT,
+    order_id TEXT,
+    customer_id TEXT,
+    product_id TEXT,
+    order_snapshot_id TEXT,
+    ordered_at TEXT,
+    status TEXT,
+    paid_item_amount INTEGER,
+    currency TEXT
 );
 
 CREATE TABLE shipments (
-    shipment_id TEXT PRIMARY KEY,
-    order_item_id TEXT NOT NULL,
+    lookup_order_item_id TEXT,
+    record_present INTEGER,
+    shipment_id TEXT,
+    order_item_id TEXT,
     shipped_at TEXT,
     delivered_at TEXT,
     package_opened INTEGER,
     issue_code TEXT,
-    evidence_status TEXT NOT NULL,
+    evidence_status TEXT,
     verified_by TEXT,
     verified_at TEXT,
     evidence_source TEXT,
-    attested INTEGER NOT NULL
+    attested INTEGER
 );
 
 CREATE TABLE refunds (
-    refund_id TEXT PRIMARY KEY,
-    order_item_id TEXT NOT NULL,
-    requested_at TEXT NOT NULL,
-    status TEXT NOT NULL,
-    amount INTEGER NOT NULL,
-    currency TEXT NOT NULL
+    refund_id TEXT,
+    order_item_id TEXT,
+    requested_at TEXT,
+    status TEXT,
+    amount INTEGER,
+    currency TEXT
 );
 
--- Intentionally present but must never be included in the Agent's allowed_tables.
-CREATE TABLE secrets (
-    secret TEXT NOT NULL
-);
-
-CREATE INDEX idx_orders_order_id ON orders(order_id);
-CREATE INDEX idx_orders_customer_id ON orders(customer_id);
-CREATE INDEX idx_orders_product_id ON orders(product_id);
-CREATE INDEX idx_shipments_order_item_id ON shipments(order_item_id);
-CREATE INDEX idx_refunds_order_item_id ON refunds(order_item_id);
+CREATE INDEX idx_customers_lookup ON customers(lookup_order_item_id);
+CREATE INDEX idx_products_lookup ON products(lookup_order_item_id);
+CREATE INDEX idx_orders_lookup ON orders(lookup_order_item_id);
+CREATE INDEX idx_shipments_lookup ON shipments(lookup_order_item_id);
+CREATE INDEX idx_refunds_order_item ON refunds(order_item_id);
 """
 
 
-def ids(case_id: str) -> dict[str, str]:
-    return {
-        "customer": f"C-{case_id}",
-        "product": f"P-{case_id}",
-        "order": f"O-{case_id}",
-        "item": f"OI-{case_id}",
-        "snapshot": f"SNAP-{case_id}",
-        "shipment": f"SH-{case_id}",
-    }
+def read_cases(path: Path = DEFAULT_CASES_PATH) -> list[dict[str, Any]]:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, list) or not all(isinstance(item, dict) for item in value):
+        raise TypeError(f"{path} must contain a JSON array of objects")
+    if len(value) != 60:
+        raise ValueError(f"expected 60 test cases, found {len(value)}")
+    return value
 
 
-def base_case(case_id: str, *, tier: str = "STANDARD", category: str = "FASHION",
-              final_sale: int = 0, unit_price: int = 10_000, paid: int = 10_000,
-              currency: str = "KRW", status: str = "DELIVERED",
-              ordered_at: str = "2026-05-01T00:00:00Z",
-              delivered_at: str | None = "2026-08-08T00:00:00Z",
-              opened: int | None = 0,
-              issue_code: str | None = None,
-              evidence_status: str = "NONE",
-              verified_by: str | None = None,
-              verified_at: str | None = None,
-              evidence_source: str | None = None,
-              attested: int = 0,
-              current_tier: str | None = None,
-              current_category: str | None = None,
-              current_final_sale: int | None = None,
-              create_order: bool = True,
-              create_shipment: bool = True) -> dict:
-    x = ids(case_id)
-    return {
-        "case_id": case_id,
-        "ids": x,
-        "customer": (x["customer"], current_tier if current_tier is not None else tier),
-        "product": (
-            x["product"],
-            current_category if current_category is not None else category,
-            current_final_sale if current_final_sale is not None else final_sale,
-            unit_price,
-        ),
-        "order": None if not create_order else (
-            x["item"], x["order"], x["customer"], x["product"], x["snapshot"],
-            ordered_at, status, tier, category, final_sale, paid, currency,
-        ),
-        "shipments": [] if not create_shipment else [(
-            x["shipment"], x["item"], "2026-07-01T00:00:00Z", delivered_at,
-            opened, issue_code, evidence_status, verified_by, verified_at,
-            evidence_source, attested,
-        )],
-        "refunds": [],
-    }
+def _repeat_count(case: Mapping[str, Any], section: str) -> int:
+    count = int(case["policy_facts"].get("lookup_counts", {}).get(section, 0))
+    if count < 0:
+        raise ValueError(f"{case.get('testcase_id')}: negative lookup count for {section}")
+    return count
 
 
-def refund(case: dict, suffix: str, status: str, amount: int = 10_000,
-           currency: str = "KRW", order_item_id: str | None = None) -> None:
-    item = order_item_id or case["ids"]["item"]
-    case["refunds"].append((
-        f"RF-{case['case_id']}-{suffix}", item, "2026-08-14T00:00:00Z",
-        status, amount, currency,
-    ))
+def _synthetic_duplicate(
+    case: Mapping[str, Any], section: str, index: int, value: Any
+) -> Any:
+    """Keep one identifier-addressable row for legacy integrity checks.
 
+    Duplicate one-to-one lookups have a canonical object value of ``None``.
+    The pulled Core determines that from the two lookup rows, not their payload.
+    Materializing only the first row keeps direct ``order_item_id`` integrity
+    checks useful without changing the Core-visible PolicyFacts.
+    """
 
-def build_cases() -> list[dict]:
-    cases: list[dict] = []
-
-    # EASY 20: one dominant fact, mostly happy-path and boundary cases.
-    cases += [
-        base_case("E-001", delivered_at="2026-08-15T00:00:00Z"),  # Standard day 0
-        base_case("E-002", delivered_at="2026-08-08T00:00:00Z"),  # Standard day 7
-        base_case("E-003", delivered_at="2026-08-01T00:00:00Z"),  # Standard day 14
-        base_case("E-004", tier="PREMIUM", delivered_at="2026-08-15T00:00:00Z"),
-        base_case("E-005", tier="PREMIUM", delivered_at="2026-07-31T00:00:00Z"),  # day 15
-        base_case("E-006", tier="PREMIUM", delivered_at="2026-07-16T00:00:00Z"),  # day 30
-        base_case("E-007", category="ELECTRONICS", opened=0, delivered_at="2026-08-10T00:00:00Z"),
-        base_case("E-008", category="FASHION", opened=None, delivered_at="2026-08-10T00:00:00Z"),
-        base_case("E-009", category="HOME", delivered_at="2026-08-05T00:00:00Z"),
-        base_case("E-010", category="BEAUTY", delivered_at="2026-08-12T00:00:00Z"),
-        base_case("E-011", category="OTHER", delivered_at="2026-08-01T00:00:00Z"),
-        base_case("E-012", paid=25_000, unit_price=25_000, delivered_at="2026-08-10T00:00:00Z"),
-        base_case("E-013", delivered_at="2026-08-10T00:00:00Z"),
-        base_case("E-014", unit_price=15_000, paid=10_000, delivered_at="2026-08-10T00:00:00Z"),
-        base_case("E-015", tier="STANDARD", current_tier="PREMIUM", delivered_at="2026-08-01T00:00:00Z"),
-        base_case("E-016", tier="PREMIUM", current_tier="STANDARD", delivered_at="2026-07-16T00:00:00Z"),
-        base_case("E-017", final_sale=0, current_final_sale=1, delivered_at="2026-08-10T00:00:00Z"),
-        base_case("E-018", category="FASHION", current_category="ELECTRONICS", delivered_at="2026-08-10T00:00:00Z"),
-        base_case("E-019", issue_code="DAMAGED", evidence_status="REJECTED",
-                  verified_by="evidence-service", verified_at="2026-08-14T00:00:00Z",
-                  evidence_source="returns-photo-review", attested=1,
-                  delivered_at="2026-08-10T00:00:00Z"),
-        base_case("E-020", category="HOME", opened=None, delivered_at="2026-08-02T00:00:00Z"),
-    ]
-    refund(cases[12], "01", "REJECTED")
-
-    # MEDIUM 20: one clear restriction, routing condition, missing field, or ledger condition.
-    cases += [
-        base_case("M-001", delivered_at="2026-07-31T00:00:00Z"),  # Standard day 15
-        base_case("M-002", tier="PREMIUM", delivered_at="2026-07-15T00:00:00Z"),  # day 31
-        base_case("M-003", final_sale=1, delivered_at="2026-08-10T00:00:00Z"),
-        base_case("M-004", category="ELECTRONICS", opened=1, delivered_at="2026-08-10T00:00:00Z"),
-        base_case("M-005", delivered_at="2026-08-10T00:00:00Z"),
-        base_case("M-006", delivered_at="2026-08-10T00:00:00Z"),
-        base_case("M-007", delivered_at="2026-08-10T00:00:00Z"),
-        base_case("M-008", issue_code="WRONG_ITEM", evidence_status="PENDING",
-                  opened=0, delivered_at="2026-08-10T00:00:00Z"),
-        base_case("M-009", final_sale=1, issue_code="DAMAGED", evidence_status="REJECTED",
-                  verified_by="evidence-service", verified_at="2026-08-14T00:00:00Z",
-                  evidence_source="returns-photo-review", attested=1,
-                  delivered_at="2026-08-10T00:00:00Z"),
-        base_case("M-010", delivered_at=None),
-        base_case("M-011", create_order=False, create_shipment=False),
-        base_case("M-012", create_shipment=False),
-        base_case("M-013", status="CANCELLED", delivered_at=None, create_shipment=False),
-        base_case("M-014", status="PAID", delivered_at=None, create_shipment=False),
-        base_case("M-015", status="SHIPPED", delivered_at=None, create_shipment=False),
-        base_case("M-016", currency="USD", delivered_at="2026-08-10T00:00:00Z"),
-        base_case("M-017", paid=20_000, delivered_at="2026-08-10T00:00:00Z"),  # request will be partial
-        base_case("M-018", paid=10_000, delivered_at="2026-08-10T00:00:00Z"),  # request will exceed paid
-        base_case("M-019", tier="GOLD", delivered_at="2026-08-10T00:00:00Z"),
-        base_case("M-020", category="UNKNOWN", delivered_at="2026-08-10T00:00:00Z"),
-    ]
-    refund(cases[24], "01", "COMPLETED")  # M-005
-    refund(cases[25], "01", "APPROVED")   # M-006
-    refund(cases[26], "01", "REQUESTED")  # M-007
-
-    # HARD 20: interactions, overrides, malformed evidence, ledger corruption, or date conflicts.
-    cases += [
-        base_case("H-001", delivered_at="2026-06-30T00:00:00Z", issue_code="DAMAGED",
-                  evidence_status="VERIFIED", verified_by="evidence-service",
-                  verified_at="2026-08-14T00:00:00Z", evidence_source="returns-photo-review", attested=1),
-        base_case("H-002", final_sale=1, delivered_at="2026-08-10T00:00:00Z", issue_code="WRONG_ITEM",
-                  evidence_status="VERIFIED", verified_by="evidence-service",
-                  verified_at="2026-08-14T00:00:00Z", evidence_source="warehouse-scan", attested=1),
-        base_case("H-003", category="ELECTRONICS", opened=1, delivered_at="2026-08-10T00:00:00Z",
-                  issue_code="DEFECTIVE", evidence_status="VERIFIED", verified_by="evidence-service",
-                  verified_at="2026-08-14T00:00:00Z", evidence_source="service-center", attested=1),
-        base_case("H-004", category="ELECTRONICS", final_sale=1, opened=1,
-                  delivered_at="2026-06-30T00:00:00Z", issue_code="DAMAGED",
-                  evidence_status="VERIFIED", verified_by="evidence-service",
-                  verified_at="2026-08-14T00:00:00Z", evidence_source="returns-photo-review", attested=1),
-        base_case("H-005", delivered_at="2026-06-30T00:00:00Z", issue_code="DAMAGED",
-                  evidence_status="VERIFIED", verified_by="evidence-service",
-                  verified_at="2026-08-14T00:00:00Z", evidence_source="returns-photo-review", attested=1),
-        base_case("H-006", delivered_at="2026-06-30T00:00:00Z", issue_code="WRONG_ITEM",
-                  evidence_status="VERIFIED", verified_by="evidence-service",
-                  verified_at="2026-08-14T00:00:00Z", evidence_source="warehouse-scan", attested=1),
-        base_case("H-007", paid=20_000, delivered_at="2026-06-30T00:00:00Z", issue_code="DAMAGED",
-                  evidence_status="VERIFIED", verified_by="evidence-service",
-                  verified_at="2026-08-14T00:00:00Z", evidence_source="returns-photo-review", attested=1),
-        base_case("H-008", currency="KRW", delivered_at="2026-06-30T00:00:00Z", issue_code="DAMAGED",
-                  evidence_status="VERIFIED", verified_by="evidence-service",
-                  verified_at="2026-08-14T00:00:00Z", evidence_source="returns-photo-review", attested=1),
-        base_case("H-009", category="ELECTRONICS", final_sale=1, opened=1,
-                  delivered_at="2026-06-30T00:00:00Z"),
-        base_case("H-010", issue_code="DAMAGED", evidence_status="VERIFIED",
-                  verified_by=None, verified_at="2026-08-14T00:00:00Z",
-                  evidence_source="returns-photo-review", attested=1,
-                  delivered_at="2026-08-10T00:00:00Z"),
-        base_case("H-011", issue_code="DAMAGED", evidence_status="VERIFIED",
-                  verified_by="evidence-service", verified_at="2026-08-14T00:00:00Z",
-                  evidence_source="returns-photo-review", attested=0,
-                  delivered_at="2026-08-10T00:00:00Z"),
-        base_case("H-012", issue_code="DAMAGED", evidence_status="BOGUS",
-                  delivered_at="2026-08-10T00:00:00Z"),
-        base_case("H-013", issue_code="LOST", evidence_status="PENDING",
-                  delivered_at="2026-08-10T00:00:00Z"),
-        base_case("H-014", issue_code="WRONG_ITEM", evidence_status="NONE",
-                  delivered_at="2026-08-10T00:00:00Z"),
-        base_case("H-015", delivered_at="2026-06-30T00:00:00Z", issue_code="DAMAGED",
-                  evidence_status="REJECTED", verified_by="evidence-service",
-                  verified_at="2026-08-14T00:00:00Z", evidence_source="returns-photo-review", attested=1),
-        base_case("H-016", delivered_at="2026-08-10T00:00:00Z"),
-        base_case("H-017", delivered_at="2026-08-10T00:00:00Z"),
-        base_case("H-018", delivered_at="2026-08-10T00:00:00Z"),
-        base_case("H-019", ordered_at="2026-08-10T00:00:00Z", delivered_at="2026-08-09T00:00:00Z"),
-        base_case("H-020", ordered_at="2026-08-01T00:00:00Z", delivered_at="2026-08-20T00:00:00Z"),
-    ]
-
-    # H-005 / H-006: verified company fault does not bypass existing refund state.
-    refund(cases[44], "01", "COMPLETED")
-    refund(cases[45], "01", "REQUESTED")
-
-    # H-016: duplicate shipment lookup for same order_item_id (shipment_id remains unique).
-    h16 = cases[55]
-    original = h16["shipments"][0]
-    h16["shipments"].append((
-        "SH-H-016-B", original[1], original[2], original[3], original[4], original[5],
-        original[6], original[7], original[8], original[9], original[10]
-    ))
-
-    # H-017: a history record references a different order item.
-    refund(cases[56], "BAD", "REJECTED", order_item_id="OI-OTHER-ITEM")
-
-    # H-018: multiple active histories are ledger corruption by policy.
-    refund(cases[57], "01", "REQUESTED")
-    refund(cases[57], "02", "APPROVED")
-
-    assert len(cases) == 60
-    return cases
-
-
-def build() -> None:
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    if DB_PATH.exists():
-        DB_PATH.unlink()
-
-    cases = build_cases()
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.executescript(SCHEMA)
-        conn.execute("INSERT INTO secrets(secret) VALUES (?)", ("must-not-be-readable",))
-
-        for case in cases:
-            conn.execute("INSERT INTO customers VALUES (?, ?)", case["customer"])
-            conn.execute("INSERT INTO products VALUES (?, ?, ?, ?)", case["product"])
-            if case["order"] is not None:
-                conn.execute("INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", case["order"])
-            for row in case["shipments"]:
-                conn.execute("INSERT INTO shipments VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", row)
-            for row in case["refunds"]:
-                conn.execute("INSERT INTO refunds VALUES (?, ?, ?, ?, ?, ?)", row)
-
-        conn.commit()
-
-        integrity = conn.execute("PRAGMA integrity_check").fetchone()[0]
-        if integrity != "ok":
-            raise RuntimeError(f"SQLite integrity_check failed: {integrity}")
-
-        counts = {
-            table: conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
-            for table in ("customers", "products", "orders", "shipments", "refunds", "secrets")
+    count = _repeat_count(case, section)
+    if value is not None or count < 2 or index != 0:
+        return value
+    target = case["target_ids"]
+    lookup_id = case["request"]["order_item_id"]
+    if section == "order_item_order":
+        return {
+            "order_item_id": lookup_id,
+            "order_id": target.get("order_id"),
+            "customer_id": target.get("customer_id"),
+            "product_id": target.get("product_id"),
+            "order_snapshot_id": f"AMBIGUOUS-{case['testcase_id']}",
+            "ordered_at": None,
+            "order_status": None,
+            "paid_item_amount": None,
+            "currency": None,
         }
-        print(f"created: {DB_PATH}")
-        print(f"evaluation date planned for benchmark: {EVAL_DATE} / Asia/Seoul")
-        print("row counts:", counts)
+    if section == "shipment":
+        return {
+            "shipment_id": target.get("shipment_id"),
+            "order_item_id": lookup_id,
+            "delivered_at": None,
+            "package_opened": None,
+            "issue_code": None,
+            "evidence": {},
+        }
+    return value
+
+
+def build_database(path: Path, cases: list[dict[str, Any]]) -> Path:
+    path = path.resolve()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.exists():
+        path.unlink()
+
+    connection = sqlite3.connect(path)
+    try:
+        connection.executescript(SCHEMA)
+        for case in cases:
+            facts = case["policy_facts"]
+            lookup_id = facts["request"]["order_item_id"]
+
+            customer = facts.get("customer_snapshot")
+            for _ in range(_repeat_count(case, "customer_snapshot")):
+                connection.execute(
+                    "INSERT INTO customers VALUES (?, ?, ?, ?, ?, ?)",
+                    (
+                        lookup_id,
+                        int(customer is not None),
+                        customer.get("customer_id") if customer else None,
+                        customer.get("order_snapshot_id") if customer else None,
+                        customer.get("customer_tier_at_order") if customer else None,
+                        customer.get("snapshotted_at") if customer else None,
+                    ),
+                )
+
+            product = facts.get("product")
+            for _ in range(_repeat_count(case, "product")):
+                connection.execute(
+                    "INSERT INTO products VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        lookup_id,
+                        int(product is not None),
+                        product.get("product_id") if product else None,
+                        product.get("order_snapshot_id") if product else None,
+                        product.get("category") if product else None,
+                        product.get("final_sale") if product else None,
+                        product.get("snapshotted_at") if product else None,
+                    ),
+                )
+
+            order = facts.get("order")
+            for index in range(_repeat_count(case, "order_item_order")):
+                row = _synthetic_duplicate(case, "order_item_order", index, order)
+                connection.execute(
+                    "INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        lookup_id,
+                        int(row is not None),
+                        row.get("order_item_id") if row else None,
+                        row.get("order_id") if row else None,
+                        row.get("customer_id") if row else None,
+                        row.get("product_id") if row else None,
+                        row.get("order_snapshot_id") if row else None,
+                        row.get("ordered_at") if row else None,
+                        row.get("order_status") if row else None,
+                        row.get("paid_item_amount") if row else None,
+                        row.get("currency") if row else None,
+                    ),
+                )
+
+            shipment = facts.get("shipment")
+            for index in range(_repeat_count(case, "shipment")):
+                row = _synthetic_duplicate(case, "shipment", index, shipment)
+                evidence = (row or {}).get("evidence") or {}
+                connection.execute(
+                    "INSERT INTO shipments VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        lookup_id,
+                        int(row is not None),
+                        row.get("shipment_id") if row else None,
+                        row.get("order_item_id") if row else None,
+                        None,
+                        row.get("delivered_at") if row else None,
+                        row.get("package_opened") if row else None,
+                        row.get("issue_code") if row else None,
+                        evidence.get("evidence_status"),
+                        evidence.get("verified_by"),
+                        evidence.get("verified_at"),
+                        evidence.get("evidence_source"),
+                        evidence.get("provenance_attested"),
+                    ),
+                )
+
+            for refund in facts.get("refund_history", []):
+                connection.execute(
+                    "INSERT INTO refunds VALUES (?, ?, ?, ?, ?, ?)",
+                    (
+                        refund.get("refund_id"),
+                        refund.get("order_item_id"),
+                        None,
+                        refund.get("status"),
+                        refund.get("amount"),
+                        refund.get("currency"),
+                    ),
+                )
+
+        connection.commit()
+        if connection.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+            raise RuntimeError("generated shop.db failed SQLite integrity_check")
+        tables = {
+            row[0]
+            for row in connection.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            )
+        }
+        expected_tables = {"customers", "orders", "products", "refunds", "shipments"}
+        if tables != expected_tables:
+            raise RuntimeError(f"unexpected generated tables: {sorted(tables)}")
+    finally:
+        connection.close()
+    return path
+
+
+def build(
+    path: Path = DEFAULT_DB_PATH, cases_path: Path = DEFAULT_CASES_PATH
+) -> Path:
+    return build_database(path, read_cases(cases_path))
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", type=Path, default=DEFAULT_DB_PATH)
+    parser.add_argument("--cases", type=Path, default=DEFAULT_CASES_PATH)
+    args = parser.parse_args()
+    output = build(args.output, args.cases)
+    print(f"created SQL-only 60-case regression database: {output}")
 
 
 if __name__ == "__main__":
-    build()
+    main()

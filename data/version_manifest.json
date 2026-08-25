@@ -2,7 +2,7 @@
   "artifact_sha256": {
     "data/agent_cases.json": "d291fb3422309bf29097205b9c0c78f71f469c04db4ab56adb5d7f8b654ea673",
     "data/answer_key.db": "8ac95aae626f2d79c945cf5e70475bfb78cc669cb789dc1e501a899aebe667fb",
-    "data/shop.db": "20aa30755513e250466672153255ba703c0a9fbf96e8d079e170663dde4433d8",
+    "data/shop.db": "2291c975791894f7d3e480a9039741b48d9246142376348f1e3a9a644de97356",
     "data/test_cases.json": "f224aae59a1f437e9d0e6ebfc120d2e684dc19f34940215238dae4d269eaa565"
   },
   "baseline_status": "CANDIDATE_PENDING_INDEPENDENT_HUMAN_REVIEW",
@@ -26,10 +26,10 @@
   },
   "evaluation_date": "2026-08-15",
   "policy_version": "policy-v0.5",
-  "python_version": "3.12.10",
+  "python_version": "3.11.16",
   "release_profile": "BASE",
   "source_policy_spec": "policies/refund_policy_spec_v0.5.md",
-  "sqlite_version": "3.49.1",
+  "sqlite_version": "3.53.1",
   "testcase_count": 60,
   "testcase_version": "testcase-v0.5",
   "timezone": "Asia/Seoul"
