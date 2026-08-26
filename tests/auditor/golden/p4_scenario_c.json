@@ -1,0 +1,34 @@
+{
+  "report_id": "rpt_scenario_c",
+  "bundle_id": "audit_mock_scenario_c",
+  "verdict": "HOLD",
+  "summary": {
+    "testcase_count": 20,
+    "trials_per_case": 2.0,
+    "success_rate_v1": 0.7,
+    "tool_error_rate_v1": 0.3,
+    "avg_retry_v1": 1.75
+  },
+  "finding_ids": [
+    "F-01",
+    "F-02",
+    "F-03",
+    "F-04",
+    "F-05",
+    "F-06",
+    "F-07"
+  ],
+  "finding_rule_ids": [
+    "R-01",
+    "E-01",
+    "O-02",
+    "R-04",
+    "E-02",
+    "E-03",
+    "E-04"
+  ],
+  "unpaired_testcases": [],
+  "limitations": [
+    "TestCase 20개 · 반복 2회 기준이므로 통계적 일반화는 주장하지 않음"
+  ]
+}

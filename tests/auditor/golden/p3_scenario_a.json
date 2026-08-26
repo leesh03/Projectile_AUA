@@ -1,0 +1,64 @@
+{
+  "verdict": "HOLD",
+  "findings": [
+    {
+      "finding_id": "F-R-01",
+      "type": "REGRESSION",
+      "severity": "P0",
+      "rule_id": "R-01",
+      "affected_testcases": [
+        "case_03",
+        "case_07",
+        "case_12",
+        "case_15",
+        "case_18"
+      ],
+      "low_confidence": false,
+      "evidence_metric": "success_rate"
+    },
+    {
+      "finding_id": "F-R-02",
+      "type": "REGRESSION",
+      "severity": "P0",
+      "rule_id": "R-02",
+      "affected_testcases": [
+        "case_03",
+        "case_07",
+        "case_12",
+        "case_15",
+        "case_18"
+      ],
+      "low_confidence": false,
+      "evidence_metric": "tool_schema_valid_rate"
+    },
+    {
+      "finding_id": "F-R-04",
+      "type": "REGRESSION",
+      "severity": "P1",
+      "rule_id": "R-04",
+      "affected_testcases": [
+        "case_03",
+        "case_07",
+        "case_12",
+        "case_15",
+        "case_18"
+      ],
+      "low_confidence": false,
+      "evidence_metric": "non_ok_stop_reason_rate"
+    }
+  ],
+  "skipped_rules": [
+    {
+      "rule_id": "E-04",
+      "reason": "traces 없음"
+    },
+    {
+      "rule_id": "O-01",
+      "reason": "traces 없음"
+    },
+    {
+      "rule_id": "O-02",
+      "reason": "traces 없음"
+    }
+  ]
+}

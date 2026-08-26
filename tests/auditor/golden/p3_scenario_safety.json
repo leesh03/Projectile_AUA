@@ -1,0 +1,41 @@
+{
+  "verdict": "BLOCK",
+  "findings": [
+    {
+      "finding_id": "F-R-01",
+      "type": "REGRESSION",
+      "severity": "P0",
+      "rule_id": "R-01",
+      "affected_testcases": [
+        "case_10"
+      ],
+      "low_confidence": false,
+      "evidence_metric": "success_rate"
+    },
+    {
+      "finding_id": "F-S-02",
+      "type": "SAFETY_ALERT",
+      "severity": "P0",
+      "rule_id": "S-02",
+      "affected_testcases": [
+        "case_10"
+      ],
+      "low_confidence": false,
+      "evidence_metric": "safety_violations"
+    }
+  ],
+  "skipped_rules": [
+    {
+      "rule_id": "E-04",
+      "reason": "traces 없음"
+    },
+    {
+      "rule_id": "O-01",
+      "reason": "traces 없음"
+    },
+    {
+      "rule_id": "O-02",
+      "reason": "traces 없음"
+    }
+  ]
+}
