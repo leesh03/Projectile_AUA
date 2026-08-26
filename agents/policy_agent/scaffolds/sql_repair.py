@@ -7,6 +7,7 @@ repair_once와 repair_loop 두 가지를 제공한다.
 graph가 반복을 제어하면 repair_once를, 반복까지 맡기려면 repair_loop를 사용한다.
 """
 
+import re
 from typing import Any, NamedTuple, Protocol
 
 from core.schemas.enums import NodeRole, StepOutcome, StepType, StopReason
@@ -26,6 +27,35 @@ class ExecResult(NamedTuple):
 
 class SQLExecutor(Protocol):
     def __call__(self, sql: str) -> ExecResult: ...
+
+
+# 수정 실패를 실행 실패와 구분한다. reasoning_verifier의 VERIFIER_PARSE_ERROR와 같은 역할이다.
+# 섞으면 Auditor가 "수정을 못 만든 것"과 "수정했는데 또 틀린 것"을 구별하지 못한다.
+REPAIR_PARSE_ERROR = "REPAIR_PARSE_ERROR"
+
+# 모델은 코드펜스나 설명을 붙여서 답하는 일이 흔하다. SQL이 시작되는 지점을 찾는다.
+_SQL_START = re.compile(r"\b(SELECT|WITH)\b", re.IGNORECASE)
+_FENCE = re.compile(r"```(?:sql)?\s*(.*?)```", re.DOTALL | re.IGNORECASE)
+
+
+def extract_sql(text: str) -> str:
+    """LLM 응답에서 SQL 한 문장만 뽑는다. 뽑지 못하면 빈 문자열을 돌려준다.
+
+    ScriptedLLM은 깨끗한 SQL만 주지만 실제 모델은 그렇지 않다.
+    정제하지 않고 그대로 실행하면 매 시도가 문법 오류로 낭비된다.
+    """
+    fenced = _FENCE.search(text)
+    body = fenced.group(1) if fenced else text
+
+    match = _SQL_START.search(body)
+    if not match:
+        return ""
+
+    sql = body[match.start():].strip()
+    # 문장 뒤에 덧붙은 설명을 잘라낸다.
+    if ";" in sql:
+        sql = sql.split(";", 1)[0]
+    return sql.strip()
 
 
 REPAIR_PROMPT = """\
@@ -78,19 +108,25 @@ def repair_once(state: dict[str, Any], llm: LLMClient) -> dict[str, Any]:
         result = llm(prompt)
 
     previous_sql = state.get("sql") or ""
-    repaired = result.text.strip()
+    repaired = extract_sql(result.text)
+    # SQL을 못 뽑았으면 이전 SQL을 유지한다. 빈 문자열을 넣으면 어댑터 계약이 깨지고,
+    # 다음 프롬프트가 참조할 실패 SQL도 사라진다.
+    parse_failed = not repaired
 
     state.setdefault("sql_history", []).append(previous_sql)
-    state["sql"] = repaired
+    if not parse_failed:
+        state["sql"] = repaired
+    state["sql_repair_parse_error"] = parse_failed
     state["sql_retry_count"] = state.get("sql_retry_count", 0) + 1
 
     append_step(
         state,
         node_role=NodeRole.REPAIR_QUERY,
         step_type=StepType.LLM_CALL,
-        outcome=StepOutcome.OK,
+        # 수정에 실패했는데 ok로 남기면 Auditor의 O-02가 낭비 재시도를 세지 못한다.
+        outcome=StepOutcome.FAIL if parse_failed else StepOutcome.OK,
         iteration=state["sql_retry_count"],
-        error_type=state.get("sql_error_type"),
+        error_type=REPAIR_PARSE_ERROR if parse_failed else state.get("sql_error_type"),
         latency_ms=t["ms"],
         input_tokens=result.input_tokens,
         output_tokens=result.output_tokens,
@@ -158,6 +194,11 @@ def repair_loop(
         previous_error = state.get("sql_error_type")
 
         repair_once(state, llm)
+
+        # SQL을 못 만들었으면 같은 SQL을 다시 실행해봐야 같은 오류만 나온다.
+        if state.get("sql_repair_parse_error"):
+            state["stop_reason"] = StopReason.MAX_RETRY.value
+            return state
 
         with timed() as t:
             result = execute(state["sql"])

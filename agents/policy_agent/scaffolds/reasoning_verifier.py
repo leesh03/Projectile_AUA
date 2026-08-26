@@ -155,17 +155,22 @@ def verify_once(state: dict[str, Any], llm: LLMClient) -> dict[str, Any]:
     return state
 
 
-def _record_reasoning(state: dict[str, Any], latency_ms: int) -> None:
+REASONING_FAILED = "REASONING_FAILED"
+
+
+def _record_reasoning(state: dict[str, Any], latency_ms: int, *, ok: bool = True) -> None:
     """재추론 1회를 trace에 남긴다.
 
     최초 판정은 Core가 기록하므로 여기서는 Verifier가 유발한 재추론만 남긴다.
+    재추론이 실패해도 ok로 남기면 Auditor의 O-01이 개입 횟수를 잘못 센다.
     """
     append_step(
         state,
         node_role=NodeRole.DECIDE,
         step_type=StepType.LLM_CALL,
-        outcome=StepOutcome.OK,
+        outcome=StepOutcome.OK if ok else StepOutcome.FAIL,
         iteration=state.get("reflection_count", 0),
+        error_type=None if ok else REASONING_FAILED,
         latency_ms=latency_ms,
     )
 
@@ -214,8 +219,17 @@ def verify_loop(
         state["reflection_count"] = state.get("reflection_count", 0) + 1
 
         with timed() as t:
-            reason_fn(state)
-        _record_reasoning(state, t["ms"])
+            try:
+                reason_fn(state)
+                reasoning_ok = bool(state.get("policy_decision"))
+            except Exception:
+                reasoning_ok = False
+        _record_reasoning(state, t["ms"], ok=reasoning_ok)
+
+        # 재추론이 실패하면 다시 검증해봐야 같은 판정이 나온다.
+        if not reasoning_ok:
+            state["stop_reason"] = StopReason.MAX_REFLECTION.value
+            return state
 
     state["stop_reason"] = StopReason.MAX_REFLECTION.value
     return state

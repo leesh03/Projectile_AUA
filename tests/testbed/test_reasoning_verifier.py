@@ -14,6 +14,7 @@ from agents.policy_agent.scaffolds._state_stub import new_state
 from agents.policy_agent.scaffolds.config import with_overrides
 from agents.policy_agent.scaffolds.llm import ScriptedLLM
 from agents.policy_agent.scaffolds.reasoning_verifier import (
+    REASONING_FAILED,
     build_verify_prompt,
     parse_verifier_output,
     verify_loop,
@@ -306,3 +307,57 @@ def test_trace_step_index_is_sequential(decided_state):
     indexes = [step["step_index"] for step in decided_state["trace"]]
     assert indexes == list(range(len(indexes)))
     assert decided_state["total_step_count"] == len(indexes)
+
+
+class TestReasoningFailure:
+    """재추론이 실패했을 때. Auditor의 O-01이 개입 횟수를 세므로 정직해야 한다."""
+
+    @staticmethod
+    def _fail_state():
+        state = new_state()
+        state["policy_decision"] = "APPROVE"
+        return state
+
+    def test_예외가_나면_fail로_남는다(self):
+        state = self._fail_state()
+
+        def broken_reason_fn(_state):
+            raise RuntimeError("reasoner 죽음")
+
+        config = with_overrides(use_reasoning_verifier=True, max_reflections=2)
+        verify_loop(state, config, ScriptedLLM(['{"status":"FAIL","issues":["조항 오적용"]}']), broken_reason_fn)
+
+        decide_steps = [s for s in state["trace"] if s["node_role"] == "DECIDE"]
+        assert decide_steps[-1]["outcome"] == "fail"
+        assert decide_steps[-1]["error_type"] == REASONING_FAILED
+        assert state["stop_reason"] == "MAX_REFLECTION"
+
+    def test_판정이_비면_fail로_남는다(self):
+        state = self._fail_state()
+
+        def clearing_reason_fn(s):
+            s["policy_decision"] = None  # 판정을 못 냈다
+            return s
+
+        config = with_overrides(use_reasoning_verifier=True, max_reflections=2)
+        verify_loop(state, config, ScriptedLLM(['{"status":"FAIL","issues":["조항 오적용"]}']), clearing_reason_fn)
+
+        decide_steps = [s for s in state["trace"] if s["node_role"] == "DECIDE"]
+        assert decide_steps[-1]["outcome"] == "fail"
+
+    def test_정상이면_ok로_남는다(self):
+        state = self._fail_state()
+        calls = []
+
+        def good_reason_fn(s):
+            calls.append(1)
+            s["policy_decision"] = "REJECT"
+            return s
+
+        config = with_overrides(use_reasoning_verifier=True, max_reflections=1)
+        verify_loop(state, config, ScriptedLLM(['{"status":"FAIL","issues":["조항 오적용"]}']), good_reason_fn)
+
+        decide_steps = [s for s in state["trace"] if s["node_role"] == "DECIDE"]
+        assert len(calls) == 1
+        assert decide_steps[-1]["outcome"] == "ok"
+        assert decide_steps[-1]["error_type"] is None
