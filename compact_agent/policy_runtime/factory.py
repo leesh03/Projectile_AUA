@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -26,7 +27,6 @@ from policy_runtime.deterministic import (
     PolicyAwareVerifierLLM,
 )
 from policy_runtime.engine import PolicyEngine
-from policy_runtime.fixtures import FixtureFactsAdapter
 from policy_runtime.openai_provider import (
     OpenAICoreModel,
     OpenAIResponsesClient,
@@ -49,6 +49,7 @@ class AgentBundle:
     mode: str
     provider: str
     model: str | None = None
+    db_path: Path | None = None
     runtime_api_key: str | None = field(default=None, repr=False, compare=False)
 
 
@@ -59,19 +60,23 @@ def build_agent(
     provider: str = "openai",
     api_key: str | None = None,
     model: str | None = None,
+    db_path: str | Path | None = None,
 ) -> AgentBundle:
     project_root = Path(root).resolve()
-    db_path = project_root / "data" / "shop.db"
+    configured_db = db_path or os.getenv("POLICY_AGENT_DB_PATH")
+    runtime_db_path = (
+        Path(configured_db).expanduser().resolve()
+        if configured_db
+        else project_root / "data" / "shop.db"
+    )
     policy_path = project_root / "policies" / "policy_rules.json"
-    fixture_path = project_root / "data" / "adapter_fixtures.json"
     engine = PolicyEngine.from_path(policy_path)
     context_provider = ContextProvider(
-        db_path,
+        runtime_db_path,
         policy_path,
         allowed_tables=ALLOWED_TABLES,
     )
-    executor = SQLExecutor(db_path, allowed_tables=ALLOWED_TABLES)
-    facts_adapter = FixtureFactsAdapter(fixture_path) if fixture_path.is_file() else None
+    executor = SQLExecutor(runtime_db_path, allowed_tables=ALLOWED_TABLES)
 
     if mode == "deterministic":
         # SQL repair is intentionally dormant in the deterministic baseline:
@@ -128,7 +133,6 @@ def build_agent(
         config=config,
         sql_repair=sql_repair,
         reasoning_verifier=verifier,
-        facts_adapter=facts_adapter,
     )
     return AgentBundle(
         graph=graph,
@@ -136,5 +140,6 @@ def build_agent(
         mode=mode,
         provider=selected_provider,
         model=selected_model,
+        db_path=runtime_db_path,
         runtime_api_key=runtime_api_key,
     )

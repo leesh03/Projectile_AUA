@@ -503,7 +503,12 @@ def _money_validation(
 
     request_currency = request["currency"]
     order_currency = order["currency"]
-    if request_currency is not None and order_currency is not None and request_currency != order_currency:
+    currencies_mismatch = (
+        request_currency is not None
+        and order_currency is not None
+        and request_currency != order_currency
+    )
+    if currencies_mismatch:
         paths: Set[str] = set()
         if request_currency == "KRW" and order_currency != "KRW":
             paths.add("/order/currency")
@@ -513,13 +518,17 @@ def _money_validation(
             paths.update(("/request/currency", "/order/currency"))
         _match(matched, fields, "POL-50.09", paths)
 
-    unsupported: Set[str] = set()
-    if request_currency != "KRW":
-        unsupported.add("/request/currency")
-    if order_currency != "KRW":
-        unsupported.add("/order/currency")
-    if unsupported:
-        _match(matched, fields, "POL-50.08", unsupported)
+    # A cross-currency request is represented by the more specific mismatch
+    # clause.  UNSUPPORTED_CURRENCY applies when both sides agree on a
+    # non-KRW currency (or when currency support cannot otherwise be resolved).
+    if not currencies_mismatch:
+        unsupported: Set[str] = set()
+        if request_currency != "KRW":
+            unsupported.add("/request/currency")
+        if order_currency != "KRW":
+            unsupported.add("/order/currency")
+        if unsupported:
+            _match(matched, fields, "POL-50.08", unsupported)
 
     paid = order["paid_item_amount"]
     requested = request["requested_amount"]
@@ -712,7 +721,13 @@ def _core_domain_validation(
         _match(matched, fields, "POL-20.04", date_order_paths)
 
     verified = evidence_status == "VERIFIED" and evidence_state_valid and not invalid_date_paths and not date_order_paths
-    if shipment is not None and shipment["delivered_at"] is None and not verified:
+    if (
+        order is not None
+        and order["order_status"] == "DELIVERED"
+        and shipment is not None
+        and shipment["delivered_at"] is None
+        and not verified
+    ):
         _match(matched, fields, "POL-10.13", ("/shipment/delivered_at",))
 
     return {
@@ -744,13 +759,15 @@ def _business_predicates(
     elif evidence_status == "REJECTED" and evidence_state_valid and domain["date_valid"]:
         _match(matched, fields, "POL-40.03")
 
-    delivered_order = order is not None and order["order_status"] == "DELIVERED"
-    if not delivered_order:
-        return
-
+    # Tier selection is a non-terminal fact about the order snapshot.  Keep it
+    # even when another terminal clause routes the case away from refund flow.
     if customer is not None and domain["tier_valid"]:
         tier = customer["customer_tier_at_order"]
         _match(matched, fields, "POL-20.01" if tier == "STANDARD" else "POL-20.02")
+
+    delivered_order = order is not None and order["order_status"] == "DELIVERED"
+    if not delivered_order:
+        return
 
     if product is not None and shipment is not None and domain["product_flags_valid"]:
         if product["final_sale"] is True:

@@ -16,14 +16,20 @@ modifying the checked-in artifacts.
 from __future__ import annotations
 
 import argparse
-from collections import Counter
 import hashlib
 import json
-from pathlib import Path
 import platform
 import shutil
 import sqlite3
-from typing import Any, Iterable, Mapping
+from collections import Counter
+from collections.abc import Iterable, Mapping
+from pathlib import Path
+from typing import Any
+
+try:
+    from data.build_shop_db import build_database as build_shop_database
+except ModuleNotFoundError:  # direct: python data/build_dataset.py
+    from build_shop_db import build_database as build_shop_database
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -293,7 +299,6 @@ def build(output_root: Path = REPO_ROOT) -> dict[str, str]:
     artifacts_dir.mkdir(parents=True, exist_ok=True)
 
     source_answer_db = SOURCE_DATA_DIR / "answer_key.db"
-    source_shop_db = SOURCE_DATA_DIR / "shop.db"
     source_cases_path = SOURCE_DATA_DIR / "test_cases.json"
     source_agent_cases_path = SOURCE_DATA_DIR / "agent_cases.json"
 
@@ -308,7 +313,10 @@ def build(output_root: Path = REPO_ROOT) -> dict[str, str]:
     target_cases_path = data_dir / "test_cases.json"
     target_agent_cases_path = data_dir / "agent_cases.json"
 
-    _copy_if_different(source_shop_db, target_shop_db)
+    # Rebuild the public SQL fixture from the same protected PolicyFacts used
+    # for Gold. Copying an independently maintained shop.db allowed the DB and
+    # answer suite to drift while both manifests still appeared valid.
+    build_shop_database(target_shop_db, records)
     _copy_if_different(source_answer_db, target_answer_db)
     _write_or_copy_json(
         source_cases_path, target_cases_path, source_cases, records

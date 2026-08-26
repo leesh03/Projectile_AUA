@@ -18,46 +18,96 @@ class DeterministicSQLModel:
     def generate_sql(self, payload: Mapping[str, Any]) -> ProviderResult:
         request = payload["trusted_request"]
         order_item_id = request["order_item_id"]
+        schema = payload.get("database_schema", {})
+
+        def columns(table: str) -> set[str]:
+            raw_columns = schema.get(table, ()) if isinstance(schema, Mapping) else ()
+            return {
+                str(column.get("name"))
+                for column in raw_columns
+                if isinstance(column, Mapping) and column.get("name") is not None
+            }
+
+        # The regression DB uses independent lookup rows so missing, duplicate,
+        # and mismatched snapshots can be represented through SQL alone.  The
+        # legacy profile keeps compatibility with the original strict shop DB.
+        regression_profile = {
+            "lookup_order_item_id",
+            "record_present",
+        }.issubset(columns("orders"))
+        if regression_profile:
+            order_sql = (
+                "SELECT record_present AS _record_present, order_id, order_item_id, "
+                "customer_id, product_id, order_snapshot_id, ordered_at, "
+                "status AS order_status, paid_item_amount, currency FROM orders "
+                "WHERE lookup_order_item_id = ?"
+            )
+            customer_sql = (
+                "SELECT record_present AS _record_present, customer_id, "
+                "order_snapshot_id, tier AS customer_tier_at_order, snapshotted_at "
+                "FROM customers WHERE lookup_order_item_id = ?"
+            )
+            product_sql = (
+                "SELECT record_present AS _record_present, product_id, "
+                "order_snapshot_id, category, final_sale, snapshotted_at "
+                "FROM products WHERE lookup_order_item_id = ?"
+            )
+            shipment_sql = (
+                "SELECT record_present AS _record_present, shipment_id, order_item_id, "
+                "delivered_at, package_opened, issue_code, "
+                "evidence_status AS evidence__evidence_status, "
+                "verified_by AS evidence__verified_by, "
+                "verified_at AS evidence__verified_at, "
+                "evidence_source AS evidence__evidence_source, "
+                "attested AS evidence__provenance_attested FROM shipments "
+                "WHERE lookup_order_item_id = ? ORDER BY shipment_id"
+            )
+        else:
+            order_sql = (
+                "SELECT order_id, order_item_id, customer_id, product_id, "
+                "order_snapshot_id, ordered_at, status AS order_status, "
+                "paid_item_amount, currency FROM orders WHERE order_item_id = ?"
+            )
+            customer_sql = (
+                "SELECT customer_id, order_snapshot_id, "
+                "customer_tier_at_order, ordered_at AS snapshotted_at "
+                "FROM orders WHERE order_item_id = ?"
+            )
+            product_sql = (
+                "SELECT product_id, order_snapshot_id, "
+                "product_category_at_order AS category, "
+                "product_final_sale_at_order AS final_sale, "
+                "ordered_at AS snapshotted_at FROM orders WHERE order_item_id = ?"
+            )
+            shipment_sql = (
+                "SELECT shipment_id, order_item_id, delivered_at, package_opened, issue_code, "
+                "evidence_status AS evidence__evidence_status, "
+                "verified_by AS evidence__verified_by, "
+                "verified_at AS evidence__verified_at, "
+                "evidence_source AS evidence__evidence_source, "
+                "attested AS evidence__provenance_attested "
+                "FROM shipments WHERE order_item_id = ? ORDER BY shipment_id"
+            )
+
         queries = [
             {
                 "name": "order",
-                "sql": (
-                    "SELECT order_id, order_item_id, customer_id, product_id, "
-                    "order_snapshot_id, ordered_at, status AS order_status, "
-                    "paid_item_amount, currency FROM orders WHERE order_item_id = ?"
-                ),
+                "sql": order_sql,
                 "parameters": [order_item_id],
             },
             {
                 "name": "customer_snapshot",
-                "sql": (
-                    "SELECT customer_id, order_snapshot_id, "
-                    "customer_tier_at_order, ordered_at AS snapshotted_at "
-                    "FROM orders WHERE order_item_id = ?"
-                ),
+                "sql": customer_sql,
                 "parameters": [order_item_id],
             },
             {
                 "name": "product",
-                "sql": (
-                    "SELECT product_id, order_snapshot_id, "
-                    "product_category_at_order AS category, "
-                    "product_final_sale_at_order AS final_sale, "
-                    "ordered_at AS snapshotted_at FROM orders WHERE order_item_id = ?"
-                ),
+                "sql": product_sql,
                 "parameters": [order_item_id],
             },
             {
                 "name": "shipment",
-                "sql": (
-                    "SELECT shipment_id, order_item_id, delivered_at, package_opened, issue_code, "
-                    "evidence_status AS evidence__evidence_status, "
-                    "verified_by AS evidence__verified_by, "
-                    "verified_at AS evidence__verified_at, "
-                    "evidence_source AS evidence__evidence_source, "
-                    "attested AS evidence__provenance_attested "
-                    "FROM shipments WHERE order_item_id = ? ORDER BY shipment_id"
-                ),
+                "sql": shipment_sql,
                 "parameters": [order_item_id],
             },
             {

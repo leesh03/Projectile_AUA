@@ -38,17 +38,23 @@ def read_array(path: Path) -> list[dict[str, Any]]:
 def write_json(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    temporary.write_text(
+        json.dumps(value, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
     temporary.replace(path)
 
 
 def build_shop_db(path: Path, cases: list[dict[str, Any]]) -> None:
-    """Build a five-table local DB from evaluator PolicyFacts inputs.
+    """Build the SQL-only local regression database.
 
-    The upstream binary currently contains default rows for many v0.5 cases
-    and its CHECK constraints cannot represent invalid-state test inputs.
-    Facts are inputs, not Gold decisions, so rebuilding this read-only test DB
-    does not leak expected answers into the Agent.
+    The regression schema deliberately has no uniqueness constraints and keeps
+    the requested lookup key separate from the returned record identifiers.
+    That lets SQL represent missing, duplicate, and mismatched records without
+    selecting prebuilt facts by ``testcase_id``.  This database is a developer
+    regression fixture; callers can point the Agent at an official database by
+    supplying ``--db-path`` or ``POLICY_AGENT_DB_PATH``.
     """
 
     if path.exists():
@@ -57,15 +63,23 @@ def build_shop_db(path: Path, cases: list[dict[str, Any]]) -> None:
     try:
         connection.executescript(
             """
-            CREATE TABLE customers (customer_id TEXT, tier TEXT);
-            CREATE TABLE products (product_id TEXT, category TEXT, final_sale INTEGER, unit_price_krw INTEGER);
+            CREATE TABLE customers (
+              lookup_order_item_id TEXT, record_present INTEGER,
+              customer_id TEXT, order_snapshot_id TEXT, tier TEXT, snapshotted_at TEXT
+            );
+            CREATE TABLE products (
+              lookup_order_item_id TEXT, record_present INTEGER,
+              product_id TEXT, order_snapshot_id TEXT, category TEXT,
+              final_sale INTEGER, snapshotted_at TEXT
+            );
             CREATE TABLE orders (
+              lookup_order_item_id TEXT, record_present INTEGER,
               order_item_id TEXT, order_id TEXT, customer_id TEXT, product_id TEXT,
               order_snapshot_id TEXT, ordered_at TEXT, status TEXT,
-              customer_tier_at_order TEXT, product_category_at_order TEXT,
-              product_final_sale_at_order INTEGER, paid_item_amount INTEGER, currency TEXT
+              paid_item_amount INTEGER, currency TEXT
             );
             CREATE TABLE shipments (
+              lookup_order_item_id TEXT, record_present INTEGER,
               shipment_id TEXT, order_item_id TEXT, shipped_at TEXT, delivered_at TEXT,
               package_opened INTEGER, issue_code TEXT, evidence_status TEXT,
               verified_by TEXT, verified_at TEXT, evidence_source TEXT, attested INTEGER
@@ -77,59 +91,76 @@ def build_shop_db(path: Path, cases: list[dict[str, Any]]) -> None:
             """
         )
         for case in cases:
-            # The nine adapter cases intentionally represent cardinality or
-            # cross-record states that the compact SQL schema cannot express.
-            if case.get("fact_source") != "SHOP_DB":
-                continue
             facts = case["policy_facts"]
+            lookup_id = facts["request"]["order_item_id"]
+            counts = facts.get("lookup_counts", {})
             order = facts.get("order")
             customer = facts.get("customer_snapshot")
             product = facts.get("product")
             shipment = facts.get("shipment")
-            if customer is not None:
+
+            def repeated(section: str, value: Any) -> list[Any]:
+                count = int(counts.get(section, 0))
+                if count < 0:
+                    raise ValueError(f"negative lookup count in {case['testcase_id']}: {section}")
+                return [value for _ in range(count)]
+
+            for row in repeated("customer_snapshot", customer):
                 connection.execute(
-                    "INSERT INTO customers VALUES (?, ?)",
-                    (customer.get("customer_id"), customer.get("customer_tier_at_order")),
-                )
-            if product is not None:
-                connection.execute(
-                    "INSERT INTO products VALUES (?, ?, ?, ?)",
+                    "INSERT INTO customers VALUES (?, ?, ?, ?, ?, ?)",
                     (
-                        product.get("product_id"),
-                        product.get("category"),
-                        product.get("final_sale"),
-                        order.get("paid_item_amount") if order else None,
+                        lookup_id,
+                        int(row is not None),
+                        row.get("customer_id") if row else None,
+                        row.get("order_snapshot_id") if row else None,
+                        row.get("customer_tier_at_order") if row else None,
+                        row.get("snapshotted_at") if row else None,
                     ),
                 )
-            if order is not None:
+            for row in repeated("product", product):
                 connection.execute(
-                    "INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO products VALUES (?, ?, ?, ?, ?, ?, ?)",
                     (
-                        order.get("order_item_id"),
-                        order.get("order_id"),
-                        order.get("customer_id"),
-                        order.get("product_id"),
-                        order.get("order_snapshot_id"),
-                        order.get("ordered_at"),
-                        order.get("order_status"),
-                        customer.get("customer_tier_at_order") if customer else None,
-                        product.get("category") if product else None,
-                        product.get("final_sale") if product else None,
-                        order.get("paid_item_amount"),
-                        order.get("currency"),
+                        lookup_id,
+                        int(row is not None),
+                        row.get("product_id") if row else None,
+                        row.get("order_snapshot_id") if row else None,
+                        row.get("category") if row else None,
+                        row.get("final_sale") if row else None,
+                        row.get("snapshotted_at") if row else None,
                     ),
                 )
-            if shipment is not None:
-                evidence = shipment.get("evidence") or {}
+            for row in repeated("order_item_order", order):
                 connection.execute(
-                    "INSERT INTO shipments VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     (
-                        shipment.get("shipment_id"),
-                        shipment.get("order_item_id"),
+                        lookup_id,
+                        int(row is not None),
+                        row.get("order_item_id") if row else None,
+                        row.get("order_id") if row else None,
+                        row.get("customer_id") if row else None,
+                        row.get("product_id") if row else None,
+                        row.get("order_snapshot_id") if row else None,
+                        row.get("ordered_at") if row else None,
+                        row.get("order_status") if row else None,
+                        row.get("paid_item_amount") if row else None,
+                        row.get("currency") if row else None,
+                    ),
+                )
+            for row in repeated("shipment", shipment):
+                evidence = row.get("evidence") if row else {}
+                evidence = evidence or {}
+                connection.execute(
+                    "INSERT INTO shipments VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        lookup_id,
+                        int(row is not None),
+                        row.get("shipment_id") if row else None,
+                        row.get("order_item_id") if row else None,
                         None,
-                        shipment.get("delivered_at"),
-                        shipment.get("package_opened"),
-                        shipment.get("issue_code"),
+                        row.get("delivered_at") if row else None,
+                        row.get("package_opened") if row else None,
+                        row.get("issue_code") if row else None,
                         evidence.get("evidence_status"),
                         evidence.get("verified_by"),
                         evidence.get("verified_at"),
@@ -137,28 +168,6 @@ def build_shop_db(path: Path, cases: list[dict[str, Any]]) -> None:
                         evidence.get("provenance_attested"),
                     ),
                 )
-            elif facts.get("lookup_counts", {}).get("shipment", 0) > 1:
-                # Cardinality-only facts intentionally hide the ambiguous
-                # records.  Materialize placeholder rows so EvidenceChecker
-                # derives count > 1 and keeps shipment=None.
-                count = int(facts["lookup_counts"]["shipment"])
-                for index in range(count):
-                    connection.execute(
-                        "INSERT INTO shipments VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        (
-                            f"{case['target_ids']['shipment_id']}-DUP-{index + 1}",
-                            case["request"]["order_item_id"],
-                            None,
-                            None,
-                            None,
-                            None,
-                            "NONE",
-                            None,
-                            None,
-                            None,
-                            0,
-                        ),
-                    )
             for refund in facts.get("refund_history", []):
                 connection.execute(
                     "INSERT INTO refunds VALUES (?, ?, ?, ?, ?, ?)",
@@ -197,12 +206,9 @@ def sync(source_root: Path, project_root: Path, source_commit: str) -> None:
     test_cases = read_array(source_data / "test_cases.json")
     if len(test_cases) != 60:
         raise ValueError(f"expected 60 evaluator cases, found {len(test_cases)}")
-    fixtures: dict[str, dict[str, Any]] = {}
     expected_cases: list[dict[str, Any]] = []
     for case in test_cases:
         testcase_id = str(case["testcase_id"])
-        if case.get("fact_source") != "SHOP_DB" or case.get("adapter_fixture") is not None:
-            fixtures[testcase_id] = case["policy_facts"]
         expected_cases.append(
             {
                 "testcase_id": testcase_id,
@@ -210,33 +216,27 @@ def sync(source_root: Path, project_root: Path, source_commit: str) -> None:
                 "expected_result": case["expected_result"],
             }
         )
-    if len(fixtures) != 9:
-        raise ValueError(f"expected 9 adapter fixtures, found {len(fixtures)}")
-
     data_root = project_root / "data"
     data_root.mkdir(parents=True, exist_ok=True)
     build_shop_db(data_root / "shop.db", test_cases)
     write_json(data_root / "agent_cases.json", agent_cases)
-    write_json(
-        data_root / "adapter_fixtures.json",
-        {
-            "schema": "policy-facts-fixtures-v1",
-            "source_commit": source_commit,
-            "description": "Facts only; contains no expected decision or Gold clauses.",
-            "cases": fixtures,
-        },
-    )
+    obsolete_fixture = data_root / "adapter_fixtures.json"
+    if obsolete_fixture.exists():
+        obsolete_fixture.unlink()
     write_json(
         project_root / "evaluation" / "private" / "expected_cases.json",
         expected_cases,
     )
     version_manifest = json.loads((source_data / "version_manifest.json").read_text(encoding="utf-8"))
+    artifact_hashes = version_manifest.get("artifact_sha256")
+    if not isinstance(artifact_hashes, dict):
+        raise ValueError("source version manifest is missing artifact_sha256")
+    artifact_hashes["data/agent_cases.json"] = sha256(data_root / "agent_cases.json")
     write_json(data_root / "source_version_manifest.json", version_manifest)
 
     outputs = [
         data_root / "shop.db",
         data_root / "agent_cases.json",
-        data_root / "adapter_fixtures.json",
         data_root / "source_version_manifest.json",
         project_root / "evaluation" / "private" / "expected_cases.json",
     ]
@@ -246,8 +246,11 @@ def sync(source_root: Path, project_root: Path, source_commit: str) -> None:
             "schema": "local-test-assets-v1",
             "source_commit": source_commit,
             "case_count": 60,
-            "adapter_fixture_count": 9,
-            "database_source": "rebuilt from PolicyFacts inputs; no Gold outputs",
+            "adapter_fixture_count": 0,
+            "database_source": (
+                "developer regression DB rebuilt from PolicyFacts inputs; "
+                "contains no Gold outputs and is replaceable with the official DB"
+            ),
             "files": {
                 str(path.relative_to(project_root)).replace("\\", "/"): sha256(path)
                 for path in outputs
@@ -263,7 +266,7 @@ def main() -> int:
     parser.add_argument("--source-commit", required=True)
     args = parser.parse_args()
     sync(args.source, args.project, args.source_commit)
-    print("synced 60 cases, 9 fact-only adapter fixtures, and the read-only shop database")
+    print("synced 60 SQL-only regression cases and the read-only shop database")
     return 0
 
 

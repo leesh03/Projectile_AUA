@@ -1,36 +1,17 @@
 {
-  "artifact_sha256": {
-    "data/agent_cases.json": "d291fb3422309bf29097205b9c0c78f71f469c04db4ab56adb5d7f8b654ea673",
-    "data/answer_key.db": "8ac95aae626f2d79c945cf5e70475bfb78cc669cb789dc1e501a899aebe667fb",
-    "data/shop.db": "20aa30755513e250466672153255ba703c0a9fbf96e8d079e170663dde4433d8",
-    "data/test_cases.json": "010612b74b1fba64371f9f5ff59f309184bb46f7a6faacb706ec8938a014cc79"
-  },
-  "baseline_status": "CANDIDATE_PENDING_INDEPENDENT_HUMAN_REVIEW",
-  "core_version_vector": {
-    "adapter_version": "adapter-v0.5",
-    "evaluator_version": "evaluator-v0.5",
-    "evidence_validator_version": "evidence-validator-v2",
-    "gold_version": "gold-v0.5",
-    "input_schema_version": "input-schema-v0.5",
-    "oracle_version": "oracle-v0.5",
-    "output_schema_version": "output-schema-v0.5",
-    "policy_version": "policy-v0.5",
-    "rule_registry_version": "registry-v0.5",
-    "suite_version": "suite-v0.5"
-  },
-  "db_version": "db-v0.5",
+  "schema": "gpt-policy-dataset-manifest-v1",
+  "policy_version": "policy-v0.5",
+  "testcase_count": 60,
   "difficulty_counts": {
     "EASY": 20,
-    "HARD": 20,
-    "MEDIUM": 20
+    "MEDIUM": 20,
+    "HARD": 20
   },
-  "evaluation_date": "2026-08-15",
-  "policy_version": "policy-v0.5",
-  "python_version": "3.12.13",
-  "release_profile": "BASE",
   "source_policy_spec": "policies/refund_policy_spec_v0.5.md",
-  "sqlite_version": "3.49.1",
-  "testcase_count": 60,
-  "testcase_version": "testcase-v0.5",
-  "timezone": "Asia/Seoul"
+  "artifact_sha256": {
+    "data/agent_cases.json": "842b95a85905c265948ac1cf6f60f5b10450702921f8b9df0012b62a4b498849",
+    "data/answer_key.db": "8fc941f66ed646ef440d6f3185a2dd355c07812bfdc243d08fd1a15723778748",
+    "data/shop.db": "f967811a996aacf541a7d6657fdb9fcba102a7c2b770f0bbd6a87b7e3cfb103f",
+    "data/test_cases.json": "bf980b068ed2c201e64f83e55f659a557ebc307a8dda12b40fcf13f90b88c09c"
+  }
 }
