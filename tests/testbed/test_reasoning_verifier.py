@@ -361,3 +361,22 @@ class TestReasoningFailure:
         assert len(calls) == 1
         assert decide_steps[-1]["outcome"] == "ok"
         assert decide_steps[-1]["error_type"] is None
+
+
+class TestVerifyPromptCoverage:
+    """기획서 §6.2가 요구하는 검사 항목이 프롬프트에 다 있는지 고정한다."""
+
+    def test_기획서_검사항목_4종이_모두_있다(self):
+        prompt = build_verify_prompt(new_state())
+        assert "우선순위" in prompt          # 조항 간 우선순위
+        assert "예외 조항" in prompt          # 정책 누락·예외
+        assert "논리적으로" in prompt         # decision/evidence 모순
+        assert "지어냈는가" in prompt         # evidence 환각
+
+    def test_조항ID를_함께_적으라고_요구한다(self):
+        # 조항 ID가 없으면 Auditor가 실행 간 같은 문제를 대조하지 못한다
+        assert "POL-" in build_verify_prompt(new_state())
+
+    def test_DB_재조회_금지가_명시된다(self):
+        prompt = build_verify_prompt(new_state())
+        assert "다시 조회" in prompt and "SQL을 만들지" in prompt
