@@ -1,0 +1,17 @@
+{
+  "schema": "gpt-policy-dataset-manifest-v1",
+  "policy_version": "policy-v0.5",
+  "testcase_count": 60,
+  "difficulty_counts": {
+    "EASY": 20,
+    "MEDIUM": 20,
+    "HARD": 20
+  },
+  "source_policy_spec": "policies/refund_policy_spec_v0.5.md",
+  "artifact_sha256": {
+    "data/agent_cases.json": "842b95a85905c265948ac1cf6f60f5b10450702921f8b9df0012b62a4b498849",
+    "data/answer_key.db": "8fc941f66ed646ef440d6f3185a2dd355c07812bfdc243d08fd1a15723778748",
+    "data/shop.db": "f967811a996aacf541a7d6657fdb9fcba102a7c2b770f0bbd6a87b7e3cfb103f",
+    "data/test_cases.json": "bf980b068ed2c201e64f83e55f659a557ebc307a8dda12b40fcf13f90b88c09c"
+  }
+}
