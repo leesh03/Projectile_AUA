@@ -6,7 +6,7 @@
 from typing import Any
 
 AGENT_CONFIG: dict[str, Any] = {
-    # Planner OFF: Jun-won's SQLGenerator already owns the SQLPlan contract.
+    # Planner OFF: 준원의 SQLGenerator가 이미 SQLPlan을 소유한다(8/22 통합 결정).
     "use_planner": False,
     "use_sql_repair": True,
     "max_sql_retries": 2,

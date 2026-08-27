@@ -56,17 +56,21 @@ VERIFY_PROMPT = """\
 [판정 근거]
 {reason}
 
-다음 네 가지를 확인하라.
+다음 다섯 가지를 확인하라.
 1. 적용한 조항이 이 상황에 실제로 해당하는가
-2. 판정과 근거가 논리적으로 이어지는가
-3. 놓친 예외 조항이 있는가
-4. 근거가 위 [조회된 사실]에 실제로 있는 내용인가 (없는 사실을 지어냈는가)
+2. 조항 간 우선순위가 맞는가 (다른 조항을 무효화해야 하는데 그대로 적용했는가)
+3. 판정과 근거가 논리적으로 이어지는가
+4. 놓친 예외 조항이 있는가
+5. 근거가 위 [조회된 사실]에 실제로 있는 내용인가 (없는 사실을 지어냈는가)
 
 DB를 다시 조회하거나 SQL을 만들지 마라. 위에 주어진 정보만으로 판단하라.
 문제가 없으면 status는 PASS, 하나라도 있으면 FAIL이다.
 
+문제를 적을 때는 관련 조항 ID(예: POL-10.03)를 함께 쓴다.
+조항 ID가 있어야 Auditor가 같은 문제를 실행 간에 대조할 수 있다.
+
 아래 JSON 형식으로만 답하라.
-{{"status": "PASS 또는 FAIL", "issues": ["문제를 한 문장씩"]}}"""
+{{"status": "PASS 또는 FAIL", "issues": ["POL-10.03: 반품 기한이 지나지 않았는데 만료 조항을 적용했다"]}}"""
 
 
 def build_verify_prompt(state: dict[str, Any]) -> str:
@@ -116,11 +120,8 @@ def parse_verifier_output(text: str) -> tuple[str, list[str], str | None]:
                     issues = ["검증기가 FAIL로 판정했으나 사유를 제시하지 않았다"]
                 return status, ([] if status == PASS else issues), None
 
-    # JSON이 깨졌을 때 최후 수단. 본문에 PASS만 있고 FAIL이 없으면 통과로 본다.
-    upper = text.upper()
-    if PASS in upper and FAIL not in upper:
-        return PASS, [], None
-
+    # JSON을 못 읽으면 무조건 FAIL이다.
+    # 부분 문자열 폴백은 검증되지 않은 판정을 통과시킬 수 있다.
     return FAIL, [f"{PARSE_ERROR}: {text.strip()[:200]}"], PARSE_ERROR
 
 
@@ -155,17 +156,22 @@ def verify_once(state: dict[str, Any], llm: LLMClient) -> dict[str, Any]:
     return state
 
 
-def _record_reasoning(state: dict[str, Any], latency_ms: int) -> None:
+REASONING_FAILED = "REASONING_FAILED"
+
+
+def _record_reasoning(state: dict[str, Any], latency_ms: int, *, ok: bool = True) -> None:
     """재추론 1회를 trace에 남긴다.
 
     최초 판정은 Core가 기록하므로 여기서는 Verifier가 유발한 재추론만 남긴다.
+    재추론이 실패해도 ok로 남기면 Auditor의 O-01이 개입 횟수를 잘못 센다.
     """
     append_step(
         state,
         node_role=NodeRole.DECIDE,
         step_type=StepType.LLM_CALL,
-        outcome=StepOutcome.OK,
+        outcome=StepOutcome.OK if ok else StepOutcome.FAIL,
         iteration=state.get("reflection_count", 0),
+        error_type=None if ok else REASONING_FAILED,
         latency_ms=latency_ms,
     )
 
@@ -214,8 +220,17 @@ def verify_loop(
         state["reflection_count"] = state.get("reflection_count", 0) + 1
 
         with timed() as t:
-            reason_fn(state)
-        _record_reasoning(state, t["ms"])
+            try:
+                reason_fn(state)
+                reasoning_ok = bool(state.get("policy_decision"))
+            except Exception:
+                reasoning_ok = False
+        _record_reasoning(state, t["ms"], ok=reasoning_ok)
+
+        # 재추론이 실패하면 다시 검증해봐야 같은 판정이 나온다.
+        if not reasoning_ok:
+            state["stop_reason"] = StopReason.MAX_REFLECTION.value
+            return state
 
     state["stop_reason"] = StopReason.MAX_REFLECTION.value
     return state

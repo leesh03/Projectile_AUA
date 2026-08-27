@@ -1,6 +1,6 @@
 {
   "schema": "compact-policy-agent-package-v1",
-  "generated_at": "2026-08-25T12:32:12Z",
+  "generated_at": "2026-08-27T03:56:56Z",
   "python": ">=3.11",
   "file_count": 62,
   "files": [
@@ -86,8 +86,8 @@
     },
     {
       "path": "agents/policy_agent/scaffolds/config.py",
-      "bytes": 1395,
-      "sha256": "923bcf7a6dc1678e3b387bca8f956541dc86db149c4b32b8dc5b1b74faca8998"
+      "bytes": 1452,
+      "sha256": "8480da29969d9819a064e27c5c4eaa2ce78d8300a8237aa951c7d88025c4e760"
     },
     {
       "path": "agents/policy_agent/scaffolds/llm.py",
@@ -96,13 +96,13 @@
     },
     {
       "path": "agents/policy_agent/scaffolds/reasoning_verifier.py",
-      "bytes": 8400,
-      "sha256": "a8741e16cb545e68c1310bf3a6ecb1cc2469431ee17a6266fac391d2c185bc82"
+      "bytes": 9286,
+      "sha256": "7af2a0ce8df663a4fa2b9d82bcba51a55fce494dc6a954163f731797be557f57"
     },
     {
       "path": "agents/policy_agent/scaffolds/sql_repair.py",
-      "bytes": 5883,
-      "sha256": "2b8e5e826da6d761447bb15bde3aae764dc0f5f9e0b087bcda8194afef947544"
+      "bytes": 8005,
+      "sha256": "227f0bfd06685f67586c27ca5551cc1d8515cd27a2fb1efb2ac45494d6325ea9"
     },
     {
       "path": "agents/policy_agent/scaffolds/trace.py",

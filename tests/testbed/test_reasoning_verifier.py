@@ -88,8 +88,11 @@ def test_unparsable_output_fails_closed():
     assert "VERIFIER_PARSE_ERROR" in issues[0]
 
 
-def test_bare_pass_text_is_accepted():
-    assert parse_verifier_output("PASS")[0] == "PASS"
+def test_bare_pass_text_is_rejected():
+    """맨 PASS 한 단어도 이제는 통과시키지 않는다."""
+    status, _, error = parse_verifier_output("PASS")
+    assert status == "FAIL"
+    assert error == "VERIFIER_PARSE_ERROR"
 
 
 # --- verify_once: LLM 호출 1회, 재추론 없음 (연동 계약 §7) ---
@@ -380,3 +383,23 @@ class TestVerifyPromptCoverage:
     def test_DB_재조회_금지가_명시된다(self):
         prompt = build_verify_prompt(new_state())
         assert "다시 조회" in prompt and "SQL을 만들지" in prompt
+
+
+class TestParserCannotBeBypassed:
+    @pytest.mark.parametrize("text", [
+        "BYPASS", "compass", "NOT PASS", "PASS 아님",
+        "판정: PASS라고 보기 어렵습니다", "", "   ",
+        '{"status": "MAYBE"}', "```json\n{broken",
+    ])
+    def test_JSON이_아니면_FAIL(self, text):
+        status, issues, error = parse_verifier_output(text)
+        assert status == "FAIL"
+        assert error == "VERIFIER_PARSE_ERROR"
+        assert issues
+
+    def test_정상_JSON은_그대로_PASS(self):
+        assert parse_verifier_output(PASS_JSON) == ("PASS", [], None)
+
+    def test_코드펜스로_감싼_JSON도_읽는다(self):
+        wrapped = f"```json\n{PASS_JSON}\n```"
+        assert parse_verifier_output(wrapped)[0] == "PASS"

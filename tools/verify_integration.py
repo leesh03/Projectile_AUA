@@ -16,6 +16,14 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Windows 기본 콘솔은 CP949라 한글/기호 출력에서 UnicodeEncodeError로 죽는다.
+# PYTHONUTF8=1을 안 걸어도 돌아가게 여기서 직접 맞춘다.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 # 통합 후에도 반드시 있어야 하는 것 — 없으면 이동 중 유실된 것이다.
@@ -43,6 +51,11 @@ def check(ok: bool, name: str, detail: str = "") -> None:
 
 def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def sha_text(path: Path) -> str:
+    """줄바꿈을 정규화해서 해싱한다."""
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def find_runner() -> Path | None:
@@ -78,7 +91,7 @@ def step_scaffold_sync() -> None:
         name for name in ("sql_repair.py", "reasoning_verifier.py", "config.py",
                           "trace.py", "llm.py")
         if (root_dir / name).is_file() and (copy_dir / name).is_file()
-        and sha(root_dir / name) != sha(copy_dir / name)
+        and sha_text(root_dir / name) != sha_text(copy_dir / name)
     ]
     check(not stale, "스캐폴드 사본 동기화",
           f"루트와 다름: {stale}" if stale else "")

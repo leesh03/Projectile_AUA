@@ -1,7 +1,7 @@
 """실행 결과 두 벌(V0/V1)을 소현의 AuditBundle 하나로 묶는다.
 
-통합 기획서 §6.6 인수인계: 이준원·유채린 → 이소현
-  전달물   AgentVersion · TraceStep · TrialResult
+통합 기획서 §6.6 인수인계: 이준원,유채린 -> 이소현
+    전달물   AgentVersion , TraceStep , TrialResult
   수락기준 V0/V1 동일 testcase_id로 매칭 가능
 
 준원의 runner는 케이스별 trial_*.json까지만 만들고, 소현의 loader는 합쳐진
@@ -96,7 +96,7 @@ def make_bundle(baseline_dir: Path, candidate_dir: Path, change_note: str | None
     cand_ids = {t["testcase_id"] for t in cand_trials}
     unpaired = sorted(set(case_ids) ^ cand_ids)
     if unpaired:
-        print(f"경고: V0/V1 한쪽에만 있는 케이스 {len(unpaired)}건 — {unpaired[:5]}", file=sys.stderr)
+        print(f"경고: V0/V1 한쪽에만 있는 케이스 {len(unpaired)}건 - {unpaired[:5]}", file=sys.stderr)
 
     bundle = {
         "bundle_id": f"{base_manifest['run_id']}__{cand_manifest['run_id']}",
