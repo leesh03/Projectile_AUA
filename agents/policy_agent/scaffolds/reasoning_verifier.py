@@ -120,11 +120,10 @@ def parse_verifier_output(text: str) -> tuple[str, list[str], str | None]:
                     issues = ["검증기가 FAIL로 판정했으나 사유를 제시하지 않았다"]
                 return status, ([] if status == PASS else issues), None
 
-    # JSON이 깨졌을 때 최후 수단. 본문에 PASS만 있고 FAIL이 없으면 통과로 본다.
-    upper = text.upper()
-    if PASS in upper and FAIL not in upper:
-        return PASS, [], None
-
+    # JSON을 못 읽으면 무조건 FAIL이다.
+    # 예전에는 "본문에 PASS가 있고 FAIL이 없으면 통과"라는 폴백이 있었는데,
+    # 부분 문자열 검사라 BYPASS·compass·"NOT PASS"가 전부 PASS로 뚫렸다.
+    # 검증되지 않은 판정을 통과시키는 쪽이 훨씬 위험하므로 폴백을 두지 않는다.
     return FAIL, [f"{PARSE_ERROR}: {text.strip()[:200]}"], PARSE_ERROR
 
 

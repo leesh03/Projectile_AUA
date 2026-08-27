@@ -1,4 +1,4 @@
-"""통합 직후 검증 — 준원의 구조 개편이 무엇을 깨뜨렸는지 한 번에 본다.
+"""통합 직후 검증 - 준원의 구조 개편이 무엇을 깨뜨렸는지 한 번에 본다.
 
 compact_agent가 루트로 합쳐지면 import 경로와 데이터 위치가 바뀐다.
 그때 "안 깨졌다"를 증명하려면 매번 같은 항목을 같은 순서로 확인해야 한다.
@@ -16,9 +16,17 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Windows 기본 콘솔은 CP949라 한글/기호 출력에서 UnicodeEncodeError로 죽는다.
+# PYTHONUTF8=1을 안 걸어도 돌아가게 여기서 직접 맞춘다.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):  # 파이프로 넘길 때 등
+        pass
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
-# 통합 후에도 반드시 있어야 하는 것 — 없으면 이동 중 유실된 것이다.
+# 통합 후에도 반드시 있어야 하는 것 - 없으면 이동 중 유실된 것이다.
 REQUIRED = {
     "Auditor 탐지기": "core/detector",
     "Auditor 비교엔진": "core/diff",
@@ -45,6 +53,18 @@ def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def sha_text(path: Path) -> str:
+    """줄바꿈을 정규화해서 해싱한다.
+
+    Windows에서 core.autocrlf=true면 작업 트리가 CRLF로 바뀐다. 원시 바이트로
+    비교하면 내용이 같은 파일도 다르다고 나온다(루트에 .gitattributes가 없다).
+    소스 비교는 줄바꿈 차이를 무시해야 한다.
+    """
+    return hashlib.sha256(
+        path.read_bytes().replace(b"\r\n", b"\n")
+    ).hexdigest()
+
+
 def find_runner() -> Path | None:
     for candidate in RUNNER_CANDIDATES:
         path = REPO_ROOT / candidate
@@ -56,7 +76,7 @@ def find_runner() -> Path | None:
 def step_files() -> None:
     for name, rel in REQUIRED.items():
         exists = (REPO_ROOT / rel).exists()
-        check(exists, f"파일 존재 · {name}", "" if exists else f"{rel} 없음")
+        check(exists, f"파일 존재 , {name}", "" if exists else f"{rel} 없음")
 
     runner = find_runner()
     check(runner is not None, "실행기 위치",
@@ -71,14 +91,14 @@ def step_scaffold_sync() -> None:
     root_dir = REPO_ROOT / "agents/policy_agent/scaffolds"
     copy_dir = REPO_ROOT / "compact_agent/agents/policy_agent/scaffolds"
     if not copy_dir.exists():
-        check(True, "스캐폴드 사본", "사본 없음 — 단일 트리로 통합됨")
+        check(True, "스캐폴드 사본", "사본 없음 - 단일 트리로 통합됨")
         return
 
     stale = [
         name for name in ("sql_repair.py", "reasoning_verifier.py", "config.py",
                           "trace.py", "llm.py")
         if (root_dir / name).is_file() and (copy_dir / name).is_file()
-        and sha(root_dir / name) != sha(copy_dir / name)
+        and sha_text(root_dir / name) != sha_text(copy_dir / name)
     ]
     check(not stale, "스캐폴드 사본 동기화",
           f"루트와 다름: {stale}" if stale else "")
@@ -88,14 +108,14 @@ def step_manifests() -> None:
     for rel in ("data/version_manifest.json", "artifacts/version_manifest.json"):
         path = REPO_ROOT / rel
         if not path.is_file():
-            check(False, f"매니페스트 · {rel}", "파일 없음")
+            check(False, f"매니페스트 , {rel}", "파일 없음")
             continue
         manifest = json.loads(path.read_text(encoding="utf-8"))
         bad = [
             key for key, expected in manifest["artifact_sha256"].items()
             if not (REPO_ROOT / key).is_file() or sha(REPO_ROOT / key) != expected
         ]
-        check(not bad, f"매니페스트 · {rel}", f"불일치 {bad}" if bad else "")
+        check(not bad, f"매니페스트 , {rel}", f"불일치 {bad}" if bad else "")
 
 
 def run(cmd: list[str], cwd: Path) -> tuple[int, str]:
@@ -143,7 +163,7 @@ def step_e2e() -> None:
     check(not bad, "60건 E2E", f"{bad} (기대 {expected})" if bad else "")
     check(summary.get("gold_agreements") == expected, "Gold 대조",
           "" if summary.get("gold_agreements") == expected
-          else f"gold_agreements={summary.get('gold_agreements')} — "
+          else f"gold_agreements={summary.get('gold_agreements')} - "
                "evaluation/private가 유실됐을 수 있음")
     return summary.get("summary")
 
@@ -169,7 +189,7 @@ def step_bundle(summary_path: str | None) -> None:
         return
 
     dropped = len(loaded.skipped_trials) + len(loaded.skipped_traces)
-    check(dropped == 0, "AuditBundle → Loader",
+    check(dropped == 0, "AuditBundle -> Loader",
           f"버려진 레코드 {dropped}건" if dropped else "")
 
 
@@ -192,9 +212,9 @@ def main() -> int:
 
     print(f"\n{'=' * 46}")
     if failed:
-        print(f"  실패 {len(failed)} / {len(results)}건 — 위 FAIL 항목 확인")
+        print(f"  실패 {len(failed)} / {len(results)}건 - 위 FAIL 항목 확인")
         return 1
-    print(f"  전체 통과 ({len(results)}건) — 통합 이상 없음")
+    print(f"  전체 통과 ({len(results)}건) - 통합 이상 없음")
     return 0
 
 
