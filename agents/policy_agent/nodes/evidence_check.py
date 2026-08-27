@@ -100,6 +100,7 @@ class EvidenceChecker:
             "trusted_context": dict(request.trusted_context),
             "request": dict(request.request),
             "lookup_counts": {},
+            "query_status": {},
         }
         ambiguous: list[str] = []
         mismatched: list[str] = []
@@ -149,6 +150,13 @@ class EvidenceChecker:
 
         for section, spec in QUERY_REGISTRY.items():
             facts.setdefault(section, [] if spec.cardinality == "many" else None)
+            if section in state.truncated_queries:
+                status = "TRUNCATED"
+            elif section in state.query_results:
+                status = "EXECUTED"
+            else:
+                status = "OMITTED"
+            facts["query_status"][section] = status
             if spec.count_key is not None:
                 facts["lookup_counts"].setdefault(spec.count_key, 0)
         return facts, tuple(sorted(ambiguous)), tuple(sorted(set(mismatched)))
@@ -187,8 +195,28 @@ class EvidenceChecker:
     def evaluate(self, state: PolicyAgentState) -> EvidenceResult:
         """Run the pre-reasoning structural evidence check."""
 
-        facts, ambiguous, mismatched = self.assemble_facts(state)
+        facts, _, _ = self.assemble_facts(state)
         state.facts = facts
+        if state.truncated_queries:
+            truncated_paths = tuple(
+                f"/query_status/{section}" for section in sorted(set(state.truncated_queries))
+            )
+            state.missing_evidence = list(truncated_paths)
+            return EvidenceResult(
+                sufficient=False,
+                missing_paths=truncated_paths,
+                reason="RESULT_TRUNCATED",
+            )
+        if state.config.require_all_query_sections:
+            omitted = tuple(sorted(set(QUERY_REGISTRY) - set(state.query_results)))
+            if omitted:
+                omitted_paths = tuple(f"/query_status/{section}" for section in omitted)
+                state.missing_evidence = list(omitted_paths)
+                return EvidenceResult(
+                    sufficient=False,
+                    missing_paths=omitted_paths,
+                    reason="OMITTED_QUERY_SECTIONS",
+                )
         missing = tuple(
             path
             for path in state.required_evidence_paths

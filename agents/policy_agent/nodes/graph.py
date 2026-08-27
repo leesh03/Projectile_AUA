@@ -309,6 +309,11 @@ class PolicyAgentGraph:
                     )
                     state.query_results[query.name] = list(result.rows)
                     state.rows_truncated = state.rows_truncated or result.truncated
+                    if result.truncated:
+                        if query.name not in state.truncated_queries:
+                            state.truncated_queries.append(query.name)
+                        # The tool call completed, but its evidence is incomplete.
+                        state.traces[-1].error_type = "RESULT_TRUNCATED"
                     if state.tool_schema_valid is None:
                         state.tool_schema_valid = True
                     completed_queries.append(query)

@@ -10,10 +10,11 @@ import copy
 import hashlib
 import json
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
-from datetime import date, datetime, time, timedelta, timezone
+from datetime import UTC, date, datetime, time, timedelta, timezone
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, ClassVar
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from policy_runtime.loader import Clause, PolicyRuleSet
@@ -47,7 +48,7 @@ class PolicyDecisionResult:
 
 
 class PolicyEngine:
-    TOP_KEYS = {
+    TOP_KEYS: ClassVar[set[str]] = {
         "trusted_context",
         "request",
         "lookup_counts",
@@ -57,7 +58,7 @@ class PolicyEngine:
         "shipment",
         "refund_history",
     }
-    OBJECT_KEYS = {
+    OBJECT_KEYS: ClassVar[dict[str, set[str]]] = {
         "trusted_context": {"evaluation_date", "timezone"},
         "request": {"refund_request_id", "order_item_id", "requested_amount", "currency"},
         "lookup_counts": {"order_item_order", "customer_snapshot", "product", "shipment"},
@@ -87,7 +88,7 @@ class PolicyEngine:
         self._fields: dict[str, set[str]] = {}
 
     @classmethod
-    def from_path(cls, path: str | Path) -> "PolicyEngine":
+    def from_path(cls, path: str | Path) -> PolicyEngine:
         return cls(PolicyRuleSet.load(path))
 
     @staticmethod
@@ -129,7 +130,9 @@ class PolicyEngine:
         missing = self.TOP_KEYS - raw.keys()
         for key in missing:
             errors.add(f"/{key}")
-        unknown = raw.keys() - self.TOP_KEYS - {"target_ids"}
+        # query_status is execution provenance assembled by the EvidenceChecker.
+        # It is recorded for auditing but is not a business-policy input.
+        unknown = raw.keys() - self.TOP_KEYS - {"target_ids", "query_status"}
         for key in unknown:
             errors.add(f"/{key}")
         if errors:
@@ -389,7 +392,6 @@ class PolicyEngine:
             "/shipment/evidence/verified_at": evidence["verified_at"],
             "/shipment/evidence/evidence_source": evidence["evidence_source"],
         }
-        provenance_paths = set(provenance)
         values = tuple(provenance.values())
         if status in {"NONE", "PENDING"}:
             issue_ok = issue is None if status == "NONE" else issue in self.rules.issue_codes
@@ -442,7 +444,7 @@ class PolicyEngine:
             return None
         if parsed.tzinfo is None:
             return None
-        return parsed.astimezone(timezone.utc)
+        return parsed.astimezone(UTC)
 
     @staticmethod
     def _policy_timezone(name: str) -> ZoneInfo | timezone:
@@ -523,7 +525,7 @@ class PolicyEngine:
         invalid_order_paths: set[str] = set()
         if evaluation_date is not None:
             seoul = self._policy_timezone(self.rules.timezone)
-            cutoff = datetime.combine(evaluation_date + timedelta(days=1), time.min, seoul).astimezone(timezone.utc)
+            cutoff = datetime.combine(evaluation_date + timedelta(days=1), time.min, seoul).astimezone(UTC)
             for path, value in parsed.items():
                 if value >= cutoff:
                     invalid_order_paths.add(path)

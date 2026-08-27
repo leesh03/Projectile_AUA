@@ -24,23 +24,24 @@ from agents.policy_agent.scaffolds.config import AGENT_CONFIG, with_overrides
 from agents.policy_agent.scaffolds.reasoning_verifier import verify_once
 from agents.policy_agent.scaffolds.sql_repair import repair_once
 from policy_runtime.deterministic import (
-    DeterministicSQLRepairLLM,
     DeterministicPolicyModel,
     DeterministicSQLModel,
+    DeterministicSQLRepairLLM,
+    FaultInjectingPolicyModel,
     FaultInjectingSQLModel,
     PolicyAwareVerifierLLM,
 )
 from policy_runtime.engine import PolicyEngine
-from policy_runtime.openai_provider import (
-    OpenAICoreModel,
-    OpenAIResponsesClient,
-    OpenAIScaffoldLLM,
-)
 from policy_runtime.multi_provider import (
     GeminiClient,
     GroqClient,
     MultiProviderCoreModel,
     MultiProviderScaffoldLLM,
+)
+from policy_runtime.openai_provider import (
+    OpenAICoreModel,
+    OpenAIResponsesClient,
+    OpenAIScaffoldLLM,
 )
 
 ALLOWED_TABLES = ("customers", "orders", "products", "refunds", "shipments")
@@ -98,8 +99,10 @@ def build_agent(
     )
     executor = SQLExecutor(runtime_db_path, allowed_tables=ALLOWED_TABLES)
     canonical_sql_model: Any = DeterministicSQLModel()
-    if fault_profile is not None:
+    if fault_profile in {"sql-typo", "unsafe-delete"}:
         canonical_sql_model = FaultInjectingSQLModel(canonical_sql_model, fault_profile)
+    elif fault_profile not in {None, "wrong-policy"}:
+        raise ValueError("unsupported fault_profile")
 
     if mode == "deterministic":
         # SQL repair is intentionally dormant in the deterministic baseline:
@@ -143,6 +146,9 @@ def build_agent(
         sql_repair = SQLRepairAdapter(repair_once, repair_llm)
     else:
         raise ValueError("mode must be 'deterministic' or 'api'")
+
+    if fault_profile == "wrong-policy":
+        policy_model = FaultInjectingPolicyModel(policy_model)
 
     if scaffold_overrides:
         scaffold_config = with_overrides(

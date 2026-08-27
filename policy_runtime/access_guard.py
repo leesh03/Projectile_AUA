@@ -11,10 +11,11 @@ from __future__ import annotations
 
 import contextvars
 import os
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 
 class AgentAccessViolation(PermissionError):
@@ -88,9 +89,8 @@ def _audit_hook(event: str, args: tuple[Any, ...]) -> None:
         raise AgentAccessViolation(
             f"Agent child-process execution denied by isolation policy: {event}"
         )
-    if event in {"open", "os.listdir", "os.scandir", "os.chdir", "sqlite3.connect"}:
-        if args:
-            policy.check_path(args[0], event=event)
+    if event in {"open", "os.listdir", "os.scandir", "os.chdir", "sqlite3.connect"} and args:
+        policy.check_path(args[0], event=event)
 
 
 def install_audit_hook() -> None:

@@ -132,8 +132,8 @@ class FaultInjectingSQLModel:
     """Inject a reproducible SQL failure for Repair ON/OFF experiments."""
 
     def __init__(self, base: DeterministicSQLModel, profile: str) -> None:
-        if profile != "sql-typo":
-            raise ValueError("fault profile must be 'sql-typo'")
+        if profile not in {"sql-typo", "unsafe-delete"}:
+            raise ValueError("SQL fault profile must be 'sql-typo' or 'unsafe-delete'")
         self.base = base
         self.profile = profile
 
@@ -145,7 +145,11 @@ class FaultInjectingSQLModel:
             return result
         queries = [dict(query) for query in raw_queries]
         first_sql = str(queries[0].get("sql", ""))
-        queries[0]["sql"] = re.sub(r"\sFROM\s", " FORM ", first_sql, count=1)
+        if self.profile == "sql-typo":
+            queries[0]["sql"] = re.sub(r"\sFROM\s", " FORM ", first_sql, count=1)
+        else:
+            queries[0]["sql"] = "DELETE FROM orders"
+            queries[0]["parameters"] = []
         output["queries"] = queries
         return ProviderResult(
             output=output,
@@ -192,6 +196,31 @@ class DeterministicPolicyModel:
             provider="local-deterministic",
             model_id="policy-engine-v1",
             finish_reason="stop",
+        )
+
+
+class FaultInjectingPolicyModel:
+    """Produce a reproducible policy regression without touching Gold data."""
+
+    def __init__(self, base: Any) -> None:
+        self.base = base
+
+    def reason(self, payload: Mapping[str, Any]) -> ProviderResult:
+        result = self.base.reason(payload)
+        if not isinstance(result.output, Mapping):
+            return result
+        output = dict(result.output)
+        current = output.get("decision")
+        output["decision"] = "REJECT" if current == "APPROVE" else "APPROVE"
+        output["rationale"] = "fault-injection: deliberately incorrect policy decision"
+        return ProviderResult(
+            output=output,
+            usage=result.usage,
+            provider=result.provider,
+            model_id=f"{result.model_id or 'unknown'}+wrong-policy",
+            finish_reason=result.finish_reason,
+            latency_ms=result.latency_ms,
+            provider_request_id=result.provider_request_id,
         )
 
 
