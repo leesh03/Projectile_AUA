@@ -1,0 +1,45 @@
+name: Testbed CI
+
+on:
+  push:
+    branches:
+      - main
+      - tester
+      - "feat/**"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  testbed:
+    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+      - name: Install locked Testbed dependencies
+        run: uv sync --frozen --extra testbed --extra dev
+
+      - name: Verify formatting and lint
+        run: uv run ruff check agents policy_runtime tests/testbed tests/test_root_runtime.py run_agent.py
+
+      - name: Run Testbed tests
+        run: uv run pytest -q tests/testbed tests/test_root_runtime.py tests/test_dataset.py
+
+      - name: Run deterministic staged-isolation smoke test
+        run: uv run python run_agent.py run-one --case E-001 --mode deterministic
+
+      - name: Reject generated or modified tracked files
+        run: git diff --exit-code

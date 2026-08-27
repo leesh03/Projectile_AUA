@@ -27,6 +27,9 @@ python run_agent.py run-suite --mode deterministic
 python run_agent.py run-one --case E-001 --mode api --provider gemini
 python run_agent.py run-one --case E-001 --mode api --provider groq
 
+# 모델이 JSON 계약을 어기면 1회 교정 요청(0~2로 조정 가능)
+python run_agent.py run-one --case E-001 --mode api --provider gemini --schema-retries 1
+
 # V0/V1 독립 실행 → AuditBundle 생성
 python tools/run_comparison.py --trials 2 --bundle-out reports/bundles/comparison.json
 
@@ -133,6 +136,15 @@ cp .env.example .env                    # 값을 채워 넣으세요. .env는 �
 ```
 
 Python 3.11 기준입니다.
+
+Testbed는 `GEMINI_API_KEY`, `GROQ_API_KEY`, `OPENAI_API_KEY` 중 명시한
+provider의 키만 사용하며 기본 API provider는 없다. `.env.example`에는 키 이름과
+모델·timeout·구조화 응답 교정 재시도 옵션만 기록되어 있고 실제 키는 넣지 않는다.
+
+Agent trial은 Gold/Oracle 파일을 복사하지 않은 임시 실행 루트에서 수행된다.
+원본 저장소 접근, SQLite `file:` URI 우회, 하드링크·심볼릭 링크 우회와 자식
+프로세스 실행은 Agent 실행 경계에서 차단한다. CI는 clean checkout에서 Windows와
+Linux, Python 3.11~3.13 조합으로 Testbed 테스트와 격리 smoke test를 실행한다.
 
 ---
 
