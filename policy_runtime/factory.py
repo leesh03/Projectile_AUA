@@ -58,6 +58,7 @@ class AgentBundle:
     agent_label: str = "V0"
     scaffold_config: dict[str, Any] = field(default_factory=dict)
     version_metadata: dict[str, Any] = field(default_factory=dict)
+    structured_output_retries: int = 1
     sql_strategy: str = "canonical"
     fault_profile: str | None = None
     runtime_api_key: str | None = field(default=None, repr=False, compare=False)
@@ -74,6 +75,7 @@ def build_agent(
     agent_label: str = "V0",
     scaffold_overrides: Mapping[str, Any] | None = None,
     version_metadata: Mapping[str, Any] | None = None,
+    structured_output_retries: int | None = None,
     sql_strategy: str = "canonical",
     fault_profile: str | None = None,
 ) -> AgentBundle:
@@ -83,6 +85,13 @@ def build_agent(
         raise ValueError("sql_strategy must be 'canonical' or 'model'")
     if mode == "deterministic" and sql_strategy != "canonical":
         raise ValueError("deterministic mode supports only canonical SQL")
+    schema_retries = (
+        int(os.getenv("AGENT_SCHEMA_MAX_RETRIES", "1"))
+        if structured_output_retries is None
+        else structured_output_retries
+    )
+    if not 0 <= schema_retries <= 2:
+        raise ValueError("structured_output_retries must be between 0 and 2")
     project_root = Path(root).resolve()
     configured_db = db_path or os.getenv("POLICY_AGENT_DB_PATH")
     runtime_db_path = (
@@ -170,10 +179,13 @@ def build_agent(
         sql_repair = SQLRepairAdapter(repair_once, repair_llm)
     graph = PolicyAgentGraph(
         context_provider=context_provider,
-        sql_generator=SQLGenerator(sql_model),
+        sql_generator=SQLGenerator(sql_model, max_schema_retries=schema_retries),
         sql_executor=executor,
         evidence_checker=EvidenceChecker(),
-        policy_reasoner=PolicyReasoner(policy_model),
+        policy_reasoner=PolicyReasoner(
+            policy_model,
+            max_schema_retries=schema_retries,
+        ),
         response_writer=ResponseWriter(),
         config=config,
         sql_repair=sql_repair,
@@ -189,6 +201,7 @@ def build_agent(
         agent_label=agent_label,
         scaffold_config=dict(scaffold_config),
         version_metadata=dict(version_metadata or {}),
+        structured_output_retries=schema_retries,
         sql_strategy=sql_strategy,
         fault_profile=fault_profile,
         runtime_api_key=runtime_api_key,

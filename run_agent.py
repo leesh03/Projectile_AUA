@@ -69,6 +69,13 @@ def main() -> int:
     )
     parser.add_argument("--max-reflections", type=int, default=None)
     parser.add_argument(
+        "--schema-retries",
+        type=int,
+        choices=(0, 1, 2),
+        default=None,
+        help="bounded correction retries for malformed structured model output",
+    )
+    parser.add_argument(
         "--stop-on-repeated-error",
         action=argparse.BooleanOptionalAction,
         default=None,
@@ -121,6 +128,7 @@ def main() -> int:
         agent_label=args.agent_label,
         scaffold_overrides=scaffold_overrides,
         version_metadata=version_metadata,
+        structured_output_retries=args.schema_retries,
         sql_strategy=args.sql_strategy,
         fault_profile=args.fault_profile,
     )

@@ -455,6 +455,10 @@ class PolicyAgentGraph:
             run_metadata=dict(run_metadata or {}),
         )
         state.runtime_config["sql_executor"] = self.sql_executor.config_dict()
+        state.runtime_config["structured_output"] = {
+            "sql_max_retries": self.sql_generator.max_schema_retries,
+            "policy_max_retries": self.policy_reasoner.max_schema_retries,
+        }
 
         try:
             self._run_step(

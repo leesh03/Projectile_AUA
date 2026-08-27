@@ -426,6 +426,7 @@ class PolicyAgentState:
     tool_schema_valid: bool | None = None
     tool_error_count: int = 0
     retry_count: int = 0
+    structured_output_retry_count: int = 0
     total_tokens: int = 0
     llm_call_count: int = 0
     safety_violation: bool = False
@@ -719,6 +720,9 @@ class PolicyAgentState:
             },
             "traces": self.trace_dicts(),
             "provider_calls": [call.to_dict() for call in self.provider_calls],
+            "runtime_metrics": {
+                "structured_output_retry_count": self.structured_output_retry_count,
+            },
         }
         self._atomic_write_json(target, payload)
         return target

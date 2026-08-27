@@ -102,11 +102,15 @@ class SQLGenerator:
         model: SQLModel | Callable[[Mapping[str, Any]], SQLProviderOutput],
         *,
         allowed_query_names: frozenset[str] = CANONICAL_QUERY_NAMES,
+        max_schema_retries: int = 1,
     ) -> None:
         self.model = model
         self.allowed_query_names = allowed_query_names
         if not allowed_query_names:
             raise ValueError("allowed_query_names must not be empty")
+        if not 0 <= max_schema_retries <= 2:
+            raise ValueError("max_schema_retries must be between 0 and 2")
+        self.max_schema_retries = max_schema_retries
 
     def _call_model(self, payload: Mapping[str, Any]) -> SQLProviderOutput:
         if isinstance(self.model, SQLModel):
@@ -174,27 +178,65 @@ class SQLGenerator:
                 ]
             },
         }
-        state.llm_call_count += 1
-        try:
-            provider_result = self._normalize_result(self._call_model(payload))
-        except Exception as exc:
-            if isinstance(exc, SQLGenerationError):
-                raise
-            raise SQLGenerationError(f"SQL provider failed: {exc}") from exc
+        provider_result: ProviderResult
+        queries: tuple[SQLQuery, ...]
+        for attempt in range(self.max_schema_retries + 1):
+            state.llm_call_count += 1
+            try:
+                provider_result = self._normalize_result(self._call_model(payload))
+            except Exception as exc:
+                if isinstance(exc, SQLGenerationError):
+                    raise
+                raise SQLGenerationError(f"SQL provider failed: {exc}") from exc
 
-        state.record_provider_result("GENERATE_QUERY", provider_result)
-        data = self._as_mapping(provider_result.output)
-        raw_queries = data.get("queries")
-        if not isinstance(raw_queries, (list, tuple)) or not raw_queries:
-            raise SQLGenerationError("structured output requires a non-empty 'queries' array")
-        if len(raw_queries) > state.config.max_queries:
-            raise SQLGenerationError(
-                f"query count exceeds configured limit: {state.config.max_queries}"
-            )
-        queries = tuple(self._parse_query(raw) for raw in raw_queries)
-        names = [query.name for query in queries]
-        if len(set(names)) != len(names):
-            raise SQLGenerationError("query names must be unique")
+            state.record_provider_result("GENERATE_QUERY", provider_result)
+            try:
+                data = self._as_mapping(provider_result.output)
+                raw_queries = data.get("queries")
+                if not isinstance(raw_queries, (list, tuple)) or not raw_queries:
+                    raise SQLGenerationError(
+                        "structured output requires a non-empty 'queries' array"
+                    )
+                if len(raw_queries) > state.config.max_queries:
+                    raise SQLGenerationError(
+                        f"query count exceeds configured limit: {state.config.max_queries}"
+                    )
+                queries = tuple(self._parse_query(raw) for raw in raw_queries)
+                names = [query.name for query in queries]
+                if len(set(names)) != len(names):
+                    raise SQLGenerationError("query names must be unique")
+                break
+            except SQLGenerationError as exc:
+                if attempt >= self.max_schema_retries:
+                    raise
+                state.structured_output_retry_count += 1
+                state.add_trace(
+                    node_role="GENERATE_QUERY",
+                    step_type="llm_call",
+                    outcome="fail",
+                    latency_ms=provider_result.latency_ms or 0,
+                    error_type="SCHEMA_RETRY",
+                    iteration=attempt,
+                    input_tokens=provider_result.usage.input_tokens,
+                    output_tokens=provider_result.usage.output_tokens,
+                )
+                previous_output = provider_result.output
+                if isinstance(previous_output, str):
+                    previous_output = previous_output[:4000]
+                payload = {
+                    **payload,
+                    "schema_correction": {
+                        "attempt": attempt + 1,
+                        "error": str(exc)[:240],
+                        "previous_output": previous_output,
+                        "instruction": (
+                            "Correct only the output contract error and return a complete "
+                            "replacement object matching output_schema."
+                        ),
+                    },
+                }
+        else:  # pragma: no cover - the bounded loop always breaks or raises
+            raise AssertionError("unreachable SQL schema retry state")
 
         # Token counts inside the generated JSON body are intentionally ignored.
         usage = provider_result.usage

@@ -54,6 +54,9 @@ def main() -> int:
     version_metadata = payload.get("version_metadata")
     if not isinstance(version_metadata, Mapping):
         raise TypeError("isolated worker version_metadata must be an object")
+    structured_output_retries = payload.get("structured_output_retries")
+    if not isinstance(structured_output_retries, int):
+        raise TypeError("isolated worker structured_output_retries must be an integer")
     sql_strategy = _require_string(payload, "sql_strategy")
     fault_profile_raw = payload.get("fault_profile")
     fault_profile = (
@@ -79,6 +82,7 @@ def main() -> int:
             agent_label=agent_label,
             scaffold_overrides=scaffold_overrides,
             version_metadata=version_metadata,
+            structured_output_retries=structured_output_retries,
             sql_strategy=sql_strategy,
             fault_profile=fault_profile,
         )
@@ -125,6 +129,9 @@ def main() -> int:
                     "stop_reason": run.state.stop_reason,
                     "error_type": run.state.error_type,
                     "error_message": run.state.error_message,
+                    "structured_output_retry_count": (
+                        run.state.structured_output_retry_count
+                    ),
                     "facts": run.state.facts,
                     "artifact": str(artifact.relative_to(output_root / run_id)),
                 }

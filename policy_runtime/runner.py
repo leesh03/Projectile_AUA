@@ -133,6 +133,7 @@ class SuiteRunner:
                 "agent_label": self.bundle.agent_label,
                 "scaffold_overrides": dict(self.bundle.scaffold_config),
                 "version_metadata": dict(self.bundle.version_metadata),
+                "structured_output_retries": self.bundle.structured_output_retries,
                 "sql_strategy": self.bundle.sql_strategy,
                 "fault_profile": self.bundle.fault_profile,
                 "experiment_provenance": dict(experiment_provenance),
