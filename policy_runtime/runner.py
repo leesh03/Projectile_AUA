@@ -6,9 +6,11 @@ import json
 import os
 import subprocess
 import sys
+from collections.abc import Mapping
 from dataclasses import dataclass
+from hashlib import sha256
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 from agents.policy_agent.nodes.state import create_run_id
 from policy_runtime.engine import InputContractError
@@ -35,6 +37,24 @@ def _read_array(path: Path) -> list[dict[str, Any]]:
     if not isinstance(value, list) or not all(isinstance(item, dict) for item in value):
         raise ValueError(f"suite file must contain an array of objects: {path}")
     return value
+
+
+def _sha256_file(path: Path) -> str:
+    digest = sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _sha256_json(value: Any) -> str:
+    encoded = json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return sha256(encoded).hexdigest()
 
 
 def _same_decision_values(
@@ -75,6 +95,7 @@ class SuiteRunner:
         *,
         trials: int,
         run_id: str,
+        experiment_provenance: Mapping[str, Any],
     ) -> list[dict[str, Any]]:
         jobs = [
             {"case": raw_case, "trial": trial}
@@ -95,6 +116,7 @@ class SuiteRunner:
             "version_metadata": dict(self.bundle.version_metadata),
             "sql_strategy": self.bundle.sql_strategy,
             "fault_profile": self.bundle.fault_profile,
+            "experiment_provenance": dict(experiment_provenance),
             "jobs": jobs,
         }
         worker_environment = os.environ.copy()
@@ -140,11 +162,15 @@ class SuiteRunner:
             raise RuntimeError("isolated Agent worker returned an unexpected trial count")
         return records
 
-    def _patch_policy_correct(
+    def _patch_evaluation(
         self,
         run_id: str,
         relative_artifact: str,
         policy_correct: bool,
+        *,
+        evaluation_basis: str,
+        engine_consistency: bool,
+        gold_agreement: bool | None,
     ) -> None:
         run_root = (self.output_root / run_id).resolve()
         target = (run_root / relative_artifact).resolve()
@@ -156,8 +182,11 @@ class SuiteRunner:
             raise ValueError(f"cannot read isolated trial artifact: {target}") from exc
         trial_result = payload.get("trial_result") if isinstance(payload, dict) else None
         if not isinstance(trial_result, dict):
-            raise ValueError("isolated trial artifact is missing trial_result")
+            raise TypeError("isolated trial artifact is missing trial_result")
         trial_result["policy_correct"] = policy_correct
+        trial_result["evaluation_basis"] = evaluation_basis
+        trial_result["engine_consistency"] = engine_consistency
+        trial_result["gold_agreement"] = gold_agreement
         temporary = target.with_suffix(target.suffix + ".evaluator.tmp")
         temporary.write_text(
             json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
@@ -165,15 +194,76 @@ class SuiteRunner:
         )
         temporary.replace(target)
 
-    def _gold_index(self) -> dict[str, dict[str, Any]]:
+    def _gold_source(self) -> tuple[dict[str, dict[str, Any]], Path | None, str | None]:
         candidates = (
             self.project_root / "evaluation" / "private" / "expected_cases.json",
             self.project_root / "data" / "test_cases.json",
         )
         for path in candidates:
             if path.is_file():
-                return {item["testcase_id"]: item for item in _read_array(path)}
-        return {}
+                version = None
+                manifest_path = self.project_root / "data" / "version_manifest.json"
+                if manifest_path.is_file():
+                    raw_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    version = raw_manifest.get("core_version_vector", {}).get("gold_version")
+                return (
+                    {item["testcase_id"]: item for item in _read_array(path)},
+                    path,
+                    version,
+                )
+        return {}, None, None
+
+    def _experiment_provenance(
+        self,
+        cases: list[dict[str, Any]],
+        *,
+        gold_path: Path | None,
+        gold_version: str | None,
+    ) -> dict[str, Any]:
+        manifest_path = self.project_root / "data" / "version_manifest.json"
+        version_manifest: dict[str, Any] = {}
+        if manifest_path.is_file():
+            loaded = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                version_manifest = loaded
+        vector = version_manifest.get("core_version_vector", {})
+        if not isinstance(vector, Mapping):
+            vector = {}
+        agent_cases_path = self.project_root / "data" / "agent_cases.json"
+        agent_cases_hash = _sha256_file(agent_cases_path)
+        testcase_ids = [str(case["testcase_id"]) for case in cases]
+        contexts = [
+            {
+                "testcase_id": str(case["testcase_id"]),
+                "trusted_context": case.get("trusted_context"),
+            }
+            for case in cases
+        ]
+        dataset_base = str(
+            version_manifest.get("testcase_version")
+            or vector.get("suite_version")
+            or "dataset-unknown"
+        )
+        suite_id = str(vector.get("suite_version") or "suite-unknown")
+        return {
+            "suite_id": suite_id,
+            "dataset_version": f"{dataset_base}:{agent_cases_hash[:12]}",
+            "dataset_manifest_sha256": (
+                _sha256_file(manifest_path) if manifest_path.is_file() else None
+            ),
+            "agent_cases_sha256": agent_cases_hash,
+            "gold_sha256": _sha256_file(gold_path) if gold_path is not None else None,
+            "gold_version": gold_version,
+            "executed_testcase_ids": testcase_ids,
+            "testcase_ids_sha256": _sha256_json(testcase_ids),
+            "evaluation_context_sha256": _sha256_json(contexts),
+            "evaluation_date": version_manifest.get("evaluation_date"),
+            "timezone": version_manifest.get("timezone"),
+            "tool_schema_version": self.bundle.version_metadata.get(
+                "tool_schema_version", "sqlite-select-v1"
+            ),
+            "trial_contract_version": "trial-result-v2",
+        }
 
     @staticmethod
     def _gold_equal(expected: Mapping[str, Any], actual: Mapping[str, Any]) -> bool:
@@ -222,9 +312,19 @@ class SuiteRunner:
             cases = cases[:limit]
 
         run_id = create_run_id()
-        gold = self._gold_index()
+        gold, gold_path, gold_version = self._gold_source()
+        experiment_provenance = self._experiment_provenance(
+            cases,
+            gold_path=gold_path,
+            gold_version=gold_version,
+        )
         records: list[dict[str, Any]] = []
-        isolated_records = self._run_isolated(cases, trials=trials, run_id=run_id)
+        isolated_records = self._run_isolated(
+            cases,
+            trials=trials,
+            run_id=run_id,
+            experiment_provenance=experiment_provenance,
+        )
         for isolated in isolated_records:
             testcase = isolated.get("testcase_id")
             facts = isolated.get("facts")
@@ -269,18 +369,25 @@ class SuiteRunner:
                 if expected is None or not isinstance(expected_gold, Mapping)
                 else self._gold_equal(expected_gold, expected.value)
             )
-            # TrialResult keeps its stable boolean contract.  When private Gold
-            # is available this is a genuinely independent Agent-vs-Gold score;
-            # otherwise it falls back to the explicitly named engine check.
-            policy_correct = (
-                gold_agreement if gold_agreement is not None else engine_consistency
-            )
+            # Gold correctness and engine self-consistency are distinct metrics.
+            # A Gold-less run cannot claim policy accuracy and is rejected by
+            # the official strict Bundle producer.
+            evaluation_basis = "GOLD" if gold_agreement is not None else "ENGINE_ONLY"
+            policy_correct = bool(gold_agreement) if gold_agreement is not None else False
             artifact = isolated.get("artifact")
             if not isinstance(artifact, str) or not artifact:
                 raise RuntimeError("isolated Agent worker did not return an artifact path")
-            self._patch_policy_correct(run_id, artifact, policy_correct)
+            self._patch_evaluation(
+                run_id,
+                artifact,
+                policy_correct,
+                evaluation_basis=evaluation_basis,
+                engine_consistency=engine_consistency,
+                gold_agreement=gold_agreement,
+            )
             isolated.pop("facts", None)
             isolated["policy_correct"] = policy_correct
+            isolated["evaluation_basis"] = evaluation_basis
             isolated["engine_consistency"] = engine_consistency
             isolated["gold_agreement"] = gold_agreement
             isolated["oracle_agreement"] = oracle_agreement
@@ -298,10 +405,12 @@ class SuiteRunner:
             "mode": self.bundle.mode,
             "provider": self.bundle.provider,
             "agent_label": self.bundle.agent_label,
-            "scaffold_config": dict(self.bundle.scaffold_config),
+            "scaffold_config": self.bundle.graph.config.as_scaffold_config(),
             "version_metadata": dict(self.bundle.version_metadata),
             "sql_strategy": self.bundle.sql_strategy,
             "fault_profile": self.bundle.fault_profile,
+            "execution_status": "COMPLETED",
+            "experiment_provenance": experiment_provenance,
             "planner": False,
             "isolation": "subprocess-audit-v1",
             "case_count": len(cases),
@@ -320,7 +429,7 @@ class SuiteRunner:
                 "engine_consistency": "Agent decision/clauses equal the local policy engine",
                 "gold_agreements": "Agent decision/clauses equal private Gold",
                 "oracle_agreements": "local policy engine detailed result equals private Gold",
-                "policy_correct": "Gold agreement when Gold exists; otherwise engine consistency",
+                "policy_correct": "Agent decision/clauses equal independent Gold; false and not claimable when Gold is absent",
             },
             "records": records,
         }

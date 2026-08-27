@@ -24,7 +24,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from tools.make_audit_bundle import make_bundle  # noqa: E402
+from tools.make_audit_bundle import make_bundle
 
 
 def _json_from_output(output: str) -> dict[str, Any]:
@@ -34,7 +34,7 @@ def _json_from_output(output: str) -> dict[str, Any]:
         raise RuntimeError(f"Testbed output did not contain JSON: {output[-500:]}")
     value = json.loads(output[start : end + 1])
     if not isinstance(value, dict):
-        raise RuntimeError("Testbed summary must be a JSON object")
+        raise TypeError("Testbed summary must be a JSON object")
     return value
 
 
@@ -86,20 +86,50 @@ def _run_version(
     env = os.environ.copy()
     env["PYTHONIOENCODING"] = "utf-8"
     env["PYTHONUTF8"] = "1"
-    completed = subprocess.run(
-        command,
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        env=env,
-        check=False,
-    )
-    combined = completed.stdout + completed.stderr
-    if completed.returncode != 0:
-        raise RuntimeError(f"{label} suite failed (exit {completed.returncode}): {combined[-1000:]}")
-    return _json_from_output(combined)
+    timeout = int(os.getenv("COMPARISON_RUN_TIMEOUT_SECONDS", "7500"))
+    if timeout <= 0:
+        raise ValueError("COMPARISON_RUN_TIMEOUT_SECONDS must be positive")
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=env,
+            timeout=timeout,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(f"{label} runner timed out after {timeout} seconds") from exc
+    try:
+        summary = _json_from_output(completed.stdout)
+    except (json.JSONDecodeError, RuntimeError) as exc:
+        detail = (completed.stderr or completed.stdout)[-1000:]
+        raise RuntimeError(
+            f"{label} runner failed without a valid summary "
+            f"(exit {completed.returncode}): {detail}"
+        ) from exc
+    if completed.returncode not in (0, 1):
+        raise RuntimeError(
+            f"{label} runner infrastructure failed (exit {completed.returncode}): "
+            f"{completed.stderr[-1000:]}"
+        )
+    if summary.get("execution_status") != "COMPLETED":
+        raise RuntimeError(f"{label} runner did not report COMPLETED execution")
+    summary_path = Path(str(summary.get("summary", "")))
+    if not summary_path.is_file():
+        raise RuntimeError(f"{label} runner summary artifact is missing: {summary_path}")
+    persisted = json.loads(summary_path.read_text(encoding="utf-8"))
+    if (
+        not isinstance(persisted, dict)
+        or persisted.get("schema") != "suite-run-summary-v1"
+        or persisted.get("execution_status") != "COMPLETED"
+        or persisted.get("run_id") != summary.get("run_id")
+    ):
+        raise RuntimeError(f"{label} runner summary artifact violates its contract")
+    return summary
 
 
 def _add_version_arguments(parser: argparse.ArgumentParser, prefix: str, *, verifier: bool) -> None:
@@ -113,7 +143,7 @@ def _add_version_arguments(parser: argparse.ArgumentParser, prefix: str, *, veri
     )
     parser.add_argument(
         f"--{prefix}-fault-profile",
-        choices=("sql-typo",),
+        choices=("sql-typo", "unsafe-delete", "wrong-policy"),
         default=None,
     )
     parser.add_argument(

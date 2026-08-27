@@ -44,7 +44,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--fault-profile",
-        choices=("sql-typo",),
+        choices=("sql-typo", "unsafe-delete", "wrong-policy"),
         default=None,
         help="inject a reproducible SQL failure for Repair ON/OFF tests",
     )
@@ -131,6 +131,7 @@ def main() -> int:
     print(
         json.dumps(
             {
+                "execution_status": "COMPLETED",
                 "run_id": summary.run_id,
                 "total_trials": summary.total_trials,
                 "task_successes": summary.task_successes,
@@ -140,9 +141,10 @@ def main() -> int:
                 "oracle_agreements": summary.oracle_agreements,
                 "provider": bundle.provider,
                 "agent_label": bundle.agent_label,
-                "scaffold_config": bundle.scaffold_config,
+                "scaffold_config": bundle.graph.config.as_scaffold_config(),
                 "sql_strategy": bundle.sql_strategy,
                 "fault_profile": bundle.fault_profile,
+                "trial_failures": summary.total_trials - summary.task_successes,
                 "summary": str(summary.output_path),
             },
             ensure_ascii=False,

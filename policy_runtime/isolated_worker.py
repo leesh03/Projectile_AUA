@@ -19,7 +19,7 @@ def _read_request() -> dict[str, Any]:
     except json.JSONDecodeError as exc:
         raise ValueError("isolated worker input must be JSON") from exc
     if not isinstance(payload, dict):
-        raise ValueError("isolated worker input must be an object")
+        raise TypeError("isolated worker input must be an object")
     return payload
 
 
@@ -44,10 +44,10 @@ def main() -> int:
     db_path = Path(db_path_raw).resolve() if isinstance(db_path_raw, str) else None
     scaffold_overrides = payload.get("scaffold_overrides")
     if not isinstance(scaffold_overrides, Mapping):
-        raise ValueError("isolated worker scaffold_overrides must be an object")
+        raise TypeError("isolated worker scaffold_overrides must be an object")
     version_metadata = payload.get("version_metadata")
     if not isinstance(version_metadata, Mapping):
-        raise ValueError("isolated worker version_metadata must be an object")
+        raise TypeError("isolated worker version_metadata must be an object")
     sql_strategy = _require_string(payload, "sql_strategy")
     fault_profile_raw = payload.get("fault_profile")
     fault_profile = (
@@ -55,6 +55,9 @@ def main() -> int:
         if isinstance(fault_profile_raw, str) and fault_profile_raw
         else None
     )
+    experiment_provenance = payload.get("experiment_provenance")
+    if not isinstance(experiment_provenance, Mapping):
+        raise TypeError("isolated worker experiment_provenance must be an object")
     jobs = payload.get("jobs")
     if not isinstance(jobs, list) or not jobs:
         raise ValueError("isolated worker jobs must be a non-empty array")
@@ -75,11 +78,11 @@ def main() -> int:
         )
         for job in jobs:
             if not isinstance(job, Mapping):
-                raise ValueError("isolated worker job must be an object")
+                raise TypeError("isolated worker job must be an object")
             raw_case = job.get("case")
             trial = job.get("trial")
             if not isinstance(raw_case, Mapping) or not isinstance(trial, int):
-                raise ValueError("isolated worker job requires case and integer trial")
+                raise TypeError("isolated worker job requires case and integer trial")
             request = AgentRequest.from_mapping(raw_case)
             run = bundle.graph.run(
                 request,
@@ -87,7 +90,7 @@ def main() -> int:
                 trial=trial,
                 run_id=run_id,
                 run_metadata={
-                    "suite": "refund-60-v0.5",
+                    "experiment": dict(experiment_provenance),
                     "mode": mode,
                     "provider": bundle.provider,
                     "model": bundle.model,

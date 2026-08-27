@@ -15,6 +15,17 @@ class SuiteInfo(BaseModel):
     suite_id: str
     testcase_ids: list[str] = Field(..., min_length=1)
     dataset_version: str
+    dataset_manifest_sha256: str | None = None
+    agent_cases_sha256: str | None = None
+    database_sha256: str | None = None
+    policy_sha256: str | None = None
+    policy_version: str | None = None
+    gold_sha256: str | None = None
+    gold_version: str | None = None
+    testcase_ids_sha256: str | None = None
+    evaluation_context_sha256: str | None = None
+    tool_schema_version: str | None = None
+    trial_contract_version: str | None = None
 
 
 class AuditBundle(BaseModel):

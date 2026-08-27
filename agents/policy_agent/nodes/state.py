@@ -314,6 +314,9 @@ class AgentConfig:
     enable_verifier: bool = False
     max_reflections: int = 0
     max_queries: int = 5
+    # The reusable Core may run policy-scoped subsets. The official Testbed
+    # composition root enables the five-section contract explicitly.
+    require_all_query_sections: bool = False
 
     def __post_init__(self) -> None:
         if self.max_retries < 0:
@@ -327,6 +330,13 @@ class AgentConfig:
 
     def as_scaffold_config(self) -> dict[str, Any]:
         return {
+            "planner_enabled": False,
+            "repair_enabled": self.enable_repair,
+            "max_retries": self.max_retries,
+            "verifier_enabled": self.enable_verifier,
+            "max_reflections": self.max_reflections,
+            "reflection_policy": "initial_check_plus_reflections",
+            # Legacy numeric keys remain for tolerant downstream consumers.
             "planner": False,
             "repair": self.max_retries if self.enable_repair else 0,
             "verifier": self.max_reflections if self.enable_verifier else 0,
@@ -338,6 +348,7 @@ class AgentConfig:
             "repair_safety_violations": self.repair_safety_violations,
             "stop_on_repeated_error": self.stop_on_repeated_error,
             "max_total_steps": self.max_total_steps,
+            "require_all_query_sections": self.require_all_query_sections,
         }
 
 
@@ -396,6 +407,7 @@ class PolicyAgentState:
     query_results: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
     facts: dict[str, Any] = field(default_factory=dict)
     rows_truncated: bool = False
+    truncated_queries: list[str] = field(default_factory=list)
     missing_evidence: list[str] = field(default_factory=list)
 
     decision: str | None = None
@@ -449,7 +461,10 @@ class PolicyAgentState:
 
     def record_provider_result(self, node_role: NodeRole, result: ProviderResult) -> None:
         self.provider_calls.append(ProviderCallRecord.from_result(node_role, result))
-        self.total_tokens += result.usage.counted_total
+        # Trial/Trace cost uses the portable prompt+completion definition.
+        # Provider-specific totals may additionally include cached/reasoning
+        # buckets and remain available in provider_calls for detailed audits.
+        self.total_tokens += result.usage.input_tokens + result.usage.output_tokens
 
     def add_trace(
         self,
@@ -504,14 +519,21 @@ class PolicyAgentState:
     def trace_dicts(self) -> list[dict[str, Any]]:
         return [trace.to_contract_dict() for trace in self.traces]
 
-    def trial_result_dict(self, *, policy_correct: bool) -> dict[str, Any]:
+    def trial_result_dict(
+        self,
+        *,
+        policy_correct: bool,
+        evaluation_basis: str = "PENDING",
+        engine_consistency: bool | None = None,
+        gold_agreement: bool | None = None,
+    ) -> dict[str, Any]:
         """Return fields matching ``core.schemas.TrialResult`` exactly."""
 
         if not isinstance(policy_correct, bool):
             raise TypeError("policy_correct must be supplied by an independent evaluator")
         if self.stop_reason is None:
             raise RuntimeError("the run must finish before TrialResult is built")
-        return {
+        result = {
             "testcase_id": self.testcase_id,
             "agent_label": self.agent_label,
             "trial": self.trial,
@@ -529,6 +551,15 @@ class PolicyAgentState:
             "scaffold_config": self.config.as_scaffold_config(),
             "difficulty": self.agent_request.difficulty,
         }
+        if evaluation_basis != "PENDING" or engine_consistency is not None or gold_agreement is not None:
+            result.update(
+                {
+                    "evaluation_basis": evaluation_basis,
+                    "engine_consistency": engine_consistency,
+                    "gold_agreement": gold_agreement,
+                }
+            )
+        return result
 
     @staticmethod
     def _atomic_write_json(path: Path, payload: Mapping[str, Any]) -> None:
@@ -640,6 +671,9 @@ class PolicyAgentState:
         output_root: str | Path,
         *,
         policy_correct: bool,
+        evaluation_basis: str = "PENDING",
+        engine_consistency: bool | None = None,
+        gold_agreement: bool | None = None,
     ) -> Path:
         """Write one trial under a collision-resistant run namespace.
 
@@ -669,7 +703,12 @@ class PolicyAgentState:
         if target.exists():
             raise FileExistsError(f"trial artifact already exists: {target}")
         payload = {
-            "trial_result": self.trial_result_dict(policy_correct=policy_correct),
+            "trial_result": self.trial_result_dict(
+                policy_correct=policy_correct,
+                evaluation_basis=evaluation_basis,
+                engine_consistency=engine_consistency,
+                gold_agreement=gold_agreement,
+            ),
             "agent_output": {
                 "decision": self.decision,
                 "clauses": list(self.policy_clauses),

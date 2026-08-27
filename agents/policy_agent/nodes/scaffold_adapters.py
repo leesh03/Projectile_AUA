@@ -29,6 +29,7 @@ def agent_config_from_scaffold(
     *,
     max_queries: int = 5,
     repair_safety_violations: bool = False,
+    require_all_query_sections: bool = True,
 ) -> AgentConfig:
     """Translate Chae-rin's config keys without silently dropping loop controls."""
 
@@ -59,6 +60,7 @@ def agent_config_from_scaffold(
         ),
         max_reflections=int(scaffold_config.get("max_reflections", 0)),
         max_queries=max_queries,
+        require_all_query_sections=require_all_query_sections,
     )
 
 

@@ -4,6 +4,8 @@
 필드별 "없으면 못 하는 것"은 docs/CONTRACT.md 표 참조.
 """
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from core.schemas.enums import StopReason
@@ -18,6 +20,18 @@ class TrialResult(BaseModel):
     trial: int = Field(..., ge=1, le=3, description="같은 testcase의 반복 회차 (1~3)")
     task_success: bool
     policy_correct: bool
+    evaluation_basis: Literal["PENDING", "GOLD", "ENGINE_ONLY"] = Field(
+        default="PENDING",
+        description="policy_correct의 평가 근거. 공식 AuditBundle은 GOLD만 허용",
+    )
+    engine_consistency: bool | None = Field(
+        default=None,
+        description="Agent 출력과 로컬 PolicyEngine 결과의 일치 여부",
+    )
+    gold_agreement: bool | None = Field(
+        default=None,
+        description="Agent 출력과 독립 Gold의 일치 여부",
+    )
     tool_error_count: int = Field(..., ge=0)
     retry_count: int = Field(..., ge=0)
     total_tokens: int = Field(..., ge=0)
