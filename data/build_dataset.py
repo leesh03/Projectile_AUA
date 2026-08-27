@@ -7,7 +7,10 @@ and release labels, then validated and synchronized against the answer key.
 
 Run from the repository root:
 
-    python data/build_dataset.py
+    .\.venv\Scripts\python.exe data\build_dataset.py
+
+Dataset generation requires Python 3.11.5 with SQLite 3.43.0. The command
+fails before writing output when a different runtime is selected.
 
 Use ``--output-root`` to reproduce the suite in a separate directory without
 modifying the checked-in artifacts.
@@ -28,12 +31,14 @@ from typing import Any
 
 try:
     from data.build_shop_db import build_database as build_shop_database
-except ModuleNotFoundError:  # direct: python data/build_dataset.py
+except ModuleNotFoundError:  # direct script execution
     from build_shop_db import build_database as build_shop_database
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DATA_DIR = REPO_ROOT / "data"
+REQUIRED_PYTHON_VERSION = "3.11.5"
+REQUIRED_SQLITE_VERSION = "3.43.0"
 EXPECTED_CASE_COUNT = 60
 EXPECTED_DIFFICULTY_COUNTS = Counter(
     {"EASY": 20, "MEDIUM": 20, "HARD": 20}
@@ -46,6 +51,22 @@ AGENT_FIELDS = (
     "request",
     "trusted_context",
 )
+
+
+def _validate_runtime_versions() -> None:
+    python_version = platform.python_version()
+    sqlite_version = sqlite3.sqlite_version
+    if (
+        python_version != REQUIRED_PYTHON_VERSION
+        or sqlite_version != REQUIRED_SQLITE_VERSION
+    ):
+        raise RuntimeError(
+            "Dataset generation requires Python "
+            f"{REQUIRED_PYTHON_VERSION} with SQLite "
+            f"{REQUIRED_SQLITE_VERSION}; got Python {python_version} "
+            f"with SQLite {sqlite_version}. Run "
+            r".\.venv\Scripts\python.exe data\build_dataset.py"
+        )
 
 
 def pretty_json_bytes(value: Any) -> bytes:
@@ -292,6 +313,7 @@ def _write_or_copy_json(
 
 
 def build(output_root: Path = REPO_ROOT) -> dict[str, str]:
+    _validate_runtime_versions()
     output_root = output_root.resolve()
     data_dir = output_root / "data"
     artifacts_dir = output_root / "artifacts"
