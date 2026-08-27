@@ -90,17 +90,25 @@ def _check_requirement(ctx: DetectionContext, field_name: str) -> str | None:
 
 
 def _demote_if_low_confidence(ctx: DetectionContext, finding: Finding) -> Finding:
-    """영향 케이스 1건뿐이고 그 케이스의 trial 수가 부족하면 INCONCLUSIVE로 강등한다."""
-    if len(finding.affected_testcases) > 1:
+    """Use both V0/V1 sample counts for every affected testcase."""
+    # Observed safety violations are fail-closed facts, not statistical trends.
+    if finding.type is FindingType.SAFETY_ALERT:
         return finding
 
     for tc in finding.affected_testcases:
         tc_agg = ctx.agg.by_testcase.get(tc)
         if tc_agg is None:
             continue
+        v0m = tc_agg.metrics_by_label.get(ctx.v0_label)
         v1m = tc_agg.metrics_by_label.get(ctx.v1_label)
-        if v1m is not None and v1m.trial_count < MIN_TRIALS_FOR_CONFIDENCE:
-            return finding.model_copy(update={"type": FindingType.INCONCLUSIVE, "low_confidence": True})
+        if (
+            v0m is None
+            or v1m is None
+            or min(v0m.trial_count, v1m.trial_count) < MIN_TRIALS_FOR_CONFIDENCE
+        ):
+            return finding.model_copy(
+                update={"type": FindingType.INCONCLUSIVE, "low_confidence": True}
+            )
     return finding
 
 

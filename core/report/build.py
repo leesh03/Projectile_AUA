@@ -78,6 +78,11 @@ def _build_limitations(load_result: LoadResult) -> list[str]:
             f"{len(load_result.unpaired_testcases)}개 testcase가 baseline/candidate 한쪽에만 있어 비교에서 제외됨: "
             f"{load_result.unpaired_testcases}"
         )
+    if load_result.unpaired_trials:
+        limitations.append(
+            f"{len(load_result.unpaired_trials)}개 trial pair가 불완전해 비교에서 제외됨: "
+            f"{load_result.unpaired_trials}"
+        )
     if load_result.skipped_trials:
         limitations.append(f"trial {len(load_result.skipped_trials)}건이 계약 위반(필수 필드 누락)으로 제외됨")
     return limitations

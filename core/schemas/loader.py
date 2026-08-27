@@ -46,6 +46,7 @@ class LoadResult:
     trials: list[TrialResult]  # 페어링됐고 파싱에 성공한 trial만
     traces: list[TraceStep] | None  # 위와 같은 기준. traces 자체가 없었으면 None
     unpaired_testcases: list[str]
+    unpaired_trials: list[str] = field(default_factory=list)
     skipped_trials: list[SkippedRecord] = field(default_factory=list)
     skipped_traces: list[SkippedRecord] = field(default_factory=list)
     low_confidence: bool = False
@@ -86,16 +87,26 @@ def load_bundle(raw: dict[str, Any] | str | Path) -> LoadResult:
     else:
         good_traces, skipped_traces = [], []
 
-    paired_trials, unpaired = _pair(good_trials, baseline.label, candidate.label)
-    paired_ids = {t.testcase_id for t in paired_trials}
-    paired_traces: list[TraceStep] | None = (
-        [t for t in good_traces if t.testcase_id in paired_ids] if raw_traces else None
+    good_trials, duplicate_trials = _dedupe_trials(good_trials)
+    skipped_trials.extend(duplicate_trials)
+    paired_trials, unpaired, unpaired_trial_keys = _pair(
+        good_trials,
+        baseline.label,
+        candidate.label,
     )
+    paired_traces, invalid_traces = _filter_traces(good_traces, paired_trials)
+    skipped_traces.extend(invalid_traces)
+    if not raw_traces:
+        paired_traces = None
 
     warnings: list[str] = []
     if unpaired:
         warnings.append(
             f"{len(unpaired)}개 testcase가 baseline/candidate 한쪽에만 있어 비교에서 제외됨: {sorted(unpaired)}"
+        )
+    if unpaired_trial_keys:
+        warnings.append(
+            f"{len(unpaired_trial_keys)}개 (testcase_id, trial)이 한쪽 버전에만 있어 비교에서 제외됨"
         )
     if skipped_trials:
         warnings.append(f"trial {len(skipped_trials)}건이 필수 필드 누락/계약 위반으로 제외됨")
@@ -115,6 +126,7 @@ def load_bundle(raw: dict[str, Any] | str | Path) -> LoadResult:
         trials=paired_trials,
         traces=paired_traces,
         unpaired_testcases=sorted(unpaired),
+        unpaired_trials=[f"{testcase_id}:trial-{trial}" for testcase_id, trial in sorted(unpaired_trial_keys)],
         skipped_trials=skipped_trials,
         skipped_traces=skipped_traces,
         low_confidence=low_confidence,
@@ -177,15 +189,85 @@ def _summarize_error(exc: ValidationError) -> str:
     return "; ".join(parts)
 
 
-def _pair(trials: list[TrialResult], baseline_label: str, candidate_label: str) -> tuple[list[TrialResult], set[str]]:
-    labels_by_case: dict[str, set[str]] = {}
+def _dedupe_trials(
+    trials: list[TrialResult],
+) -> tuple[list[TrialResult], list[SkippedRecord]]:
+    seen: set[tuple[str, str, int]] = set()
+    good: list[TrialResult] = []
+    skipped: list[SkippedRecord] = []
+    for trial in trials:
+        key = (trial.testcase_id, trial.agent_label, trial.trial)
+        if key in seen:
+            skipped.append(
+                SkippedRecord(
+                    kind="trial",
+                    index=-1,
+                    testcase_id=trial.testcase_id,
+                    agent_label=trial.agent_label,
+                    reason=f"duplicate TrialResult key: {key}",
+                )
+            )
+            continue
+        seen.add(key)
+        good.append(trial)
+    return good, skipped
+
+
+def _pair(
+    trials: list[TrialResult],
+    baseline_label: str,
+    candidate_label: str,
+) -> tuple[list[TrialResult], set[str], set[tuple[str, int]]]:
+    labels_by_key: dict[tuple[str, int], set[str]] = {}
     for t in trials:
-        labels_by_case.setdefault(t.testcase_id, set()).add(t.agent_label)
+        labels_by_key.setdefault((t.testcase_id, t.trial), set()).add(t.agent_label)
 
     required = {baseline_label, candidate_label}
-    unpaired = {tc for tc, labels in labels_by_case.items() if not required <= labels}
-    paired = [t for t in trials if t.testcase_id not in unpaired]
-    return paired, unpaired
+    unpaired_keys = {key for key, labels in labels_by_key.items() if not required <= labels}
+    paired = [t for t in trials if (t.testcase_id, t.trial) not in unpaired_keys]
+    paired_cases = {t.testcase_id for t in paired}
+    all_cases = {t.testcase_id for t in trials}
+    fully_unpaired_cases = all_cases - paired_cases
+    return paired, fully_unpaired_cases, unpaired_keys
+
+
+def _filter_traces(
+    traces: list[TraceStep],
+    trials: list[TrialResult],
+) -> tuple[list[TraceStep], list[SkippedRecord]]:
+    trial_keys = {(t.testcase_id, t.agent_label, t.trial) for t in trials}
+    seen_steps: set[tuple[str, str, int, str | None, int]] = set()
+    run_by_trial: dict[tuple[str, str, int], str | None] = {}
+    good: list[TraceStep] = []
+    skipped: list[SkippedRecord] = []
+    for trace in traces:
+        trial_number = trace.trial
+        key = (trace.testcase_id, trace.agent_label, trial_number)
+        reason: str | None = None
+        if trial_number is None or key not in trial_keys:
+            reason = "trace references no paired TrialResult"
+        else:
+            typed_key = (trace.testcase_id, trace.agent_label, trial_number)
+            previous_run = run_by_trial.setdefault(typed_key, trace.run_id)
+            if previous_run != trace.run_id:
+                reason = "trace run_id differs within one TrialResult"
+            step_key = (*typed_key, trace.run_id, trace.step_index)
+            if reason is None and step_key in seen_steps:
+                reason = f"duplicate TraceStep key: {step_key}"
+            seen_steps.add(step_key)
+        if reason is not None:
+            skipped.append(
+                SkippedRecord(
+                    kind="trace",
+                    index=-1,
+                    testcase_id=trace.testcase_id,
+                    agent_label=trace.agent_label,
+                    reason=reason,
+                )
+            )
+            continue
+        good.append(trace)
+    return good, skipped
 
 
 def _trial_counts(trials: list[TrialResult]) -> dict[tuple[str, str], int]:
