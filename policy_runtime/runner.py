@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 from collections.abc import Mapping
 from dataclasses import dataclass
 from hashlib import sha256
@@ -102,47 +104,64 @@ class SuiteRunner:
             for raw_case in cases
             for trial in range(1, trials + 1)
         ]
-        request_payload = {
-            "schema": "isolated-agent-request-v1",
-            "project_root": str(self.project_root),
-            "output_root": str(self.output_root),
-            "run_id": run_id,
-            "mode": self.bundle.mode,
-            "provider": self.bundle.provider,
-            "model": self.bundle.model,
-            "db_path": str(self.bundle.db_path) if self.bundle.db_path else None,
-            "agent_label": self.bundle.agent_label,
-            "scaffold_overrides": dict(self.bundle.scaffold_config),
-            "version_metadata": dict(self.bundle.version_metadata),
-            "sql_strategy": self.bundle.sql_strategy,
-            "fault_profile": self.bundle.fault_profile,
-            "experiment_provenance": dict(experiment_provenance),
-            "jobs": jobs,
-        }
         worker_environment = os.environ.copy()
         worker_environment["PYTHONUTF8"] = "1"
         worker_environment["PYTHONIOENCODING"] = "utf-8"
+        worker_environment.pop("PYTHONPATH", None)
+        worker_environment.pop("POLICY_AGENT_DB_PATH", None)
         key_name = self._provider_key_name(self.bundle.provider)
         if key_name and self.bundle.runtime_api_key:
             worker_environment[key_name] = self.bundle.runtime_api_key
         timeout = int(os.getenv("AGENT_WORKER_TIMEOUT_SECONDS", "7200"))
         if timeout <= 0:
             raise ValueError("AGENT_WORKER_TIMEOUT_SECONDS must be positive")
-        completed = subprocess.run(
-            [sys.executable, "-B", "-m", "policy_runtime.isolated_worker"],
-            input=json.dumps(
-                request_payload,
-                ensure_ascii=False,
-                separators=(",", ":"),
-            ),
-            text=True,
-            encoding="utf-8",
-            capture_output=True,
-            cwd=self.project_root,
-            env=worker_environment,
-            timeout=timeout,
-            check=False,
-        )
+        with tempfile.TemporaryDirectory(prefix="policy-agent-stage-") as temporary:
+            stage_root = Path(temporary) / "project"
+            self._stage_agent_root(stage_root)
+            staged_output = stage_root / ".agent-output"
+            staged_db = stage_root / "data" / "shop.db"
+            request_payload = {
+                "schema": "isolated-agent-request-v2",
+                "project_root": str(stage_root),
+                "blocked_roots": [str(self.project_root)],
+                "output_root": str(staged_output),
+                "run_id": run_id,
+                "mode": self.bundle.mode,
+                "provider": self.bundle.provider,
+                "model": self.bundle.model,
+                "db_path": str(staged_db),
+                "agent_label": self.bundle.agent_label,
+                "scaffold_overrides": dict(self.bundle.scaffold_config),
+                "version_metadata": dict(self.bundle.version_metadata),
+                "sql_strategy": self.bundle.sql_strategy,
+                "fault_profile": self.bundle.fault_profile,
+                "experiment_provenance": dict(experiment_provenance),
+                "jobs": jobs,
+            }
+            completed = subprocess.run(
+                [sys.executable, "-B", "-m", "policy_runtime.isolated_worker"],
+                input=json.dumps(
+                    request_payload,
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                ),
+                text=True,
+                encoding="utf-8",
+                capture_output=True,
+                cwd=stage_root,
+                env=worker_environment,
+                timeout=timeout,
+                check=False,
+            )
+            if completed.returncode == 0:
+                staged_run = staged_output / run_id
+                destination = self.output_root / run_id
+                if not staged_run.is_dir():
+                    raise RuntimeError("isolated Agent worker did not create its run directory")
+                if destination.exists():
+                    raise FileExistsError(f"run output already exists: {destination}")
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copytree(staged_run, destination)
         if completed.returncode != 0:
             detail = " ".join((completed.stderr or "").split())[-500:]
             raise RuntimeError(
@@ -161,6 +180,52 @@ class SuiteRunner:
         if len(records) != len(jobs):
             raise RuntimeError("isolated Agent worker returned an unexpected trial count")
         return records
+
+    def _stage_agent_root(self, stage_root: Path) -> None:
+        """Copy only Agent runtime inputs; evaluator Gold never enters the namespace."""
+
+        source_db = (self.bundle.db_path or self.project_root / "data" / "shop.db").resolve()
+        gold_db = self.project_root / "data" / "answer_key.db"
+        same_as_gold = False
+        if source_db.exists() and gold_db.exists():
+            try:
+                same_as_gold = source_db.samefile(gold_db)
+            except OSError:
+                same_as_gold = False
+        if source_db.name.casefold() == "answer_key.db" or same_as_gold:
+            raise ValueError("the Agent runtime database cannot be a Gold database")
+        required_files = (
+            source_db,
+            self.project_root / "policies" / "policy_rules.json",
+            self.project_root / "core" / "__init__.py",
+        )
+        missing = [str(path) for path in required_files if not path.is_file()]
+        if missing:
+            raise FileNotFoundError(f"Agent staging input is missing: {missing}")
+
+        ignore = shutil.ignore_patterns("__pycache__", "*.pyc", ".pytest_cache", ".ruff_cache")
+        shutil.copytree(self.project_root / "agents", stage_root / "agents", ignore=ignore)
+        shutil.copytree(
+            self.project_root / "policy_runtime",
+            stage_root / "policy_runtime",
+            ignore=ignore,
+        )
+        shutil.copytree(
+            self.project_root / "core" / "schemas",
+            stage_root / "core" / "schemas",
+            ignore=ignore,
+        )
+        shutil.copy2(
+            self.project_root / "core" / "__init__.py",
+            stage_root / "core" / "__init__.py",
+        )
+        (stage_root / "data").mkdir(parents=True, exist_ok=True)
+        (stage_root / "policies").mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source_db, stage_root / "data" / "shop.db")
+        shutil.copy2(
+            self.project_root / "policies" / "policy_rules.json",
+            stage_root / "policies" / "policy_rules.json",
+        )
 
     def _patch_evaluation(
         self,
@@ -412,7 +477,7 @@ class SuiteRunner:
             "execution_status": "COMPLETED",
             "experiment_provenance": experiment_provenance,
             "planner": False,
-            "isolation": "subprocess-audit-v1",
+            "isolation": "staged-subprocess-audit-v2",
             "case_count": len(cases),
             "trial_count": len(records),
             "task_successes": sum(bool(item["task_success"]) for item in records),

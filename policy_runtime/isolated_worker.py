@@ -33,6 +33,12 @@ def _require_string(payload: Mapping[str, Any], key: str) -> str:
 def main() -> int:
     payload = _read_request()
     root = Path(_require_string(payload, "project_root")).resolve()
+    blocked_roots_raw = payload.get("blocked_roots", [])
+    if not isinstance(blocked_roots_raw, list) or not all(
+        isinstance(item, str) and item for item in blocked_roots_raw
+    ):
+        raise TypeError("isolated worker blocked_roots must be an array of paths")
+    blocked_roots = tuple(Path(item).resolve() for item in blocked_roots_raw)
     output_root = Path(_require_string(payload, "output_root")).resolve()
     run_id = _require_string(payload, "run_id")
     mode = _require_string(payload, "mode")
@@ -63,7 +69,7 @@ def main() -> int:
         raise ValueError("isolated worker jobs must be a non-empty array")
 
     records: list[dict[str, Any]] = []
-    with agent_execution_guard(root):
+    with agent_execution_guard(root, blocked_roots=blocked_roots):
         bundle = build_agent(
             root,
             mode=mode,
@@ -95,7 +101,7 @@ def main() -> int:
                     "provider": bundle.provider,
                     "model": bundle.model,
                     "planner": False,
-                    "isolation": "subprocess-audit-v1",
+                    "isolation": "staged-subprocess-audit-v2",
                     "agent_version": dict(bundle.version_metadata),
                     "sql_strategy": bundle.sql_strategy,
                     "fault_profile": bundle.fault_profile,
