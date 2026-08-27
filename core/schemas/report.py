@@ -58,6 +58,7 @@ class EfficiencyCheck(BaseModel):
     avg_tokens_delta_pct: float | None = None
     avg_latency_delta_pct: float | None = None
     avg_retry_delta: float | None = None
+    avg_llm_call_delta: float | None = None
     improved: bool
 
 
