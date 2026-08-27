@@ -11,11 +11,12 @@ import json
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from time import perf_counter_ns
 from typing import TYPE_CHECKING, Any, Literal
 from uuid import uuid4
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 if TYPE_CHECKING:
     from agents.policy_agent.nodes.sql_generator import SQLPlan
@@ -206,8 +207,9 @@ class AgentRequest:
             raise ValueError(f"target_ids is missing keys: {sorted(missing_targets)}")
         if missing_context:
             raise ValueError(f"trusted_context is missing keys: {sorted(missing_context)}")
-        if self.request.get("currency") != "KRW":
-            raise ValueError("only KRW requests are supported by dataset v0.5")
+        currency = self.request.get("currency")
+        if currency is not None and (not isinstance(currency, str) or not currency.strip()):
+            raise ValueError("request.currency must be a non-empty string or None")
         if self.trusted_context.get("timezone") != "Asia/Seoul":
             raise ValueError("trusted_context.timezone must be Asia/Seoul")
 
@@ -240,16 +242,41 @@ class AgentRequest:
         )
 
     @classmethod
-    def interactive(cls, question: str, *, order_item_id: str) -> AgentRequest:
+    def interactive(
+        cls,
+        question: str,
+        *,
+        order_item_id: str,
+        evaluation_date: str | date | None = None,
+        timezone_name: str = "Asia/Seoul",
+        requested_amount: int | None = None,
+        currency: str = "KRW",
+    ) -> AgentRequest:
+        if timezone_name != "Asia/Seoul":
+            raise ValueError("interactive timezone_name must be Asia/Seoul")
+        try:
+            timezone = ZoneInfo(timezone_name)
+        except ZoneInfoNotFoundError as exc:
+            raise ValueError(f"unknown interactive timezone: {timezone_name}") from exc
+        if evaluation_date is None:
+            normalized_date = datetime.now(timezone).date().isoformat()
+        elif isinstance(evaluation_date, datetime):
+            normalized_date = evaluation_date.date().isoformat()
+        elif isinstance(evaluation_date, date):
+            normalized_date = evaluation_date.isoformat()
+        elif isinstance(evaluation_date, str) and evaluation_date.strip():
+            normalized_date = evaluation_date.strip()
+        else:
+            raise TypeError("evaluation_date must be a non-empty string, date, or None")
         return cls(
             testcase_id="interactive",
             difficulty="INTERACTIVE",
             question=question,
             request={
-                "currency": "KRW",
+                "currency": currency,
                 "order_item_id": order_item_id,
                 "refund_request_id": "interactive",
-                "requested_amount": None,
+                "requested_amount": requested_amount,
             },
             target_ids={
                 "customer_id": None,
@@ -259,8 +286,8 @@ class AgentRequest:
                 "shipment_id": None,
             },
             trusted_context={
-                "evaluation_date": "UNSET",
-                "timezone": "Asia/Seoul",
+                "evaluation_date": normalized_date,
+                "timezone": timezone_name,
             },
         )
 
@@ -643,6 +670,14 @@ class PolicyAgentState:
             raise FileExistsError(f"trial artifact already exists: {target}")
         payload = {
             "trial_result": self.trial_result_dict(policy_correct=policy_correct),
+            "agent_output": {
+                "decision": self.decision,
+                "clauses": list(self.policy_clauses),
+                "rationale": self.rationale,
+                "response": self.response,
+                "verifier_status": self.verifier_status,
+                "verifier_issues": list(self.verifier_issues),
+            },
             "traces": self.trace_dicts(),
             "provider_calls": [call.to_dict() for call in self.provider_calls],
         }

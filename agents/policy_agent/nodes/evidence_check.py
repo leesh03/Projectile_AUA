@@ -99,7 +99,6 @@ class EvidenceChecker:
         facts: dict[str, Any] = {
             "trusted_context": dict(request.trusted_context),
             "request": dict(request.request),
-            "target_ids": dict(request.target_ids),
             "lookup_counts": {},
         }
         ambiguous: list[str] = []
@@ -113,10 +112,20 @@ class EvidenceChecker:
                     "UNKNOWN_QUERY_SECTION", f"query result has unknown section: {section}"
                 )
             normalized = [self._unflatten_row(row) for row in rows]
+            materialized: list[dict[str, Any]] = []
+            for row in normalized:
+                present = row.pop("_record_present", True)
+                if present not in (True, False, 0, 1):
+                    raise EvidenceAssemblyError(
+                        "INVALID_RECORD_PRESENCE",
+                        "_record_present must be true, false, 0, or 1",
+                    )
+                if bool(present):
+                    materialized.append(row)
             if spec.count_key is not None:
                 facts["lookup_counts"][spec.count_key] = len(normalized)
 
-            for index, row in enumerate(normalized):
+            for index, row in enumerate(materialized):
                 for field_name in spec.identity_fields:
                     prefix = f"/{section}/{index}" if spec.cardinality == "many" else f"/{section}"
                     path = f"{prefix}/{field_name}"
@@ -128,15 +137,15 @@ class EvidenceChecker:
                         mismatched.append(path)
 
             if spec.cardinality == "one":
-                if len(normalized) == 0:
+                if len(normalized) == 0 or not materialized:
                     facts[section] = None
-                elif len(normalized) == 1:
-                    facts[section] = normalized[0]
+                elif len(normalized) == 1 and len(materialized) == 1:
+                    facts[section] = materialized[0]
                 else:
                     facts[section] = None
                     ambiguous.append(section)
             else:
-                facts[section] = normalized
+                facts[section] = materialized
 
         for section, spec in QUERY_REGISTRY.items():
             facts.setdefault(section, [] if spec.cardinality == "many" else None)
@@ -186,21 +195,8 @@ class EvidenceChecker:
             if not self.resolve_pointer(facts, path)[0]
         )
         state.missing_evidence = list(missing)
-        if ambiguous:
-            return EvidenceResult(
-                sufficient=False,
-                missing_paths=missing,
-                ambiguous_sections=ambiguous,
-                mismatched_paths=mismatched,
-                reason="AMBIGUOUS_RESULT",
-            )
-        if mismatched:
-            state.missing_evidence = list(mismatched)
-            return EvidenceResult(
-                sufficient=False,
-                mismatched_paths=mismatched,
-                reason="IDENTITY_MISMATCH",
-            )
+        # Cardinality and reference mismatches are policy facts covered by
+        # POL-10.09~16, not Core execution failures. The reasoner must see them.
         if missing:
             return EvidenceResult(
                 sufficient=False,

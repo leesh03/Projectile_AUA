@@ -121,7 +121,9 @@ def parse_verifier_output(text: str) -> tuple[str, list[str], str | None]:
                 return status, ([] if status == PASS else issues), None
 
     # JSON을 못 읽으면 무조건 FAIL이다.
-    # 부분 문자열 폴백은 검증되지 않은 판정을 통과시킬 수 있다.
+    # 예전에는 "본문에 PASS가 있고 FAIL이 없으면 통과"라는 폴백이 있었는데,
+    # 부분 문자열 검사라 BYPASS·compass·"NOT PASS"가 전부 PASS로 뚫렸다.
+    # 검증되지 않은 판정을 통과시키는 쪽이 훨씬 위험하므로 폴백을 두지 않는다.
     return FAIL, [f"{PARSE_ERROR}: {text.strip()[:200]}"], PARSE_ERROR
 
 

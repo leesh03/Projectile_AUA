@@ -89,7 +89,11 @@ def test_unparsable_output_fails_closed():
 
 
 def test_bare_pass_text_is_rejected():
-    """맨 PASS 한 단어도 이제는 통과시키지 않는다."""
+    """맨 PASS 한 단어도 이제는 통과시키지 않는다.
+
+    예전엔 관대하게 받았는데, 같은 폴백이 BYPASS·compass·"NOT PASS"까지
+    통과시켰다. 검증기가 뚫리는 쪽이 엄격해서 놓치는 쪽보다 위험하다.
+    """
     status, _, error = parse_verifier_output("PASS")
     assert status == "FAIL"
     assert error == "VERIFIER_PARSE_ERROR"
@@ -386,6 +390,12 @@ class TestVerifyPromptCoverage:
 
 
 class TestParserCannotBeBypassed:
+    """JSON이 깨졌을 때 PASS로 뚫리면 안 된다.
+
+    예전 폴백은 부분 문자열 검사라 PASS가 들어간 아무 단어에나 통과했다.
+    검증기가 뚫리면 Auditor의 O-01이 "Verifier가 일하고 있다"고 오판한다.
+    """
+
     @pytest.mark.parametrize("text", [
         "BYPASS", "compass", "NOT PASS", "PASS 아님",
         "판정: PASS라고 보기 어렵습니다", "", "   ",
@@ -395,7 +405,7 @@ class TestParserCannotBeBypassed:
         status, issues, error = parse_verifier_output(text)
         assert status == "FAIL"
         assert error == "VERIFIER_PARSE_ERROR"
-        assert issues
+        assert issues  # 재추론이 뭘 고쳐야 할지 알 수 있어야 한다
 
     def test_정상_JSON은_그대로_PASS(self):
         assert parse_verifier_output(PASS_JSON) == ("PASS", [], None)

@@ -13,12 +13,14 @@ from pathlib import Path
 
 import typer
 
+from core.candidate import generate_candidates
 from core.detector import DetectionContext, run_rules
 from core.diagnosis import LLMClient, diagnose
 from core.diff.aggregate import aggregate
 from core.diff.compare import compare
 from core.report import build_report, render_markdown
 from core.schemas.loader import load_bundle
+from core.validation import candidate_with_result, validate_candidate
 
 app = typer.Typer(help="Agent Upgrade Auditor CLI")
 
@@ -49,6 +51,24 @@ def run(
     bundle: Path = typer.Option(..., "--bundle", exists=True, help="AuditBundle JSON 경로"),  # noqa: B008
     out: Path = typer.Option(..., "--out", help="출력 경로 접두사. <out>.json / <out>.md로 저장된다"),  # noqa: B008
     no_llm: bool = typer.Option(False, "--no-llm", help="LLM 진단을 건너뛰고 규칙 기반 보고서만 만든다"),
+    no_candidates: bool = typer.Option(False, "--no-candidates", help="규칙 기반 수정 후보 생성을 건너뛴다"),
+    revalidation_bundle: Path | None = typer.Option(
+        None,
+        "--revalidation-bundle",
+        exists=True,
+        help="후보 적용 전후의 별도 AuditBundle. 지정하면 품질·안전·효율 Gate를 실행한다.",
+    ),
+    candidate_id: str | None = typer.Option(
+        None,
+        "--candidate-id",
+        help="재검증할 candidate_id. 생략하면 첫 번째 후보를 사용한다.",
+    ),
+    quality_margin: float = typer.Option(0.0, "--quality-margin", min=0.0),
+    allowed_safety_violations: int = typer.Option(
+        0,
+        "--allowed-safety-violations",
+        min=0,
+    ),
 ) -> None:
     load_result = load_bundle(bundle)
     agg = aggregate(load_result)
@@ -73,6 +93,37 @@ def run(
             typer.echo(f"[llm] {note}")
         if result.scrubbed_count:
             typer.echo(f"[llm] 설명문 {result.scrubbed_count}건에서 수치를 제거했습니다")
+
+    candidates = [] if no_candidates else generate_candidates(report.findings)
+    revalidation = []
+    if revalidation_bundle is not None:
+        if not candidates:
+            raise typer.BadParameter(
+                "재검증할 Candidate가 없습니다. --no-candidates를 제거하거나 Finding이 있는 Bundle을 사용하세요."
+            )
+        selected_id = candidate_id or candidates[0].candidate_id
+        selected = next((item for item in candidates if item.candidate_id == selected_id), None)
+        if selected is None:
+            raise typer.BadParameter(
+                f"알 수 없는 candidate_id={selected_id!r}; 가능한 값: "
+                f"{[item.candidate_id for item in candidates]}"
+            )
+        revalidation_load = load_bundle(revalidation_bundle)
+        result = validate_candidate(
+            selected,
+            revalidation_load,
+            quality_margin=quality_margin,
+            allowed_safety_violations=allowed_safety_violations,
+        )
+        candidates = [
+            candidate_with_result(item, result) if item.candidate_id == selected_id else item
+            for item in candidates
+        ]
+        revalidation.append(result)
+
+    report = report.model_copy(
+        update={"candidates": candidates, "revalidation": revalidation}
+    )
 
     out.parent.mkdir(parents=True, exist_ok=True)
     json_path = out.with_suffix(".json")

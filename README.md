@@ -11,6 +11,32 @@ Agent를 수정·업그레이드했을 때 **무엇이 망가졌고 무엇을 �
 
 ---
 
+## 현재 통합 실행
+
+모든 명령은 저장소 루트에서 실행한다. Testbed 런타임은 `run_agent.py`와
+`policy_runtime/`에 있으며, V0와 V1은 각각 독립 실행한 뒤 AuditBundle로 비교한다.
+
+```bash
+# 단일 Agent 또는 60개 전체 사례
+python run_agent.py run-case TC-001 --mode deterministic
+python run_agent.py run-suite --mode deterministic
+
+# V0/V1 독립 실행 → AuditBundle 생성
+python tools/run_comparison.py --trials 2 --bundle-out reports/bundles/comparison.json
+
+# Auditor → Finding → Candidate 생성
+python -m apps.cli run --bundle reports/bundles/comparison.json --out reports/audits/comparison --no-llm
+
+# 루트 코드·60건 V0/V1·Bundle·Candidate 전체 검증
+python tools/verify_integration.py
+```
+
+`run_comparison.py --help`에서 Repair, Verifier, SQL 전략, fault profile 등
+버전별 Scaffold 조건을 지정할 수 있다. Candidate 재검증은 Auditor CLI의
+`--revalidation-bundle`과 `--candidate-id`를 사용한다.
+
+---
+
 ## 시작하기 — 자기 줄만 보면 됩니다 ^^
 
 | 담당 | 내 폴더 | 만들 브랜치 이름 | 첫 산출물 |
