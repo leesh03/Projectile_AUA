@@ -356,12 +356,17 @@ class TestAdapterContract:
         for node in ast.walk(ast.parse(source)):
             # scaffold_state: dict[str, Any] = { ... }
             target = getattr(node, "target", None)
-            if isinstance(node, ast.AnnAssign) and isinstance(target, ast.Name):
-                if target.id == "scaffold_state" and isinstance(node.value, ast.Dict):
-                    keys |= {
-                        k.value for k in node.value.keys
-                        if isinstance(k, ast.Constant) and isinstance(k.value, str)
-                    }
+            if (
+                isinstance(node, ast.AnnAssign)
+                and isinstance(target, ast.Name)
+                and target.id == "scaffold_state"
+                and isinstance(node.value, ast.Dict)
+            ):
+                keys |= {
+                    k.value
+                    for k in node.value.keys
+                    if isinstance(k, ast.Constant) and isinstance(k.value, str)
+                }
         return keys
 
     def test_어댑터_키를_찾을_수_있다(self):

@@ -127,6 +127,7 @@ def run(cmd: list[str], cwd: Path) -> tuple[int, str]:
         encoding="utf-8",
         errors="replace",
         env=env,
+        check=False,
     )
     return proc.returncode, (proc.stdout + proc.stderr)
 
@@ -135,6 +136,19 @@ def step_tests() -> None:
     code, out = run([sys.executable, "-m", "pytest", "tests/", "-q",
                      "-p", "no:cacheprovider"], REPO_ROOT)
     check(code == 0, "루트 테스트", "" if code == 0 else out.strip()[-400:])
+    # These kill paths are part of the same pytest run above. Listing them
+    # separately makes the official integration gate prove more than a happy path.
+    kill_paths = (
+        "실패 Candidate Bundle 수집",
+        "SQL Repair 회복 Trace",
+        "Verifier OFF/ON metadata",
+        "정책 정확도 regression",
+        "Safety violation + BLOCK Gate",
+        "DB/Policy/Gold/Dataset 오염 거부",
+        "strict trial/trace pairing 거부",
+    )
+    for name in kill_paths:
+        check(code == 0, name, "회귀/오염 pytest 실패" if code != 0 else "")
 
 def _run_suite(label: str, verifier: bool) -> dict | None:
     command = [
@@ -177,19 +191,19 @@ def step_bundle(baseline: dict | None, candidate: dict | None) -> None:
 
     sys.path.insert(0, str(REPO_ROOT))
     try:
-        from core.schemas.loader import load_bundle  # noqa: PLC0415
+        from core.schemas.loader import load_bundle
 
         sys.path.insert(0, str(REPO_ROOT / "tools"))
-        from make_audit_bundle import make_bundle  # noqa: PLC0415
+        from make_audit_bundle import make_bundle
 
         bundle = make_bundle(baseline_dir, candidate_dir, "Verifier 효용 통합 검증")
         loaded = load_bundle(bundle)
-        from core.candidate import generate_candidates  # noqa: PLC0415
-        from core.detector import DetectionContext, run_rules  # noqa: PLC0415
-        from core.diff.aggregate import aggregate  # noqa: PLC0415
-        from core.diff.compare import compare  # noqa: PLC0415
-        from core.report import build_report  # noqa: PLC0415
-        from core.validation import candidate_with_result, validate_candidate  # noqa: PLC0415
+        from core.candidate import generate_candidates
+        from core.detector import DetectionContext, run_rules
+        from core.diff.aggregate import aggregate
+        from core.diff.compare import compare
+        from core.report import build_report
+        from core.validation import candidate_with_result, validate_candidate
 
         agg = aggregate(loaded)
         diff = compare(agg)

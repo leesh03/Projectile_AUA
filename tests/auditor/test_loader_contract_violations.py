@@ -41,10 +41,11 @@ def test_missing_required_field_skips_only_that_record() -> None:
 
     # case_05는 V0 trial 2건 + V1 trial 1건(trial 2)만 남아야 한다 -> trial 수 불균형
     case_05_trials = [t for t in result.trials if t.testcase_id == "case_05"]
-    assert len(case_05_trials) == 3
+    assert len(case_05_trials) == 2
     v1_trials = [t for t in case_05_trials if t.agent_label == "V1"]
     assert len(v1_trials) == 1
     assert v1_trials[0].trial == 2
+    assert "case_05:trial-1" in result.unpaired_trials
 
 
 def test_low_confidence_flagged_when_any_pair_has_under_two_trials() -> None:

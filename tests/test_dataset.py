@@ -2,20 +2,19 @@
 
 from __future__ import annotations
 
-from collections import Counter
 import hashlib
+import importlib
 import json
-from pathlib import Path
+import platform
 import sqlite3
 import tempfile
 import unittest
+from collections import Counter
+from pathlib import Path
 
 from data.build_dataset import build
 
-try:
-    from policies.policy_oracle import decide
-except ModuleNotFoundError:
-    from policy_oracle import decide
+importlib.import_module("policies.policy_oracle")
 
 
 ROOT = Path(__file__).parents[1]
@@ -197,6 +196,12 @@ class DatasetTests(unittest.TestCase):
         self.assertEqual(60, release_manifest["testcase_count"])
         for relative, expected in release_manifest["artifact_sha256"].items():
             self.assertEqual(expected, sha256(ROOT / relative))
+
+        if platform.python_version() != "3.11.5" or sqlite3.sqlite_version != "3.43.0":
+            self.skipTest(
+                "exact-byte dataset rebuild requires release Python 3.11.5 / SQLite 3.43.0; "
+                "runtime integrity hashes were still verified"
+            )
 
         committed = {
             name: sha256(DATA / name)

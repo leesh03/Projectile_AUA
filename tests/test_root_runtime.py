@@ -6,8 +6,11 @@ from pathlib import Path
 from agents.policy_agent.nodes.state import AgentRequest
 from policy_runtime.factory import build_agent
 
-
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_legacy_compact_directory_is_absent() -> None:
+    assert not (ROOT / ("compact" + "_agent")).exists()
 
 
 def _case(testcase_id: str = "E-001") -> dict:
@@ -16,8 +19,7 @@ def _case(testcase_id: str = "E-001") -> dict:
 
 
 def test_runtime_modules_and_agent_are_root_owned() -> None:
-    import policy_runtime.factory as factory
-    import policy_runtime.runner as runner
+    from policy_runtime import factory, runner
 
     for module in (factory, runner):
         path = Path(module.__file__).resolve()

@@ -76,7 +76,7 @@ def test_low_trial_single_case_finding_gets_demoted_to_inconclusive() -> None:
     assert demoted.low_confidence is True
 
 
-def test_finding_with_multiple_affected_cases_is_not_demoted() -> None:
+def test_all_affected_cases_require_both_sides_to_have_enough_trials() -> None:
     ctx = _ctx()
     finding = Finding(
         finding_id="F-TEST",
@@ -87,7 +87,9 @@ def test_finding_with_multiple_affected_cases_is_not_demoted() -> None:
         affected_testcases=["c1", "c2"],  # 2건 이상이면 강등 조건에 안 걸림
         evidence=Evidence(metric="success_rate", v0=1.0, v1=0.0, delta_pp=-100.0),
     )
-    assert _demote_if_low_confidence(ctx, finding) is finding
+    result = _demote_if_low_confidence(ctx, finding)
+    assert result.type is FindingType.INCONCLUSIVE
+    assert result.low_confidence is True
 
 
 def test_check_requirement_trace_missing() -> None:
