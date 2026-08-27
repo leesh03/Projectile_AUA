@@ -333,3 +333,44 @@ class TestRepairParseFailure:
         # 같은 SQL을 다시 실행해봐야 같은 오류만 나온다
         assert executor.calls == 0
         assert state["stop_reason"] == "MAX_RETRY"
+
+
+class TestAdapterContract:
+    """어댑터가 넘기는 dict와 _state_stub이 어긋나지 않는지 고정한다.
+
+    스캐폴드는 PolicyAgentState를 직접 보지 않고 scaffold_adapters가 만든
+    dict만 받는다. 테스트는 stub으로 돌아가므로, 둘이 갈라지면 테스트는
+    통과하는데 실제 실행은 깨지는 상황이 생긴다.
+    """
+
+    @staticmethod
+    def _adapter_keys() -> set[str]:
+        """scaffold_adapters.py의 scaffold_state 리터럴에서 키를 뽑는다."""
+        import ast
+        import pathlib
+
+        source = pathlib.Path(
+            "agents/policy_agent/nodes/scaffold_adapters.py"
+        ).read_text(encoding="utf-8")
+        keys: set[str] = set()
+        for node in ast.walk(ast.parse(source)):
+            # scaffold_state: dict[str, Any] = { ... }
+            target = getattr(node, "target", None)
+            if isinstance(node, ast.AnnAssign) and isinstance(target, ast.Name):
+                if target.id == "scaffold_state" and isinstance(node.value, ast.Dict):
+                    keys |= {
+                        k.value for k in node.value.keys
+                        if isinstance(k, ast.Constant) and isinstance(k.value, str)
+                    }
+        return keys
+
+    def test_어댑터_키를_찾을_수_있다(self):
+        # 어댑터 구조가 바뀌어 키를 못 뽑으면 아래 검사가 무의미해진다
+        assert len(self._adapter_keys()) > 10
+
+    def test_stub이_어댑터_키를_모두_제공한다(self):
+        missing = self._adapter_keys() - set(new_state().keys())
+        assert not missing, (
+            f"어댑터는 넘기는데 stub에 없는 키: {sorted(missing)} — "
+            "테스트가 실제 실행과 다른 상태로 돌고 있다"
+        )
