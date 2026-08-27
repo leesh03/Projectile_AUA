@@ -225,7 +225,7 @@ def verify_loop(
             try:
                 reason_fn(state)
                 reasoning_ok = bool(state.get("policy_decision"))
-            except Exception:
+            except Exception:  # noqa: BLE001 - injected reasoner failures are normalized here
                 reasoning_ok = False
         _record_reasoning(state, t["ms"], ok=reasoning_ok)
 

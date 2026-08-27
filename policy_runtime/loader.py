@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, Mapping
 
 
 class PolicyRuleError(ValueError):
@@ -41,7 +41,7 @@ class PolicyRuleSet:
     source_md: str
 
     @classmethod
-    def load(cls, path: str | Path) -> "PolicyRuleSet":
+    def load(cls, path: str | Path) -> PolicyRuleSet:
         policy_path = Path(path)
         try:
             raw = json.loads(policy_path.read_text(encoding="utf-8"))

@@ -11,14 +11,14 @@ fail with InputContractError instead of producing a DecisionResult.
 
 from __future__ import annotations
 
-from copy import deepcopy
-from datetime import date, datetime, time, timedelta, timezone
 import hashlib
 import json
 import re
-from typing import Any, Dict, Iterable, Mapping, MutableMapping, Optional, Sequence, Set, Tuple
+from collections.abc import Iterable, Mapping, MutableMapping
+from copy import deepcopy
+from datetime import UTC, date, datetime, time, timedelta
+from typing import Any
 from zoneinfo import ZoneInfo
-
 
 SAFE_INTEGER = 9_007_199_254_740_991
 SEOUL = ZoneInfo("Asia/Seoul")
@@ -53,8 +53,8 @@ def _entry(
     priority: int,
     reason: str,
     terminal: bool,
-    outcome: Optional[Tuple[str, str, str]] = None,
-) -> Dict[str, Any]:
+    outcome: tuple[str, str, str] | None = None,
+) -> dict[str, Any]:
     return {
         "priority": priority,
         "reason_code": reason,
@@ -75,7 +75,7 @@ APPROVE = ("ELIGIBLE", "READY", "APPROVE_REFUND")
 
 # REG-20 is the only priority source.  Nonterminal entries intentionally have
 # no outcome and can never become primary.
-REGISTRY: Dict[str, Dict[str, Any]] = {
+REGISTRY: dict[str, dict[str, Any]] = {
     "POL-10.14": _entry(110, "INCONSISTENT_LOOKUP_RESULT", True, INFO),
     "POL-10.15": _entry(111, "ENTITY_REFERENCE_MISMATCH", True, INFO),
     "POL-10.16": _entry(112, "SNAPSHOT_REFERENCE_MISMATCH", True, INFO),
@@ -169,7 +169,7 @@ def _is_bool(value: Any) -> bool:
     return type(value) is bool
 
 
-def _check_exact_object(value: Any, keys: Set[str], path: str, errors: Set[str]) -> bool:
+def _check_exact_object(value: Any, keys: set[str], path: str, errors: set[str]) -> bool:
     if not isinstance(value, dict):
         errors.add(path)
         return False
@@ -181,19 +181,19 @@ def _check_exact_object(value: Any, keys: Set[str], path: str, errors: Set[str])
     return actual == keys
 
 
-def _check_string(value: Any, path: str, errors: Set[str], nullable: bool = False) -> None:
+def _check_string(value: Any, path: str, errors: set[str], nullable: bool = False) -> None:
     if value is None and nullable:
         return
     if not isinstance(value, str) or not value:
         errors.add(path)
 
 
-def _check_nullable_string(value: Any, path: str, errors: Set[str]) -> None:
+def _check_nullable_string(value: Any, path: str, errors: set[str]) -> None:
     if value is not None and not isinstance(value, str):
         errors.add(path)
 
 
-def _check_amount(value: Any, path: str, errors: Set[str], nullable: bool) -> None:
+def _check_amount(value: Any, path: str, errors: set[str], nullable: bool) -> None:
     if value is None and nullable:
         return
     if not _is_int(value) or abs(value) > SAFE_INTEGER:
@@ -201,7 +201,7 @@ def _check_amount(value: Any, path: str, errors: Set[str], nullable: bool) -> No
 
 
 def _validate_input_contract(facts: Any) -> None:
-    errors: Set[str] = set()
+    errors: set[str] = set()
     if not _check_exact_object(facts, TOP_KEYS, "", errors):
         raise InputContractError(errors or {""})
 
@@ -305,7 +305,7 @@ def _jcs_bytes(value: Any) -> bytes:
     ).encode("utf-8")
 
 
-def _canonical_facts(facts: Mapping[str, Any]) -> Dict[str, Any]:
+def _canonical_facts(facts: Mapping[str, Any]) -> dict[str, Any]:
     canonical = deepcopy(facts)
     canonical["refund_history"] = sorted(
         canonical["refund_history"],
@@ -314,7 +314,7 @@ def _canonical_facts(facts: Mapping[str, Any]) -> Dict[str, Any]:
     return canonical
 
 
-def _parse_date(value: Any) -> Optional[date]:
+def _parse_date(value: Any) -> date | None:
     if not isinstance(value, str) or not DATE_RE.fullmatch(value):
         return None
     try:
@@ -323,21 +323,21 @@ def _parse_date(value: Any) -> Optional[date]:
         return None
 
 
-def _parse_datetime(value: Any) -> Optional[datetime]:
+def _parse_datetime(value: Any) -> datetime | None:
     if not isinstance(value, str) or not RFC3339_RE.fullmatch(value):
         return None
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError:
         return None
     if parsed.tzinfo is None or parsed.utcoffset() is None:
         return None
-    return parsed.astimezone(timezone.utc)
+    return parsed.astimezone(UTC)
 
 
 def _match(
-    matched: Set[str],
-    fields: MutableMapping[str, Set[str]],
+    matched: set[str],
+    fields: MutableMapping[str, set[str]],
     clause: str,
     paths: Iterable[str] = (),
 ) -> None:
@@ -346,7 +346,7 @@ def _match(
 
 
 def _lookup_validation(
-    facts: Mapping[str, Any], matched: Set[str], fields: MutableMapping[str, Set[str]]
+    facts: Mapping[str, Any], matched: set[str], fields: MutableMapping[str, set[str]]
 ) -> None:
     mapping = {
         "order_item_order": ("order", "POL-10.01", "POL-10.09"),
@@ -369,7 +369,7 @@ def _lookup_validation(
 
 
 def _reference_validation(
-    facts: Mapping[str, Any], matched: Set[str], fields: MutableMapping[str, Set[str]]
+    facts: Mapping[str, Any], matched: set[str], fields: MutableMapping[str, set[str]]
 ) -> None:
     request = facts["request"]
     order = facts["order"]
@@ -377,7 +377,7 @@ def _reference_validation(
     product = facts["product"]
     shipment = facts["shipment"]
 
-    mismatches: Set[str] = set()
+    mismatches: set[str] = set()
     if order is not None:
         if request["order_item_id"] != order["order_item_id"]:
             mismatches.update(("/request/order_item_id", "/order/order_item_id"))
@@ -390,7 +390,7 @@ def _reference_validation(
     if mismatches:
         _match(matched, fields, "POL-10.15", mismatches)
 
-    snapshot_mismatches: Set[str] = set()
+    snapshot_mismatches: set[str] = set()
     if order is not None and customer is not None and product is not None:
         snapshot_ids = {
             order["order_snapshot_id"],
@@ -410,7 +410,7 @@ def _reference_validation(
 
 
 def _order_validation(
-    facts: Mapping[str, Any], matched: Set[str], fields: MutableMapping[str, Set[str]]
+    facts: Mapping[str, Any], matched: set[str], fields: MutableMapping[str, set[str]]
 ) -> None:
     order = facts["order"]
     shipment = facts["shipment"]
@@ -434,7 +434,7 @@ def _order_validation(
 
 
 def _refund_history_validation(
-    facts: Mapping[str, Any], matched: Set[str], fields: MutableMapping[str, Set[str]]
+    facts: Mapping[str, Any], matched: set[str], fields: MutableMapping[str, set[str]]
 ) -> None:
     request = facts["request"]
     order = facts["order"]
@@ -442,9 +442,9 @@ def _refund_history_validation(
     paid = order["paid_item_amount"] if order is not None else None
     order_currency = order["currency"] if order is not None else None
 
-    invalid_paths: Set[str] = set()
-    status_paths: Set[str] = set()
-    ids: Dict[str, list[int]] = {}
+    invalid_paths: set[str] = set()
+    status_paths: set[str] = set()
+    ids: dict[str, list[int]] = {}
     active_indices: list[int] = []
     approved_or_completed = False
     requested = False
@@ -494,7 +494,7 @@ def _refund_history_validation(
 
 
 def _money_validation(
-    facts: Mapping[str, Any], matched: Set[str], fields: MutableMapping[str, Set[str]]
+    facts: Mapping[str, Any], matched: set[str], fields: MutableMapping[str, set[str]]
 ) -> None:
     request = facts["request"]
     order = facts["order"]
@@ -509,7 +509,7 @@ def _money_validation(
         and request_currency != order_currency
     )
     if currencies_mismatch:
-        paths: Set[str] = set()
+        paths: set[str] = set()
         if request_currency == "KRW" and order_currency != "KRW":
             paths.add("/order/currency")
         elif order_currency == "KRW" and request_currency != "KRW":
@@ -522,7 +522,7 @@ def _money_validation(
     # clause.  UNSUPPORTED_CURRENCY applies when both sides agree on a
     # non-KRW currency (or when currency support cannot otherwise be resolved).
     if not currencies_mismatch:
-        unsupported: Set[str] = set()
+        unsupported: set[str] = set()
         if request_currency != "KRW":
             unsupported.add("/request/currency")
         if order_currency != "KRW":
@@ -532,7 +532,7 @@ def _money_validation(
 
     paid = order["paid_item_amount"]
     requested = request["requested_amount"]
-    invalid_amounts: Set[str] = set()
+    invalid_amounts: set[str] = set()
     if paid is None or paid <= 0:
         invalid_amounts.add("/order/paid_item_amount")
     if requested is not None and requested <= 0:
@@ -550,8 +550,8 @@ def _money_validation(
 
 
 def _evidence_prevalidation(
-    facts: Mapping[str, Any], matched: Set[str], fields: MutableMapping[str, Set[str]]
-) -> Tuple[Optional[str], bool]:
+    facts: Mapping[str, Any], matched: set[str], fields: MutableMapping[str, set[str]]
+) -> tuple[str | None, bool]:
     shipment = facts["shipment"]
     if shipment is None:
         return None, False
@@ -619,7 +619,7 @@ def _evidence_prevalidation(
     # provenance_attested; it does not expose signatures or the concrete v2
     # allow-list.  Non-empty provenance plus this trusted attestation is the
     # only deterministic decision available to this pure oracle.
-    untrusted: Set[str] = set()
+    untrusted: set[str] = set()
     if not evidence["provenance_attested"]:
         untrusted.add("/shipment/evidence/provenance_attested")
     if not evidence["verified_by"]:
@@ -634,11 +634,11 @@ def _evidence_prevalidation(
 
 def _core_domain_validation(
     facts: Mapping[str, Any],
-    evidence_status: Optional[str],
+    evidence_status: str | None,
     evidence_state_valid: bool,
-    matched: Set[str],
-    fields: MutableMapping[str, Set[str]],
-) -> Dict[str, Any]:
+    matched: set[str],
+    fields: MutableMapping[str, set[str]],
+) -> dict[str, Any]:
     order = facts["order"]
     customer = facts["customer_snapshot"]
     product = facts["product"]
@@ -670,9 +670,9 @@ def _core_domain_validation(
         product_flags_valid = category_valid and final_sale_valid and package_valid
 
     eval_date = _parse_date(facts["trusted_context"]["evaluation_date"])
-    invalid_date_paths: Set[str] = set()
-    parsed: Dict[str, Optional[datetime]] = {}
-    date_values: list[Tuple[str, Any]] = []
+    invalid_date_paths: set[str] = set()
+    parsed: dict[str, datetime | None] = {}
+    date_values: list[tuple[str, Any]] = []
     if eval_date is None:
         invalid_date_paths.add("/trusted_context/evaluation_date")
     if order is not None:
@@ -696,7 +696,7 @@ def _core_domain_validation(
     if invalid_date_paths:
         _match(matched, fields, "POL-20.05", invalid_date_paths)
 
-    date_order_paths: Set[str] = set()
+    date_order_paths: set[str] = set()
     if not invalid_date_paths and eval_date is not None:
         ordered = parsed.get("/order/ordered_at")
         customer_at = parsed.get("/customer_snapshot/snapshotted_at")
@@ -709,7 +709,7 @@ def _core_domain_validation(
             )
         if ordered and delivered and delivered < ordered:
             date_order_paths.update(("/order/ordered_at", "/shipment/delivered_at"))
-        cutoff = datetime.combine(eval_date + timedelta(days=1), time.min, tzinfo=SEOUL).astimezone(timezone.utc)
+        cutoff = datetime.combine(eval_date + timedelta(days=1), time.min, tzinfo=SEOUL).astimezone(UTC)
         for path, instant in parsed.items():
             if instant is not None and instant >= cutoff:
                 date_order_paths.add(path)
@@ -744,10 +744,10 @@ def _core_domain_validation(
 def _business_predicates(
     facts: Mapping[str, Any],
     domain: Mapping[str, Any],
-    evidence_status: Optional[str],
+    evidence_status: str | None,
     evidence_state_valid: bool,
-    matched: Set[str],
-    fields: MutableMapping[str, Set[str]],
+    matched: set[str],
+    fields: MutableMapping[str, set[str]],
 ) -> None:
     order = facts["order"]
     customer = facts["customer_snapshot"]
@@ -801,8 +801,8 @@ def decide(policy_facts: dict) -> dict:
 
     _validate_input_contract(policy_facts)
     facts = _canonical_facts(policy_facts)
-    matched: Set[str] = set()
-    required_by_clause: Dict[str, Set[str]] = {}
+    matched: set[str] = set()
+    required_by_clause: dict[str, set[str]] = {}
 
     _lookup_validation(facts, matched, required_by_clause)
     _reference_validation(facts, matched, required_by_clause)
@@ -836,11 +836,11 @@ def decide(policy_facts: dict) -> dict:
     rule = REGISTRY[primary]
     eligibility, case_status, next_action = rule["outcome"]
 
-    overridden: Set[str] = set()
+    overridden: set[str] = set()
     if primary == "POL-40.01":
         overridden = matched.intersection({"POL-30.01", "POL-30.02", "POL-20.06"})
 
-    required: Set[str] = set()
+    required: set[str] = set()
     if next_action == "REQUEST_INFO":
         for clause in terminals:
             if REGISTRY[clause]["outcome"] == INFO:
@@ -872,9 +872,9 @@ def decision_bytes(policy_facts: dict) -> bytes:
 
 
 __all__ = [
-    "InputContractError",
     "REGISTRY",
     "VERSION_VECTOR",
+    "InputContractError",
     "decide",
     "decision_bytes",
 ]

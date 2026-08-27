@@ -1,4 +1,4 @@
-"""Synchronize the active 60-case dataset from the protected answer key.
+r"""Synchronize the active 60-case dataset from the protected answer key.
 
 The protected ``data/answer_key.db`` is the source of truth for testcase IDs,
 questions, Gold decisions, clauses, policy facts, and expected results. The

@@ -48,8 +48,8 @@ def _callback() -> None:
 
 @app.command()
 def run(
-    bundle: Path = typer.Option(..., "--bundle", exists=True, help="AuditBundle JSON 경로"),  # noqa: B008
-    out: Path = typer.Option(..., "--out", help="출력 경로 접두사. <out>.json / <out>.md로 저장된다"),  # noqa: B008
+    bundle: Path = typer.Option(..., "--bundle", exists=True, help="AuditBundle JSON 경로"),
+    out: Path = typer.Option(..., "--out", help="출력 경로 접두사. <out>.json / <out>.md로 저장된다"),
     no_llm: bool = typer.Option(False, "--no-llm", help="LLM 진단을 건너뛰고 규칙 기반 보고서만 만든다"),
     no_candidates: bool = typer.Option(False, "--no-candidates", help="규칙 기반 수정 후보 생성을 건너뛴다"),
     revalidation_bundle: Path | None = typer.Option(

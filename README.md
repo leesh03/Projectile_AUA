@@ -15,10 +15,13 @@ Agent를 수정·업그레이드했을 때 **무엇이 망가졌고 무엇을 �
 
 모든 명령은 저장소 루트에서 실행한다. Testbed 런타임은 `run_agent.py`와
 `policy_runtime/`에 있으며, V0와 V1은 각각 독립 실행한 뒤 AuditBundle로 비교한다.
+루트 트리가 유일한 source of truth이며 `compact_agent/` 디렉터리는 의도적으로
+존재하지 않는다. 남아 있는 `compact_agent.zip`은 실행·import·패키징에 참여하지
+않는 legacy 보관물이다.
 
 ```bash
 # 단일 Agent 또는 60개 전체 사례
-python run_agent.py run-case TC-001 --mode deterministic
+python run_agent.py run-one --case E-001 --mode deterministic
 python run_agent.py run-suite --mode deterministic
 
 # V0/V1 독립 실행 → AuditBundle 생성
@@ -34,6 +37,11 @@ python tools/verify_integration.py
 `run_comparison.py --help`에서 Repair, Verifier, SQL 전략, fault profile 등
 버전별 Scaffold 조건을 지정할 수 있다. Candidate 재검증은 Auditor CLI의
 `--revalidation-bundle`과 `--candidate-id`를 사용한다.
+
+일반 Agent 실행과 테스트는 `pyproject.toml` 계약대로 Python 3.11 이상을
+지원한다. 단, 체크인된 Dataset을 바이트 단위로 **재생성**하는 release 작업만
+Python 3.11.5 / SQLite 3.43.0 고정 환경을 사용한다. 다른 지원 버전에서도
+Dataset 무결성 hash 검증은 실행되고 exact-byte rebuild만 명시적으로 skip된다.
 
 ---
 
