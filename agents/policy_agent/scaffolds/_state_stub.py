@@ -40,6 +40,8 @@ class AgentState(TypedDict, total=False):
     policy_decision: str
     applied_policy_clauses: list[str]
     policy_reason: str
+    # verify_once가 "근거가 실제 사실에 있는가"를 검사할 때 읽는다.
+    policy_facts: dict[str, Any] | None
 
     # reasoning_verifier가 쓰는 범위
     verifier_status: str
@@ -62,6 +64,11 @@ def new_state(**overrides: Any) -> AgentState:
         "trial": 1,
         "request_id": "req_stub",
         "user_query": "",
+        # nodes/scaffold_adapters.py가 넘기는 키와 같아야 한다.
+        # 빠지면 프롬프트가 "(제공되지 않음)" 경로로만 테스트된다.
+        "schema_context": "",
+        "policy_context": "",
+        "policy_facts": None,
         "sql": "",
         "sql_history": [],
         "sql_result": [],

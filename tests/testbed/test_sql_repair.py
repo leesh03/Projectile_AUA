@@ -9,7 +9,13 @@ import pytest
 from agents.policy_agent.scaffolds._state_stub import new_state
 from agents.policy_agent.scaffolds.config import with_overrides
 from agents.policy_agent.scaffolds.llm import ScriptedLLM
-from agents.policy_agent.scaffolds.sql_repair import ExecResult, repair_loop, repair_once
+from agents.policy_agent.scaffolds.sql_repair import (
+    REPAIR_PARSE_ERROR,
+    ExecResult,
+    extract_sql,
+    repair_loop,
+    repair_once,
+)
 
 FAIL_TABLE = ExecResult(False, None, "NO_SUCH_TABLE", "no such table: order")
 FAIL_COLUMN = ExecResult(False, None, "NO_SUCH_COLUMN", "no such column: id")
@@ -258,3 +264,113 @@ def test_failed_execution_is_recorded_as_fail(failed_state):
 def test_unknown_config_key_is_rejected():
     with pytest.raises(KeyError):
         with_overrides(max_sql_retry=2)
+
+
+class TestExtractSQL:
+    """LLM 응답 정제. 실제 모델은 코드펜스나 설명을 붙여서 답한다."""
+
+    def test_코드펜스를_걷어낸다(self):
+        text = "```sql\nSELECT * FROM orders;\n```"
+        assert extract_sql(text) == "SELECT * FROM orders"
+
+    def test_언어표시_없는_펜스도_처리한다(self):
+        assert extract_sql("```\nSELECT 1\n```") == "SELECT 1"
+
+    def test_앞에_붙은_설명을_걷어낸다(self):
+        text = "수정한 SQL은 다음과 같습니다:\nSELECT * FROM orders;"
+        assert extract_sql(text) == "SELECT * FROM orders"
+
+    def test_뒤에_붙은_설명을_걷어낸다(self):
+        text = "SELECT * FROM orders; 이제 테이블명이 맞습니다."
+        assert extract_sql(text) == "SELECT * FROM orders"
+
+    def test_WITH절도_인식한다(self):
+        assert extract_sql("WITH t AS (SELECT 1) SELECT * FROM t").startswith("WITH")
+
+    @pytest.mark.parametrize("text", ["", "   ", "죄송합니다. 수정할 수 없습니다."])
+    def test_SQL이_없으면_빈_문자열(self, text):
+        assert extract_sql(text) == ""
+
+
+class TestRepairParseFailure:
+    """수정 SQL을 못 만들었을 때. Auditor가 실패로 셀 수 있어야 한다."""
+
+    def test_이전_SQL을_유지한다(self):
+        state = new_state()
+        state["sql"] = "SELECT * FROM order"
+        state["sql_error_type"] = "NO_SUCH_TABLE"
+        repair_once(state, ScriptedLLM(["죄송합니다. 수정할 수 없습니다."]))
+        # 빈 문자열을 넣으면 어댑터 계약(비어있지 않은 문자열)이 깨진다
+        assert state["sql"] == "SELECT * FROM order"
+        assert state["sql_repair_parse_error"] is True
+
+    def test_trace에_fail로_남는다(self):
+        state = new_state()
+        state["sql"] = "SELECT * FROM order"
+        state["sql_error_type"] = "NO_SUCH_TABLE"
+        repair_once(state, ScriptedLLM(["   "]))
+        step = state["trace"][-1]
+        assert step["outcome"] == "fail"
+        assert step["error_type"] == REPAIR_PARSE_ERROR
+
+    def test_성공하면_ok로_남는다(self):
+        state = new_state()
+        state["sql"] = "SELECT * FROM order"
+        state["sql_error_type"] = "NO_SUCH_TABLE"
+        repair_once(state, ScriptedLLM(["```sql\nSELECT * FROM orders\n```"]))
+        assert state["sql"] == "SELECT * FROM orders"
+        assert state["sql_repair_parse_error"] is False
+        assert state["trace"][-1]["outcome"] == "ok"
+
+    def test_루프는_재실행하지_않고_중단한다(self):
+        state = new_state()
+        state["sql"] = "SELECT * FROM order"
+        state["sql_success"] = False
+        state["sql_error_type"] = "NO_SUCH_TABLE"
+        executor = ScriptedExecutor([SUCCESS])
+        config = with_overrides(use_sql_repair=True, max_sql_retries=2)
+        repair_loop(state, config, ScriptedLLM(["설명만 있고 SQL이 없음"]), executor)
+        # 같은 SQL을 다시 실행해봐야 같은 오류만 나온다
+        assert executor.calls == 0
+        assert state["stop_reason"] == "MAX_RETRY"
+
+
+class TestAdapterContract:
+    """어댑터가 넘기는 dict와 _state_stub이 어긋나지 않는지 고정한다.
+
+    스캐폴드는 PolicyAgentState를 직접 보지 않고 scaffold_adapters가 만든
+    dict만 받는다. 테스트는 stub으로 돌아가므로, 둘이 갈라지면 테스트는
+    통과하는데 실제 실행은 깨지는 상황이 생긴다.
+    """
+
+    @staticmethod
+    def _adapter_keys() -> set[str]:
+        """scaffold_adapters.py의 scaffold_state 리터럴에서 키를 뽑는다."""
+        import ast
+        import pathlib
+
+        source = pathlib.Path(
+            "agents/policy_agent/nodes/scaffold_adapters.py"
+        ).read_text(encoding="utf-8")
+        keys: set[str] = set()
+        for node in ast.walk(ast.parse(source)):
+            # scaffold_state: dict[str, Any] = { ... }
+            target = getattr(node, "target", None)
+            if isinstance(node, ast.AnnAssign) and isinstance(target, ast.Name):
+                if target.id == "scaffold_state" and isinstance(node.value, ast.Dict):
+                    keys |= {
+                        k.value for k in node.value.keys
+                        if isinstance(k, ast.Constant) and isinstance(k.value, str)
+                    }
+        return keys
+
+    def test_어댑터_키를_찾을_수_있다(self):
+        # 어댑터 구조가 바뀌어 키를 못 뽑으면 아래 검사가 무의미해진다
+        assert len(self._adapter_keys()) > 10
+
+    def test_stub이_어댑터_키를_모두_제공한다(self):
+        missing = self._adapter_keys() - set(new_state().keys())
+        assert not missing, (
+            f"어댑터는 넘기는데 stub에 없는 키: {sorted(missing)} — "
+            "테스트가 실제 실행과 다른 상태로 돌고 있다"
+        )

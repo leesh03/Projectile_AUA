@@ -6,7 +6,8 @@
 from typing import Any
 
 AGENT_CONFIG: dict[str, Any] = {
-    "use_planner": True,
+    # Planner OFF: 준원의 SQLGenerator가 이미 SQLPlan을 소유한다(8/22 통합 결정).
+    "use_planner": False,
     "use_sql_repair": True,
     "max_sql_retries": 2,
     # 같은 error_type이 연속으로 나오면 남은 retry를 사용하지 않는다.

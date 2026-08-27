@@ -44,6 +44,10 @@ class Finding(BaseModel):
     low_confidence: bool = Field(
         default=False, description="영향 케이스 1건뿐이거나 trial<2일 때 True (오탐 방지, P3-3)"
     )
+    cluster_id: str | None = Field(
+        default=None, description="LLM이 같은 원인으로 묶은 Finding 그룹 ID (P5). --no-llm이면 항상 None."
+    )
+    cluster_title: str | None = Field(default=None, description="그 그룹의 사람 언어 제목 (P5)")
 
 
 class Candidate(BaseModel):
