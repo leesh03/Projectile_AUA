@@ -9,8 +9,10 @@ from policy_runtime.factory import build_agent
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_legacy_compact_directory_is_absent() -> None:
-    assert not (ROOT / ("compact" + "_agent")).exists()
+def test_compact_artifacts_are_absent() -> None:
+    compact_name = "compact" + "_agent"
+    assert not (ROOT / compact_name).exists()
+    assert not (ROOT / f"{compact_name}.zip").exists()
 
 
 def _case(testcase_id: str = "E-001") -> dict:

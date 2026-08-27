@@ -15,9 +15,8 @@ Agent를 수정·업그레이드했을 때 **무엇이 망가졌고 무엇을 �
 
 모든 명령은 저장소 루트에서 실행한다. Testbed 런타임은 `run_agent.py`와
 `policy_runtime/`에 있으며, V0와 V1은 각각 독립 실행한 뒤 AuditBundle로 비교한다.
-루트 트리가 유일한 source of truth이며 `compact_agent/` 디렉터리는 의도적으로
-존재하지 않는다. 남아 있는 `compact_agent.zip`은 실행·import·패키징에 참여하지
-않는 legacy 보관물이다.
+루트 트리가 유일한 source of truth다. `compact_agent/` 디렉터리와
+`compact_agent.zip` 아카이브는 생성·추적·배포하지 않는다.
 
 ```bash
 # 단일 Agent 또는 60개 전체 사례

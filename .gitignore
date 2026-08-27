@@ -13,6 +13,10 @@ reports/*
 !reports/.gitkeep
 *.log
 
+# 금지된 레거시 패키지 — 루트 Testbed만 사용한다
+/compact_agent/
+/compact_agent.zip
+
 # DB — 단, 시험용 DB는 재현성을 위해 커밋한다
 *.db
 !data/shop.db
