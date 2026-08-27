@@ -185,9 +185,20 @@ class ContextProvider:
             raise ContextProviderError("policy file is empty")
 
         policy_version, contracts = self._parse_policy_metadata(policy_text)
+        try:
+            parsed_policy = json.loads(policy_text)
+        except json.JSONDecodeError:
+            agent_policy_text = policy_text
+        else:
+            agent_policy_text = json.dumps(
+                parsed_policy,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
         return ContextBundle(
             database_schema=self._load_schema(),
-            policy_text=policy_text,
+            policy_text=agent_policy_text,
             allowed_tables=tuple(sorted(self.allowed_tables)),
             policy_evidence_contracts=contracts,
             database_filename=self.db_path.name,

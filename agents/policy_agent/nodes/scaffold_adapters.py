@@ -75,6 +75,7 @@ def _record_scaffold_usage(
     node_role: NodeRole,
     scaffold_state: Mapping[str, Any],
     output: Mapping[str, Any] | str,
+    llm: Any,
 ) -> None:
     """Copy trusted token metadata emitted by one injected scaffold call."""
 
@@ -86,6 +87,10 @@ def _record_scaffold_usage(
     raw_output = last_step.get("output_tokens", 0)
     input_tokens = raw_input if isinstance(raw_input, int) and raw_input >= 0 else 0
     output_tokens = raw_output if isinstance(raw_output, int) and raw_output >= 0 else 0
+    last_result = getattr(llm, "last_result", None)
+    finish_reason = getattr(last_result, "finish_reason", None)
+    if finish_reason is None:
+        finish_reason = getattr(last_result, "status", None)
     state.record_provider_result(
         node_role,
         ProviderResult(
@@ -94,6 +99,11 @@ def _record_scaffold_usage(
                 input_tokens=input_tokens,
                 output_tokens=output_tokens,
             ),
+            provider=getattr(llm, "provider", None),
+            model_id=getattr(llm, "model_id", None),
+            finish_reason=finish_reason,
+            latency_ms=getattr(last_result, "latency_ms", None),
+            provider_request_id=getattr(last_result, "response_id", None),
         ),
     )
 
@@ -147,6 +157,7 @@ class SQLRepairAdapter:
             node_role="REPAIR_QUERY",
             scaffold_state=result,
             output=repaired_sql,
+            llm=self.llm,
         )
         return SQLQuery(
             name=query.name,
@@ -191,5 +202,6 @@ class ReasoningVerifierAdapter:
             node_role="VERIFY_REASONING",
             scaffold_state=result,
             output=result,
+            llm=self.llm,
         )
         return result

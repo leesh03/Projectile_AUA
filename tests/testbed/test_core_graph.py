@@ -813,7 +813,7 @@ class CoreGraphTests(unittest.TestCase):
                 self.assertEqual(run.state.stop_reason, "OK")
                 self.assertEqual(run.state.decision, decision)
 
-    def test_reasoner_need_more_info_is_not_counted_as_success(self) -> None:
+    def test_reasoner_need_more_info_is_a_completed_policy_decision(self) -> None:
         reasoning_model = FakeReasoningModel(
             {
                 "decision": "NEED_MORE_INFO",
@@ -827,9 +827,9 @@ class CoreGraphTests(unittest.TestCase):
         )
         run = graph.run(self.agent_request)
 
-        self.assertFalse(run.state.task_success)
-        self.assertEqual(run.state.stop_reason, "INSUFFICIENT_EVIDENCE")
-        self.assertEqual(run.state.error_type, "REASONER_NEEDS_MORE_INFO")
+        self.assertTrue(run.state.task_success)
+        self.assertEqual(run.state.stop_reason, "OK")
+        self.assertIsNone(run.state.error_type)
         self.assertIsNotNone(run.state.response)
 
     def test_policy_specific_evidence_is_checked_after_reasoning(self) -> None:

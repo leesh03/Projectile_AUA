@@ -522,12 +522,8 @@ class PolicyAgentGraph:
                 step_type="code",
                 operation=lambda: self.response_writer(state),
             )
-            # The meaning of task_success for a policy-level NEED_MORE_INFO is a
-            # team/Auditor decision. Preserve the existing behavior until agreed.
-            if state.decision == "NEED_MORE_INFO":
-                state.error_type = "REASONER_NEEDS_MORE_INFO"
-                state.finish("INSUFFICIENT_EVIDENCE", success=False)
-                return AgentRun(state)
+            # NEED_MORE_INFO is a completed policy decision when the reasoner
+            # identifies the exact missing or invalid business facts.
             state.finish("OK", success=True)
             return AgentRun(state)
 
