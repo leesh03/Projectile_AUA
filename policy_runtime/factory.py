@@ -67,7 +67,7 @@ def build_agent(
     root: str | Path,
     *,
     mode: str = "deterministic",
-    provider: str = "openai",
+    provider: str | None = None,
     api_key: str | None = None,
     model: str | None = None,
     db_path: str | Path | None = None,
@@ -120,6 +120,8 @@ def build_agent(
         runtime_api_key = None
     elif mode == "api":
         scaffold_config = dict(AGENT_CONFIG)
+        if provider is None or not provider.strip():
+            raise ValueError("api mode requires an explicit provider")
         selected_provider = provider.lower().strip()
         if selected_provider == "openai":
             client = OpenAIResponsesClient(api_key=api_key, model=model)

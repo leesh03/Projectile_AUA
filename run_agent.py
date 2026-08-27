@@ -32,8 +32,8 @@ def main() -> int:
     parser.add_argument(
         "--provider",
         choices=("openai", "gemini", "groq"),
-        default="openai",
-        help="API provider used when --mode api",
+        default=None,
+        help="required when --mode api; ignored in deterministic mode",
     )
     parser.add_argument("--model", default=None)
     parser.add_argument(
@@ -86,6 +86,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.command == "run-one" and not args.testcase_id:
         parser.error("run-one requires --case")
+    if args.mode == "api" and args.provider is None:
+        parser.error("--mode api requires an explicit --provider")
 
     scaffold_overrides = {
         key: value

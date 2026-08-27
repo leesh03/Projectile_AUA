@@ -42,7 +42,7 @@ def _run_version(
     *,
     label: str,
     mode: str,
-    provider: str,
+    provider: str | None,
     model: str | None,
     sql_strategy: str,
     fault_profile: str | None,
@@ -60,8 +60,6 @@ def _run_version(
         "run-suite",
         "--mode",
         mode,
-        "--provider",
-        provider,
         "--agent-label",
         label,
         "--agent-version",
@@ -77,6 +75,8 @@ def _run_version(
         "--repair" if repair else "--no-repair",
         "--verifier" if verifier else "--no-verifier",
     ]
+    if provider:
+        command.extend(("--provider", provider))
     if model:
         command.extend(("--model", model))
     if fault_profile:
@@ -134,7 +134,12 @@ def _run_version(
 
 def _add_version_arguments(parser: argparse.ArgumentParser, prefix: str, *, verifier: bool) -> None:
     parser.add_argument(f"--{prefix}-mode", choices=("deterministic", "api"), default="deterministic")
-    parser.add_argument(f"--{prefix}-provider", choices=("openai", "gemini", "groq"), default="openai")
+    parser.add_argument(
+        f"--{prefix}-provider",
+        choices=("openai", "gemini", "groq"),
+        default=None,
+        help=f"required when --{prefix}-mode api",
+    )
     parser.add_argument(f"--{prefix}-model", default=None)
     parser.add_argument(
         f"--{prefix}-sql-strategy",
@@ -173,6 +178,13 @@ def main() -> int:
     _add_version_arguments(parser, "baseline", verifier=False)
     _add_version_arguments(parser, "candidate", verifier=True)
     args = parser.parse_args()
+    for prefix in ("baseline", "candidate"):
+        mode = getattr(args, f"{prefix}_mode")
+        provider = getattr(args, f"{prefix}_provider")
+        if mode == "api" and provider is None:
+            parser.error(
+                f"--{prefix}-mode api requires --{prefix}-provider"
+            )
 
     baseline = _run_version(
         label="V0",

@@ -23,6 +23,10 @@ Agent를 수정·업그레이드했을 때 **무엇이 망가졌고 무엇을 �
 python run_agent.py run-one --case E-001 --mode deterministic
 python run_agent.py run-suite --mode deterministic
 
+# API mode는 provider를 반드시 명시
+python run_agent.py run-one --case E-001 --mode api --provider gemini
+python run_agent.py run-one --case E-001 --mode api --provider groq
+
 # V0/V1 독립 실행 → AuditBundle 생성
 python tools/run_comparison.py --trials 2 --bundle-out reports/bundles/comparison.json
 

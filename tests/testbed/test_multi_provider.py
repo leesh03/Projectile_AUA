@@ -4,12 +4,21 @@ import io
 import json
 import urllib.error
 from email.message import Message
+from pathlib import Path
 from typing import Any, Self
 
 import pytest
 
 import policy_runtime.multi_provider as providers
+from policy_runtime.factory import build_agent
 from policy_runtime.multi_provider import GeminiClient, GroqClient, MultiProviderError
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def test_api_factory_requires_explicit_provider() -> None:
+    with pytest.raises(ValueError, match="requires an explicit provider"):
+        build_agent(ROOT, mode="api")
 
 
 class _Response:

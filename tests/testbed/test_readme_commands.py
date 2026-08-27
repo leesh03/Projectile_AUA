@@ -28,6 +28,8 @@ def test_readme_uses_real_cli_and_case_id() -> None:
     assert "run_agent.py run-case" not in readme
     assert "run_agent.py run-one --case E-001 --mode deterministic" in readme
     assert "run_agent.py run-suite --mode deterministic" in readme
+    assert "--mode api --provider gemini" in readme
+    assert "--mode api --provider groq" in readme
 
 
 def test_readme_run_one_command_executes() -> None:
@@ -44,6 +46,32 @@ def test_readme_run_one_command_executes() -> None:
     summary = json.loads(completed.stdout)
     assert summary["execution_status"] == "COMPLETED"
     assert summary["total_trials"] == summary["task_successes"] == 1
+    assert summary["provider"] == "deterministic"
+
+
+def test_api_mode_requires_explicit_provider() -> None:
+    completed = _run(
+        "-B",
+        "run_agent.py",
+        "run-one",
+        "--case",
+        "E-001",
+        "--mode",
+        "api",
+    )
+    assert completed.returncode == 2
+    assert "requires an explicit --provider" in completed.stderr
+
+
+def test_comparison_api_mode_requires_provider_per_version() -> None:
+    completed = _run(
+        "-B",
+        "tools/run_comparison.py",
+        "--baseline-mode",
+        "api",
+    )
+    assert completed.returncode == 2
+    assert "--baseline-mode api requires --baseline-provider" in completed.stderr
 
 
 def test_other_readme_entrypoints_parse() -> None:
@@ -53,4 +81,3 @@ def test_other_readme_entrypoints_parse() -> None:
     ):
         completed = _run(*command)
         assert completed.returncode == 0, completed.stdout + completed.stderr
-
