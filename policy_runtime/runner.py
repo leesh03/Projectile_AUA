@@ -473,6 +473,7 @@ class SuiteRunner:
             "agent_label": self.bundle.agent_label,
             "scaffold_config": self.bundle.graph.config.as_scaffold_config(),
             "version_metadata": dict(self.bundle.version_metadata),
+            "runtime_metadata": dict(self.bundle.runtime_metadata),
             "sql_strategy": self.bundle.sql_strategy,
             "fault_profile": self.bundle.fault_profile,
             "execution_status": "COMPLETED",

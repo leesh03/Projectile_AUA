@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+import platform
+import sqlite3
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -43,6 +45,7 @@ from policy_runtime.openai_provider import (
     OpenAIResponsesClient,
     OpenAIScaffoldLLM,
 )
+from policy_runtime.prompt_contract import prompt_contract_sha256
 
 ALLOWED_TABLES = ("customers", "orders", "products", "refunds", "shipments")
 
@@ -58,6 +61,7 @@ class AgentBundle:
     agent_label: str = "V0"
     scaffold_config: dict[str, Any] = field(default_factory=dict)
     version_metadata: dict[str, Any] = field(default_factory=dict)
+    runtime_metadata: dict[str, Any] = field(default_factory=dict)
     structured_output_retries: int = 1
     sql_strategy: str = "canonical"
     fault_profile: str | None = None
@@ -127,6 +131,12 @@ def build_agent(
         selected_provider = "deterministic"
         selected_model = None
         runtime_api_key = None
+        provider_runtime: dict[str, Any] = {
+            "temperature": None,
+            "timeout_seconds": None,
+            "transport_max_retries": 0,
+            "base_url": None,
+        }
     elif mode == "api":
         scaffold_config = dict(AGENT_CONFIG)
         if provider is None or not provider.strip():
@@ -148,6 +158,12 @@ def build_agent(
             raise ValueError("provider must be 'openai', 'gemini', or 'groq'")
         selected_model = client.model
         runtime_api_key = client.api_key
+        provider_runtime = {
+            "temperature": 0,
+            "timeout_seconds": client.timeout_seconds,
+            "transport_max_retries": client.max_retries,
+            "base_url": client.base_url,
+        }
         # Canonical SQL remains the reproducible default; ``model`` enables a
         # real SQL-generation/Repair experiment with the selected provider.
         policy_model = core_model
@@ -201,6 +217,25 @@ def build_agent(
         agent_label=agent_label,
         scaffold_config=dict(scaffold_config),
         version_metadata=dict(version_metadata or {}),
+        runtime_metadata={
+            "contract": "testbed-runtime-v2",
+            "mode": mode,
+            "provider": selected_provider,
+            "model": selected_model,
+            "provider_parameters": provider_runtime,
+            "structured_output_max_retries": schema_retries,
+            "prompt_contract_sha256": prompt_contract_sha256(),
+            "python": {
+                "implementation": platform.python_implementation(),
+                "version": platform.python_version(),
+            },
+            "platform": {
+                "system": platform.system(),
+                "release": platform.release(),
+                "machine": platform.machine(),
+            },
+            "sqlite_version": sqlite3.sqlite_version,
+        },
         structured_output_retries=schema_retries,
         sql_strategy=sql_strategy,
         fault_profile=fault_profile,

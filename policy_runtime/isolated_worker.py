@@ -107,6 +107,7 @@ def main() -> int:
                     "planner": False,
                     "isolation": "staged-subprocess-audit-v2",
                     "agent_version": dict(bundle.version_metadata),
+                    "runtime": dict(bundle.runtime_metadata),
                     "sql_strategy": bundle.sql_strategy,
                     "fault_profile": bundle.fault_profile,
                 },

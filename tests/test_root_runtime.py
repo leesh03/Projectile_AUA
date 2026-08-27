@@ -35,6 +35,24 @@ def test_runtime_modules_and_agent_are_root_owned() -> None:
     assert result.state.decision == "APPROVE"
 
 
+def test_runtime_metadata_is_complete_and_contains_no_secret() -> None:
+    bundle = build_agent(
+        ROOT,
+        mode="deterministic",
+        version_metadata={"prompt_version": "p1", "commit": "test-commit"},
+    )
+
+    metadata = bundle.runtime_metadata
+    assert metadata["contract"] == "testbed-runtime-v2"
+    assert metadata["provider"] == "deterministic"
+    assert len(metadata["prompt_contract_sha256"]) == 64
+    assert metadata["python"]["version"]
+    assert metadata["platform"]["system"]
+    assert metadata["sqlite_version"]
+    assert metadata["structured_output_max_retries"] == 1
+    assert "api_key" not in json.dumps(metadata).casefold()
+
+
 def test_scaffold_overrides_are_recorded_and_verifier_can_be_disabled() -> None:
     bundle = build_agent(
         ROOT,
