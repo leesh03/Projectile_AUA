@@ -9,8 +9,8 @@ bundle부터 읽는다. 그 사이를 잇는다.
 
 사용:
   python tools/make_audit_bundle.py \
-      --baseline compact_agent/reports/runs/<V0_run> \
-      --candidate compact_agent/reports/runs/<V1_run> \
+      --baseline reports/runs/<V0_run> \
+      --candidate reports/runs/<V1_run> \
       --out reports/bundles/bundle.json
 """
 
@@ -68,25 +68,44 @@ def relabel(records: list[dict], label: str) -> list[dict]:
 def build_agent_version(label: str, manifest: dict, trials: list[dict]) -> dict:
     """manifest와 trial의 scaffold_config에서 AgentVersion을 만든다."""
     meta = manifest.get("run_metadata", {})
+    version_meta = meta.get("agent_version", {})
+    if not isinstance(version_meta, dict):
+        version_meta = {}
     config = trials[0].get("scaffold_config", {})
     return {
         "label": label,
         "agent_id": "order-refund-policy-agent",
-        "version": label,
+        "version": version_meta.get("version") or label,
         "model_id": meta.get("model") or meta.get("provider") or "unknown",
-        "prompt_version": meta.get("suite", "unknown"),
-        "tool_schema_version": "sqlite-select-v1",
-        "workflow_version": f"planner={config.get('planner')}",
+        "prompt_version": version_meta.get("prompt_version") or "unknown",
+        "tool_schema_version": version_meta.get("tool_schema_version") or "sqlite-select-v1",
+        "workflow_version": version_meta.get("workflow_version") or f"planner={config.get('planner')}",
         # 실험 독립변수. Auditor가 retry/verifier 축소를 판단하는 근거가 된다.
         "retry_policy": f"max_retries={config.get('repair')}",
         "verifier_policy": f"max_reflections={config.get('verifier')}",
-        "commit": manifest.get("run_id"),
+        "commit": version_meta.get("commit"),
     }
 
 
 def make_bundle(baseline_dir: Path, candidate_dir: Path, change_note: str | None) -> dict:
     base_trials, base_traces, base_manifest = collect_run(baseline_dir)
     cand_trials, cand_traces, cand_manifest = collect_run(candidate_dir)
+
+    base_config = base_trials[0].get("scaffold_config")
+    cand_config = cand_trials[0].get("scaffold_config")
+    base_meta = base_manifest.get("run_metadata", {})
+    cand_meta = cand_manifest.get("run_metadata", {})
+    if (
+        base_config == cand_config
+        and base_meta.get("mode") == cand_meta.get("mode")
+        and base_meta.get("provider") == cand_meta.get("provider")
+        and base_meta.get("model") == cand_meta.get("model")
+        and base_meta.get("sql_strategy") == cand_meta.get("sql_strategy")
+        and base_meta.get("fault_profile") == cand_meta.get("fault_profile")
+    ):
+        raise ValueError(
+            "V0/V1 실행 조건이 같습니다. 모델 또는 Scaffold 설정을 하나 이상 변경하세요."
+        )
 
     relabel(base_trials, "V0"), relabel(base_traces, "V0")
     relabel(cand_trials, "V1"), relabel(cand_traces, "V1")
