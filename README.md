@@ -36,7 +36,7 @@ python run_agent.py run-one --case E-001 --mode api --provider gemini --schema-r
 python run_agent.py run-one --case E-001 --mode deterministic --isolation container
 
 # V0/V1 독립 실행 → AuditBundle 생성
-python tools/run_comparison.py --trials 2 --bundle-out reports/bundles/comparison.json
+python -m apps.compare --trials 2 --bundle-out reports/bundles/comparison.json
 
 # Auditor → Finding → Candidate 생성
 python -m apps.cli run --bundle reports/bundles/comparison.json --out reports/audits/comparison --no-llm
@@ -45,7 +45,7 @@ python -m apps.cli run --bundle reports/bundles/comparison.json --out reports/au
 python tools/verify_integration.py
 ```
 
-`run_comparison.py --help`에서 Repair, Verifier, SQL 전략, fault profile 등
+`python -m apps.compare --help`에서 Repair, Verifier, SQL 전략, fault profile 등
 버전별 Scaffold 조건을 지정할 수 있다. Candidate 재검증은 Auditor CLI의
 `--revalidation-bundle`과 `--candidate-id`를 사용한다.
 

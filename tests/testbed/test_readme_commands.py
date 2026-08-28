@@ -118,7 +118,7 @@ def test_cli_stdout_is_utf8_without_environment_overrides() -> None:
 def test_comparison_api_mode_requires_provider_per_version() -> None:
     completed = _run(
         "-B",
-        "tools/run_comparison.py",
+        "apps/compare.py",
         "--baseline-mode",
         "api",
     )
@@ -128,7 +128,7 @@ def test_comparison_api_mode_requires_provider_per_version() -> None:
 
 def test_other_readme_entrypoints_parse() -> None:
     for command in (
-        ("-B", "tools/run_comparison.py", "--help"),
+        ("-B", "apps/compare.py", "--help"),
         ("-m", "apps.cli", "--help"),
     ):
         completed = _run(*command)

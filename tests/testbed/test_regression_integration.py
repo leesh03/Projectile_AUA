@@ -23,7 +23,7 @@ def _comparison(tmp_path: Path, *extra: str) -> dict:
     command = [
         sys.executable,
         "-B",
-        "tools/run_comparison.py",
+        "apps/compare.py",
         "--limit",
         "1",
         "--trials",

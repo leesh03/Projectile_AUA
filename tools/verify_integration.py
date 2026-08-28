@@ -37,8 +37,8 @@ REQUIRED = {
     "계약 스키마": "core/schemas/bundle.py",
     "내 SQL Repair": "agents/policy_agent/scaffolds/sql_repair.py",
     "내 Verifier": "agents/policy_agent/scaffolds/reasoning_verifier.py",
-    "내 Bundle 생성기": "tools/make_audit_bundle.py",
-    "V0/V1 실행기": "tools/run_comparison.py",
+    "내 Bundle 생성기": "core/ingest/collect.py",
+    "V0/V1 실행기": "apps/compare.py",
     "Testbed 런타임": "policy_runtime/runner.py",
     "Candidate 생성기": "core/candidate/generate.py",
     "재검증 Gate": "core/validation/gates.py",
@@ -194,7 +194,7 @@ def step_bundle(baseline: dict | None, candidate: dict | None) -> None:
         from core.schemas.loader import load_bundle
 
         sys.path.insert(0, str(REPO_ROOT / "tools"))
-        from make_audit_bundle import make_bundle
+        from core.ingest.collect import make_bundle
 
         bundle = make_bundle(baseline_dir, candidate_dir, "Verifier 효용 통합 검증")
         loaded = load_bundle(bundle)

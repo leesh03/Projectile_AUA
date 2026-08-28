@@ -4,11 +4,11 @@
   전달물   AgentVersion , TraceStep , TrialResult
   수락기준 V0/V1 동일 testcase_id로 매칭 가능
 
-준원의 runner는 케이스별 trial_*.json까지만 만들고, 소현의 loader는 합쳐진
-bundle부터 읽는다. 그 사이를 잇는다.
+Testbed의 runner는 케이스별 trial_*.json까지만 만들고, Auditor의 loader는
+합쳐진 bundle부터 읽는다. 그 사이를 잇는다 — 스키마를 소유한 Auditor 쪽 책임이다.
 
 사용:
-  python tools/make_audit_bundle.py \
+  python -m core.ingest.collect \
       --baseline reports/runs/<V0_run> \
       --candidate reports/runs/<V1_run> \
       --out reports/bundles/bundle.json
@@ -25,9 +25,10 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
+from core.ingest.mapper import to_trace_steps, to_trial_result
 from core.schemas.bundle import AuditBundle
 
 
@@ -52,9 +53,12 @@ def _require_mapping(value: Any, *, name: str) -> dict[str, Any]:
 
 
 def collect_run(run_dir: Path) -> tuple[list[dict], list[dict], dict]:
-    """한 run 폴더에서 trial과 trace를 모은다.
+    """한 run 폴더에서 에이전트 로그를 모아 Auditor 계약으로 옮긴다.
 
     구조: <run_dir>/<agent_label>/<testcase_id>/trial_<n>.json
+
+    대상 에이전트는 자기 어휘로 로그를 남길 뿐이다. 그 로그가 TrialResult ·
+    TraceStep 계약을 만족하는지 검증하는 것은 여기(Auditor)의 책임이다.
     """
     manifest_path = run_dir / "manifest.json"
     if not manifest_path.is_file():
@@ -80,8 +84,8 @@ def collect_run(run_dir: Path) -> tuple[list[dict], list[dict], dict]:
             raise ValueError(f"provider usage does not match total_tokens: {trial_file}")
         if len(provider_calls) != trial_result.get("llm_call_count"):
             raise ValueError(f"provider call count does not match llm_call_count: {trial_file}")
-        trials.append(trial_result)
-        traces.extend(record.get("traces") or [])
+        trials.append(to_trial_result(trial_result))
+        traces.extend(to_trace_steps(record.get("traces") or []))
 
     if not trials:
         raise ValueError(f"trial 파일을 찾지 못했습니다: {run_dir}")

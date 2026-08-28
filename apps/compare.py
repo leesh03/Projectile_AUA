@@ -24,7 +24,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from tools.make_audit_bundle import make_bundle
+from core.ingest.collect import make_bundle
 
 
 def _json_from_output(output: str) -> dict[str, Any]:

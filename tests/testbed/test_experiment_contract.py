@@ -8,7 +8,7 @@ from typing import Any
 import pytest
 
 from agents.policy_agent.nodes.state import AgentConfig
-from tools.make_audit_bundle import make_bundle
+from core.ingest.collect import make_bundle
 
 
 def _hash_json(value: Any) -> str:
