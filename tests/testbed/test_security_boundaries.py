@@ -10,6 +10,7 @@ from pathlib import Path
 
 import pytest
 
+import policy_runtime.runner as runner_module
 from agents.policy_agent.nodes.state import AgentRequest
 from policy_runtime.access_guard import AgentAccessViolation, agent_execution_guard
 from policy_runtime.factory import build_agent
@@ -90,6 +91,7 @@ def test_staged_worker_namespace_contains_no_gold_or_auditor_engine(tmp_path: Pa
     assert not (stage / "data" / "test_cases.json").exists()
     assert not (stage / "policies" / "policy_oracle.py").exists()
     assert not (stage / "core" / "diff").exists()
+    assert (stage / ".dockerignore").is_file()
 
 
 def test_gold_hardlink_cannot_be_selected_as_custom_runtime_database(
@@ -111,3 +113,96 @@ def test_staged_guard_denies_original_repository_even_for_non_gold_file(
         agent_execution_guard(tmp_path, blocked_roots=(ROOT,)),
     ):
         (ROOT / "data" / "shop.db").read_bytes()
+
+
+def test_container_isolation_requires_docker(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    bundle = build_agent(ROOT, mode="deterministic")
+    runner = SuiteRunner(ROOT, bundle, isolation="container")
+    monkeypatch.setattr(runner_module.shutil, "which", lambda name: None)
+
+    with pytest.raises(RuntimeError, match="requires Docker"):
+        runner._run_container(tmp_path, tmp_path, {}, {}, 10)
+
+
+def test_container_command_has_os_hardening_and_no_network(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    calls: list[list[str]] = []
+
+    def fake_run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        del kwargs
+        calls.append(command)
+        return subprocess.CompletedProcess(command, 0, stdout="{}", stderr="")
+
+    bundle = build_agent(ROOT, mode="deterministic")
+    runner = SuiteRunner(ROOT, bundle, isolation="container")
+    monkeypatch.setattr(runner_module.shutil, "which", lambda name: "docker")
+    monkeypatch.setattr(runner_module.subprocess, "run", fake_run)
+    stage = tmp_path / "stage"
+    output = tmp_path / "output"
+    stage.mkdir()
+    output.mkdir()
+
+    runner._run_container(
+        stage,
+        output,
+        {"run_id": "run-one", "project_root": "/app", "blocked_roots": []},
+        {"PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"},
+        10,
+    )
+
+    assert len(calls) == 2
+    run_command = calls[1]
+    for option in (
+        "--read-only",
+        "--cap-drop",
+        "--security-opt",
+        "--pids-limit",
+        "--memory",
+        "--cpus",
+        "--network",
+        "none",
+    ):
+        assert option in run_command
+    assert str(ROOT) not in " ".join(run_command)
+    image = calls[0][calls[0].index("--tag") + 1]
+    assert image.startswith("policy-agent-testbed:run-")
+    assert run_command[-1] == image
+
+
+def test_container_image_tag_is_unique_per_run(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    calls: list[list[str]] = []
+
+    def fake_run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        del kwargs
+        calls.append(command)
+        return subprocess.CompletedProcess(command, 0, stdout="{}", stderr="")
+
+    bundle = build_agent(ROOT, mode="deterministic")
+    runner = SuiteRunner(ROOT, bundle, isolation="container")
+    monkeypatch.setattr(runner_module.shutil, "which", lambda name: "docker")
+    monkeypatch.setattr(runner_module.subprocess, "run", fake_run)
+    stage = tmp_path / "stage"
+    output = tmp_path / "output"
+    stage.mkdir()
+    output.mkdir()
+
+    for run_id in ("run-one", "run-two"):
+        runner._run_container(
+            stage,
+            output,
+            {"run_id": run_id, "project_root": "/app", "blocked_roots": []},
+            {"PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"},
+            10,
+        )
+
+    first_image = calls[0][calls[0].index("--tag") + 1]
+    second_image = calls[2][calls[2].index("--tag") + 1]
+    assert first_image != second_image
