@@ -44,6 +44,9 @@ def main() -> int:
     mode = _require_string(payload, "mode")
     provider = _require_string(payload, "provider")
     agent_label = _require_string(payload, "agent_label")
+    isolation = _require_string(payload, "isolation")
+    if isolation not in {"staged-subprocess-audit-v2", "container-hardened-v1"}:
+        raise ValueError("isolated worker received an unsupported isolation mode")
     model_raw = payload.get("model")
     model = model_raw if isinstance(model_raw, str) and model_raw else None
     db_path_raw = payload.get("db_path")
@@ -105,7 +108,7 @@ def main() -> int:
                     "provider": bundle.provider,
                     "model": bundle.model,
                     "planner": False,
-                    "isolation": "staged-subprocess-audit-v2",
+                    "isolation": isolation,
                     "agent_version": dict(bundle.version_metadata),
                     "runtime": dict(bundle.runtime_metadata),
                     "sql_strategy": bundle.sql_strategy,
@@ -126,6 +129,7 @@ def main() -> int:
                     "task_success": run.state.task_success,
                     "decision": run.state.decision,
                     "clauses": list(run.state.policy_clauses),
+                    "response": run.state.response,
                     "verifier_status": run.state.verifier_status,
                     "stop_reason": run.state.stop_reason,
                     "error_type": run.state.error_type,

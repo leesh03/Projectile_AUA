@@ -14,7 +14,7 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
-from agents.policy_agent.nodes.state import create_run_id
+from agents.policy_agent.nodes.state import AgentRequest, create_run_id
 from policy_runtime.engine import InputContractError
 from policy_runtime.factory import AgentBundle
 
@@ -28,6 +28,18 @@ class SuiteRunSummary:
     engine_consistency: int
     gold_agreements: int | None
     oracle_agreements: int | None
+    output_path: Path
+
+
+@dataclass(frozen=True, slots=True)
+class InteractiveRunSummary:
+    run_id: str
+    task_success: bool
+    decision: str | None
+    response: str | None
+    stop_reason: str | None
+    error_type: str | None
+    engine_consistency: bool
     output_path: Path
 
 
@@ -78,10 +90,14 @@ class SuiteRunner:
         bundle: AgentBundle,
         *,
         output_root: str | Path | None = None,
+        isolation: str = "staged",
     ) -> None:
+        if isolation not in {"staged", "container"}:
+            raise ValueError("isolation must be 'staged' or 'container'")
         self.project_root = Path(project_root).resolve()
         self.bundle = bundle
         self.output_root = Path(output_root or self.project_root / "reports" / "runs").resolve()
+        self.isolation = isolation
 
     @staticmethod
     def _provider_key_name(provider: str) -> str | None:
@@ -118,19 +134,35 @@ class SuiteRunner:
         with tempfile.TemporaryDirectory(prefix="policy-agent-stage-") as temporary:
             stage_root = Path(temporary) / "project"
             self._stage_agent_root(stage_root)
-            staged_output = stage_root / ".agent-output"
-            staged_db = stage_root / "data" / "shop.db"
+            if self.isolation == "container":
+                staged_output = Path(temporary) / "output"
+                staged_output.mkdir()
+                try:
+                    staged_output.chmod(0o777)
+                except OSError:
+                    pass
+                worker_project_root = "/app"
+                worker_output_root = "/output"
+                worker_db_path = "/app/data/shop.db"
+                blocked_roots: list[str] = []
+            else:
+                staged_output = stage_root / ".agent-output"
+                worker_project_root = str(stage_root)
+                worker_output_root = str(staged_output)
+                worker_db_path = str(stage_root / "data" / "shop.db")
+                blocked_roots = [str(self.project_root)]
             request_payload = {
                 "schema": "isolated-agent-request-v2",
-                "project_root": str(stage_root),
-                "blocked_roots": [str(self.project_root)],
-                "output_root": str(staged_output),
+                "project_root": worker_project_root,
+                "blocked_roots": blocked_roots,
+                "output_root": worker_output_root,
                 "run_id": run_id,
                 "mode": self.bundle.mode,
                 "provider": self.bundle.provider,
                 "model": self.bundle.model,
-                "db_path": str(staged_db),
+                "db_path": worker_db_path,
                 "agent_label": self.bundle.agent_label,
+                "isolation": self._isolation_label,
                 "scaffold_overrides": dict(self.bundle.scaffold_config),
                 "version_metadata": dict(self.bundle.version_metadata),
                 "structured_output_retries": self.bundle.structured_output_retries,
@@ -139,21 +171,30 @@ class SuiteRunner:
                 "experiment_provenance": dict(experiment_provenance),
                 "jobs": jobs,
             }
-            completed = subprocess.run(
-                [sys.executable, "-B", "-m", "policy_runtime.isolated_worker"],
-                input=json.dumps(
+            if self.isolation == "container":
+                completed = self._run_container(
+                    stage_root,
+                    staged_output,
                     request_payload,
-                    ensure_ascii=False,
-                    separators=(",", ":"),
-                ),
-                text=True,
-                encoding="utf-8",
-                capture_output=True,
-                cwd=stage_root,
-                env=worker_environment,
-                timeout=timeout,
-                check=False,
-            )
+                    worker_environment,
+                    timeout,
+                )
+            else:
+                completed = subprocess.run(
+                    [sys.executable, "-B", "-m", "policy_runtime.isolated_worker"],
+                    input=json.dumps(
+                        request_payload,
+                        ensure_ascii=False,
+                        separators=(",", ":"),
+                    ),
+                    text=True,
+                    encoding="utf-8",
+                    capture_output=True,
+                    cwd=stage_root,
+                    env=worker_environment,
+                    timeout=timeout,
+                    check=False,
+                )
             if completed.returncode == 0:
                 staged_run = staged_output / run_id
                 destination = self.output_root / run_id
@@ -181,6 +222,87 @@ class SuiteRunner:
         if len(records) != len(jobs):
             raise RuntimeError("isolated Agent worker returned an unexpected trial count")
         return records
+
+    def _run_container(
+        self,
+        stage_root: Path,
+        staged_output: Path,
+        request_payload: Mapping[str, Any],
+        worker_environment: Mapping[str, str],
+        timeout: int,
+    ) -> subprocess.CompletedProcess[str]:
+        docker = shutil.which("docker")
+        if docker is None:
+            raise RuntimeError(
+                "container isolation requires Docker; install/start Docker or use --isolation staged"
+            )
+        run_id = request_payload.get("run_id")
+        if not isinstance(run_id, str) or not run_id:
+            raise ValueError("container request requires a non-empty run_id")
+        image = f"policy-agent-testbed:run-{sha256(run_id.encode('utf-8')).hexdigest()[:16]}"
+        dockerfile = stage_root / "containers" / "testbed.Dockerfile"
+        build = subprocess.run(
+            [
+                docker,
+                "build",
+                "--tag",
+                image,
+                "--file",
+                str(dockerfile),
+                str(stage_root),
+            ],
+            text=True,
+            encoding="utf-8",
+            capture_output=True,
+            env=dict(worker_environment),
+            timeout=timeout,
+            check=False,
+        )
+        if build.returncode != 0:
+            detail = " ".join((build.stderr or build.stdout).split())[-600:]
+            raise RuntimeError(f"container image build failed: {detail}")
+
+        command = [
+            docker,
+            "run",
+            "--rm",
+            "--interactive",
+            "--read-only",
+            "--cap-drop",
+            "ALL",
+            "--security-opt",
+            "no-new-privileges=true",
+            "--pids-limit",
+            "64",
+            "--memory",
+            "512m",
+            "--cpus",
+            "1.0",
+            "--tmpfs",
+            "/tmp:rw,noexec,nosuid,size=64m",
+            "--mount",
+            f"type=bind,source={staged_output.resolve()},target=/output",
+            "--env",
+            "PYTHONUTF8",
+            "--env",
+            "PYTHONIOENCODING",
+        ]
+        if self.bundle.mode == "deterministic":
+            command.extend(("--network", "none"))
+        key_name = self._provider_key_name(self.bundle.provider)
+        if key_name and self.bundle.runtime_api_key:
+            command.extend(("--env", key_name))
+        command.append(image)
+        return subprocess.run(
+            command,
+            input=json.dumps(request_payload, ensure_ascii=False, separators=(",", ":")),
+            text=True,
+            encoding="utf-8",
+            capture_output=True,
+            env=dict(worker_environment),
+            timeout=timeout,
+            check=False,
+        )
 
     def _stage_agent_root(self, stage_root: Path) -> None:
         """Copy only Agent runtime inputs; evaluator Gold never enters the namespace."""
@@ -220,6 +342,12 @@ class SuiteRunner:
             self.project_root / "core" / "__init__.py",
             stage_root / "core" / "__init__.py",
         )
+        shutil.copytree(
+            self.project_root / "containers",
+            stage_root / "containers",
+            ignore=ignore,
+        )
+        shutil.copy2(self.project_root / ".dockerignore", stage_root / ".dockerignore")
         (stage_root / "data").mkdir(parents=True, exist_ok=True)
         (stage_root / "policies").mkdir(parents=True, exist_ok=True)
         shutil.copy2(source_db, stage_root / "data" / "shop.db")
@@ -330,6 +458,135 @@ class SuiteRunner:
             ),
             "trial_contract_version": "trial-result-v2",
         }
+
+    def _interactive_provenance(self, case: Mapping[str, Any]) -> dict[str, Any]:
+        case_hash = _sha256_json(case)
+        testcase_ids = [str(case["testcase_id"])]
+        trusted_context = case.get("trusted_context")
+        if not isinstance(trusted_context, Mapping):
+            trusted_context = {}
+        return {
+            "suite_id": "interactive-v1",
+            "dataset_version": f"interactive:{case_hash[:12]}",
+            "dataset_manifest_sha256": None,
+            "agent_cases_sha256": case_hash,
+            "gold_sha256": None,
+            "gold_version": None,
+            "executed_testcase_ids": testcase_ids,
+            "testcase_ids_sha256": _sha256_json(testcase_ids),
+            "evaluation_context_sha256": _sha256_json(trusted_context),
+            "evaluation_date": trusted_context.get("evaluation_date"),
+            "timezone": trusted_context.get("timezone"),
+            "tool_schema_version": self.bundle.version_metadata.get(
+                "tool_schema_version", "sqlite-select-v1"
+            ),
+            "trial_contract_version": "trial-result-v2",
+        }
+
+    def _engine_consistency(self, isolated: Mapping[str, Any]) -> bool:
+        facts = isolated.get("facts")
+        try:
+            if not isinstance(facts, Mapping):
+                raise TypeError("isolated facts must be an object")
+            expected = self.bundle.policy_engine.evaluate(facts)
+            expected_agent = {
+                "decision": expected.decision,
+                "clauses": expected.value["matched_clauses"],
+            }
+            return _same_decision_values(
+                isolated.get("decision"),
+                isolated.get("clauses"),
+                expected_agent,
+            )
+        except (InputContractError, KeyError, TypeError, ValueError):
+            return False
+
+    def run_interactive(self, request: AgentRequest) -> InteractiveRunSummary:
+        """Run one user-supplied request without claiming independent Gold accuracy."""
+
+        raw_case = request.to_dict()
+        run_id = create_run_id()
+        experiment = self._interactive_provenance(raw_case)
+        records = self._run_isolated(
+            [raw_case],
+            trials=1,
+            run_id=run_id,
+            experiment_provenance=experiment,
+        )
+        isolated = records[0]
+        engine_consistency = self._engine_consistency(isolated)
+        artifact = isolated.get("artifact")
+        if not isinstance(artifact, str) or not artifact:
+            raise RuntimeError("isolated Agent worker did not return an artifact path")
+        self._patch_evaluation(
+            run_id,
+            artifact,
+            False,
+            evaluation_basis="ENGINE_ONLY",
+            engine_consistency=engine_consistency,
+            gold_agreement=None,
+        )
+        isolated.pop("facts", None)
+        isolated.update(
+            policy_correct=False,
+            evaluation_basis="ENGINE_ONLY",
+            engine_consistency=engine_consistency,
+            gold_agreement=None,
+            oracle_agreement=None,
+        )
+        payload = {
+            "schema": "interactive-run-summary-v1",
+            "run_id": run_id,
+            "execution_status": "COMPLETED",
+            "mode": self.bundle.mode,
+            "provider": self.bundle.provider,
+            "agent_label": self.bundle.agent_label,
+            "isolation": self._isolation_label,
+            "experiment_provenance": experiment,
+            "record": isolated,
+        }
+        summary_path = self.output_root / run_id / "interactive_summary.json"
+        summary_path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = summary_path.with_suffix(".json.tmp")
+        temporary.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        temporary.replace(summary_path)
+        return InteractiveRunSummary(
+            run_id=run_id,
+            task_success=bool(isolated.get("task_success")),
+            decision=(
+                str(isolated["decision"])
+                if isolated.get("decision") is not None
+                else None
+            ),
+            response=(
+                str(isolated["response"])
+                if isolated.get("response") is not None
+                else None
+            ),
+            stop_reason=(
+                str(isolated["stop_reason"])
+                if isolated.get("stop_reason") is not None
+                else None
+            ),
+            error_type=(
+                str(isolated["error_type"])
+                if isolated.get("error_type") is not None
+                else None
+            ),
+            engine_consistency=engine_consistency,
+            output_path=summary_path,
+        )
+
+    @property
+    def _isolation_label(self) -> str:
+        return (
+            "container-hardened-v1"
+            if self.isolation == "container"
+            else "staged-subprocess-audit-v2"
+        )
 
     @staticmethod
     def _gold_equal(expected: Mapping[str, Any], actual: Mapping[str, Any]) -> bool:
@@ -479,7 +736,7 @@ class SuiteRunner:
             "execution_status": "COMPLETED",
             "experiment_provenance": experiment_provenance,
             "planner": False,
-            "isolation": "staged-subprocess-audit-v2",
+            "isolation": self._isolation_label,
             "case_count": len(cases),
             "trial_count": len(records),
             "task_successes": sum(bool(item["task_success"]) for item in records),

@@ -63,6 +63,56 @@ def test_api_mode_requires_explicit_provider() -> None:
     assert "requires an explicit --provider" in completed.stderr
 
 
+def test_ask_runs_in_isolation_without_claiming_gold_accuracy() -> None:
+    completed = _run(
+        "-B",
+        "run_agent.py",
+        "ask",
+        "--question",
+        "이 주문 상품을 환불할 수 있나요?",
+        "--order-item-id",
+        "OI-E-001",
+        "--amount",
+        "10000",
+        "--evaluation-date",
+        "2026-08-15",
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    summary = json.loads(completed.stdout)
+    assert summary["task_success"] is True
+    assert summary["decision"] == "APPROVE"
+    assert summary["response"]
+    assert summary["evaluation_basis"] == "ENGINE_ONLY"
+    artifact = json.loads(Path(summary["summary"]).read_text(encoding="utf-8"))
+    assert artifact["record"]["evaluation_basis"] == "ENGINE_ONLY"
+    assert artifact["record"]["gold_agreement"] is None
+
+
+def test_cli_stdout_is_utf8_without_environment_overrides() -> None:
+    environment = os.environ.copy()
+    environment.pop("PYTHONUTF8", None)
+    environment.pop("PYTHONIOENCODING", None)
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            "run_agent.py",
+            "run-one",
+            "--case",
+            "E-001",
+            "--mode",
+            "deterministic",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        env=environment,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr.decode("utf-8")
+    summary = json.loads(completed.stdout.decode("utf-8"))
+    assert "에이전트_활동" in summary["summary"]
+
+
 def test_comparison_api_mode_requires_provider_per_version() -> None:
     completed = _run(
         "-B",

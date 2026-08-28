@@ -5,11 +5,23 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
+import sys
 from pathlib import Path
 
+from agents.policy_agent.nodes.state import AgentRequest
 from policy_runtime.env import load_dotenv
 from policy_runtime.factory import build_agent
 from policy_runtime.runner import SuiteRunner
+
+
+def _configure_utf8_stdio() -> None:
+    """Keep JSON CLI output interoperable on Windows and redirected streams."""
+
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
 
 
 def _git_commit(root: Path) -> str | None:
@@ -24,10 +36,11 @@ def _git_commit(root: Path) -> str | None:
 
 
 def main() -> int:
+    _configure_utf8_stdio()
     root = Path(__file__).resolve().parent
     load_dotenv(root / ".env")
     parser = argparse.ArgumentParser(description="Refund policy Agent local runner")
-    parser.add_argument("command", choices=("run-suite", "run-one"))
+    parser.add_argument("command", choices=("run-suite", "run-one", "ask"))
     parser.add_argument("--mode", choices=("deterministic", "api"), default="deterministic")
     parser.add_argument(
         "--provider",
@@ -84,6 +97,21 @@ def main() -> int:
     parser.add_argument("--trials", type=int, default=1)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--case", dest="testcase_id", default=None)
+    parser.add_argument("--question", default=None, help="free-form question for ask")
+    parser.add_argument("--order-item-id", default=None, help="trusted order item ID for ask")
+    parser.add_argument("--amount", type=int, default=None, help="requested refund amount for ask")
+    parser.add_argument("--currency", default="KRW", help="trusted request currency for ask")
+    parser.add_argument(
+        "--evaluation-date",
+        default=None,
+        help="trusted YYYY-MM-DD policy evaluation date for ask; defaults to today in Asia/Seoul",
+    )
+    parser.add_argument(
+        "--isolation",
+        choices=("staged", "container"),
+        default="staged",
+        help="container requires Docker and provides an OS-level boundary",
+    )
     parser.add_argument(
         "--db-path",
         type=Path,
@@ -93,6 +121,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.command == "run-one" and not args.testcase_id:
         parser.error("run-one requires --case")
+    if args.command == "ask" and (not args.question or not args.order_item_id):
+        parser.error("ask requires --question and --order-item-id")
     if args.mode == "api" and args.provider is None:
         parser.error("--mode api requires an explicit --provider")
 
@@ -132,7 +162,37 @@ def main() -> int:
         sql_strategy=args.sql_strategy,
         fault_profile=args.fault_profile,
     )
-    runner = SuiteRunner(root, bundle)
+    runner = SuiteRunner(root, bundle, isolation=args.isolation)
+    if args.command == "ask":
+        request = AgentRequest.interactive(
+            args.question,
+            order_item_id=args.order_item_id,
+            evaluation_date=args.evaluation_date,
+            requested_amount=args.amount,
+            currency=args.currency,
+        )
+        interactive = runner.run_interactive(request)
+        print(
+            json.dumps(
+                {
+                    "execution_status": "COMPLETED",
+                    "run_id": interactive.run_id,
+                    "task_success": interactive.task_success,
+                    "decision": interactive.decision,
+                    "response": interactive.response,
+                    "stop_reason": interactive.stop_reason,
+                    "error_type": interactive.error_type,
+                    "evaluation_basis": "ENGINE_ONLY",
+                    "engine_consistency": interactive.engine_consistency,
+                    "provider": bundle.provider,
+                    "isolation": args.isolation,
+                    "summary": str(interactive.output_path),
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 0 if interactive.task_success else 1
     summary = runner.run(
         trials=args.trials,
         limit=(1 if args.command == "run-one" else args.limit),

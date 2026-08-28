@@ -1,0 +1,16 @@
+**
+!agents/
+!agents/**
+!policy_runtime/
+!policy_runtime/**
+!core/
+!core/__init__.py
+!core/schemas/
+!core/schemas/**
+!data/
+!data/shop.db
+!policies/
+!policies/policy_rules.json
+!containers/
+!containers/testbed.Dockerfile
+!containers/testbed-requirements.txt
