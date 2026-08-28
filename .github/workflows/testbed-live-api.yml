@@ -1,0 +1,60 @@
+name: Testbed Live API
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: testbed-live-api
+  cancel-in-progress: false
+
+jobs:
+  gemini:
+    if: vars.LIVE_API_TESTS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      TEST_MODEL: ${{ vars.GEMINI_TEST_MODEL }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          python-version: "3.11"
+          enable-cache: true
+      - run: uv sync --frozen --extra testbed --extra dev
+      - name: Require configured Gemini secret
+        run: test -n "$GEMINI_API_KEY"
+      - name: Run Gemini in the hardened container
+        shell: bash
+        run: |
+          model_args=()
+          if [[ -n "$TEST_MODEL" ]]; then model_args=(--model "$TEST_MODEL"); fi
+          uv run python tools/verify_live_api.py --provider gemini --isolation container "${model_args[@]}"
+
+  groq:
+    if: vars.LIVE_API_TESTS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      TEST_MODEL: ${{ vars.GROQ_TEST_MODEL }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          python-version: "3.11"
+          enable-cache: true
+      - run: uv sync --frozen --extra testbed --extra dev
+      - name: Require configured Groq secret
+        run: test -n "$GROQ_API_KEY"
+      - name: Run Groq in the hardened container
+        shell: bash
+        run: |
+          model_args=()
+          if [[ -n "$TEST_MODEL" ]]; then model_args=(--model "$TEST_MODEL"); fi
+          uv run python tools/verify_live_api.py --provider groq --isolation container "${model_args[@]}"
