@@ -520,7 +520,7 @@ class PolicyAgentState:
     def trace_dicts(self) -> list[dict[str, Any]]:
         return [trace.to_contract_dict() for trace in self.traces]
 
-    def trial_result_dict(
+    def observation(
         self,
         *,
         policy_correct: bool,
@@ -528,7 +528,16 @@ class PolicyAgentState:
         engine_consistency: bool | None = None,
         gold_agreement: bool | None = None,
     ) -> dict[str, Any]:
-        """Return fields matching ``core.schemas.TrialResult`` exactly."""
+        """이 실행 1회에 대해 에이전트가 관측한 값을 돌려준다.
+
+        토큰·지연·재시도·종료 사유는 이 에이전트가 자기 운영을 위해 원래 들고 있던
+        값이다. 이 딕셔너리를 누가 어떤 스키마로 읽어가는지는 여기서 알지 못한다.
+        Auditor 계약(``core.schemas.TrialResult``)으로 옮기고 검증하는 일은
+        ``core/ingest/`` 가 한다.
+
+        ``policy_correct`` 만은 에이전트가 스스로 정하지 못한다. 정답을 아는
+        독립 평가자가 넣어줘야 한다.
+        """
 
         if not isinstance(policy_correct, bool):
             raise TypeError("policy_correct must be supplied by an independent evaluator")
@@ -704,7 +713,7 @@ class PolicyAgentState:
         if target.exists():
             raise FileExistsError(f"trial artifact already exists: {target}")
         payload = {
-            "trial_result": self.trial_result_dict(
+            "trial_result": self.observation(
                 policy_correct=policy_correct,
                 evaluation_basis=evaluation_basis,
                 engine_consistency=engine_consistency,

@@ -1,7 +1,10 @@
-"""TraceStep 생성 헬퍼.
+"""실행 단계 기록 헬퍼.
 
 각 파일에서 따로 만들면 형식이 어긋날 수 있으므로 여기를 거쳐서 만든다.
-필드 정의: docs/CONTRACT.md §2 · core/schemas/trace.py
+어휘 정의: agents/policy_agent/observability.py
+
+이 모듈은 Auditor를 모른다. 기록을 Auditor 계약으로 옮기고 검증하는 일은
+core/ingest/ 가 한다.
 """
 
 import time
@@ -9,8 +12,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Any
 
-from core.schemas.enums import NodeRole, StepOutcome, StepType
-from core.schemas.trace import TraceStep
+from agents.policy_agent.observability import NodeRole, StepOutcome, StepType
 
 
 @contextmanager
@@ -38,32 +40,29 @@ def append_step(
     tool_name: str | None = None,
     arguments_valid: bool | None = None,
 ) -> dict[str, Any]:
-    """TraceStep 1건을 만들어 state["trace"]에 붙이고 그 값을 돌려준다.
+    """단계 기록 1건을 만들어 state["trace"]에 붙이고 그 값을 돌려준다.
 
     step_index는 호출자가 세면 어긋날 수 있어 len(trace)로 매긴다.
-    TraceStep으로 검증하므로 필드명이나 enum 값이 틀리면 이 지점에서 멈춘다.
     """
     trace: list[dict[str, Any]] = state.setdefault("trace", [])
 
-    step = TraceStep(
-        testcase_id=state["testcase_id"],
-        agent_label=state["agent_label"],
-        run_id=state.get("run_id"),
-        trial=state.get("trial"),
-        step_index=len(trace),
-        node_role=node_role,
-        type=step_type,
-        outcome=outcome,
-        iteration=iteration,
-        error_type=error_type,
-        latency_ms=latency_ms,
-        input_tokens=input_tokens,
-        output_tokens=output_tokens,
-        tool_name=tool_name,
-        arguments_valid=arguments_valid,
-    )
-
-    record = step.model_dump(mode="json")
+    record: dict[str, Any] = {
+        "testcase_id": state["testcase_id"],
+        "agent_label": state["agent_label"],
+        "run_id": state.get("run_id"),
+        "trial": state.get("trial"),
+        "step_index": len(trace),
+        "node_role": NodeRole(node_role).value,
+        "type": StepType(step_type).value,
+        "outcome": StepOutcome(outcome).value,
+        "tool_name": tool_name,
+        "arguments_valid": arguments_valid,
+        "error_type": error_type,
+        "iteration": iteration,
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "latency_ms": latency_ms,
+    }
     trace.append(record)
     state["total_step_count"] = len(trace)
     return record

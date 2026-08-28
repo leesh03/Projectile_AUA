@@ -10,7 +10,7 @@ graph가 반복을 제어하면 repair_once를, 반복까지 맡기려면 repair
 import re
 from typing import Any, NamedTuple, Protocol
 
-from core.schemas.enums import NodeRole, StepOutcome, StepType, StopReason
+from agents.policy_agent.observability import NodeRole, StepOutcome, StepType, StopReason
 
 from .llm import LLMClient
 from .trace import append_step, timed

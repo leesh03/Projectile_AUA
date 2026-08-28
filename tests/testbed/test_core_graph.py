@@ -373,7 +373,7 @@ class CoreGraphTests(unittest.TestCase):
             [(12, 8), (20, 10)],
         )
 
-        trial_result = state.trial_result_dict(policy_correct=True)
+        trial_result = state.observation(policy_correct=True)
         required_contract_fields = {
             "testcase_id",
             "agent_label",
