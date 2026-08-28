@@ -25,6 +25,8 @@ def _run(*command: str) -> subprocess.CompletedProcess[str]:
 
 def test_readme_uses_real_cli_and_case_id() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    legacy_name = "compact" + "_agent"
+    assert legacy_name not in readme
     assert "run_agent.py run-case" not in readme
     assert "run_agent.py run-one --case E-001 --mode deterministic" in readme
     assert "run_agent.py run-suite --mode deterministic" in readme

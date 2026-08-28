@@ -15,13 +15,15 @@ Agent를 수정·업그레이드했을 때 **무엇이 망가졌고 무엇을 �
 
 모든 명령은 저장소 루트에서 실행한다. Testbed 런타임은 `run_agent.py`와
 `policy_runtime/`에 있으며, V0와 V1은 각각 독립 실행한 뒤 AuditBundle로 비교한다.
-루트 트리가 유일한 source of truth다. `compact_agent/` 디렉터리와
-`compact_agent.zip` 아카이브는 생성·추적·배포하지 않는다.
+루트 트리가 유일한 source of truth다.
 
 ```bash
 # 단일 Agent 또는 60개 전체 사례
 python run_agent.py run-one --case E-001 --mode deterministic
 python run_agent.py run-suite --mode deterministic
+
+# 사람이 직접 질문하기 (Gold 정확도를 주장하지 않는 ENGINE_ONLY 실행)
+python run_agent.py ask --question "이 상품을 환불할 수 있나요?" --order-item-id OI-E-001 --amount 10000 --evaluation-date 2026-08-15
 
 # API mode는 provider를 반드시 명시
 python run_agent.py run-one --case E-001 --mode api --provider gemini
@@ -29,6 +31,9 @@ python run_agent.py run-one --case E-001 --mode api --provider groq
 
 # 모델이 JSON 계약을 어기면 1회 교정 요청(0~2로 조정 가능)
 python run_agent.py run-one --case E-001 --mode api --provider gemini --schema-retries 1
+
+# Docker가 설치된 환경에서 OS 수준 격리 사용
+python run_agent.py run-one --case E-001 --mode deterministic --isolation container
 
 # V0/V1 독립 실행 → AuditBundle 생성
 python tools/run_comparison.py --trials 2 --bundle-out reports/bundles/comparison.json
@@ -145,6 +150,26 @@ Agent trial은 Gold/Oracle 파일을 복사하지 않은 임시 실행 루트에
 원본 저장소 접근, SQLite `file:` URI 우회, 하드링크·심볼릭 링크 우회와 자식
 프로세스 실행은 Agent 실행 경계에서 차단한다. CI는 clean checkout에서 Windows와
 Linux, Python 3.11~3.13 조합으로 Testbed 테스트와 격리 smoke test를 실행한다.
+
+`ask`는 자유 질문을 받을 수 있지만 질문만으로 식별자나 금액을 신뢰하지 않는다.
+`--order-item-id`, `--amount`, `--currency`, `--evaluation-date`를 구조화된 신뢰 입력으로
+별도 전달한다. 독립 Gold가 없는 사용자 질문이므로 결과는 항상 `ENGINE_ONLY`이며 공식
+AuditBundle 정책 정확도 입력으로 사용할 수 없다.
+
+`--isolation container`는 Gold가 제외된 allowlist build context만 이미지에 넣고,
+read-only filesystem, capability 전체 제거, no-new-privileges, PID/메모리/CPU 제한을
+적용한다. deterministic 실행에서는 네트워크도 제거한다. Docker가 없는 환경에서는
+기본값인 `--isolation staged`를 사용한다.
+
+실제 Gemini/Groq smoke test는 `.github/workflows/testbed-live-api.yml`에 분리되어 있다.
+저장소 변수 `LIVE_API_TESTS_ENABLED=true`와 GitHub Secrets `GEMINI_API_KEY`,
+`GROQ_API_KEY`를 설정한 경우에만 매주 및 수동 실행된다. API 비용과 provider 변동성이
+있으므로 일반 PR CI에서는 실행하지 않는다. 로컬에서는 다음처럼 한 provider만 확인한다.
+
+```bash
+python tools/verify_live_api.py --provider gemini --isolation container
+python tools/verify_live_api.py --provider groq --isolation container
+```
 
 ---
 
