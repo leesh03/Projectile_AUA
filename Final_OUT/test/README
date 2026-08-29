@@ -1,0 +1,4 @@
+agent_logs_full.json 는 TestBed의 로그 파일. 
+이 로그 파일을 통해 TestBed Agent를 진단하는 것임.
+
+agent_config_report_cost.md 는 진단 결과 보고서임.
